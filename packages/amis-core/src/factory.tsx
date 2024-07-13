@@ -177,9 +177,7 @@ export function registerRenderer(config: RendererConfig): RendererConfig {
   config.name = config.name || config.type || `anonymous-${anonymousIndex++}`;
 
   if (renderersMap[config.name]) {
-    throw new Error(
-      `The renderer with name "${config.name}" has already exists, please try another name!`
-    );
+    return config
   } else if (renderersMap.hasOwnProperty(config.name)) {
     // 后面补充的
     const idx = findIndex(renderers, item => item.name === config.name);

@@ -706,7 +706,7 @@ export default class Drawer extends React.Component<DrawerProps> {
           </div>
         ) : null}
 
-        {!store.entered ? (
+        {!true ? (
           <div
             className={cx(
               'Drawer-body',
