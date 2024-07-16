@@ -167,8 +167,8 @@ export class PickerContainer extends React.Component<
           mobileUI={mobileUI}
           disabled={disabled}
         >
-          {({popOverContainer, loading, onConfirm, bodyRef}) =>
-            popOverRender({
+          {({popOverContainer, loading, onConfirm, bodyRef}) => {
+            return popOverRender({
               ...(this.state as any),
               ref: bodyRef,
               setState: this.updateState,
@@ -177,8 +177,8 @@ export class PickerContainer extends React.Component<
               onConfirm: onConfirm,
               popOverContainer,
               loading
-            })!
-          }
+            })!;
+          }}
         </ConfirmBox>
       </>
     );

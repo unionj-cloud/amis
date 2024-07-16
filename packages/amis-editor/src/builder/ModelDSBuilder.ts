@@ -1,6 +1,6 @@
 /**
- * @file ApiDsBuilder
- * @desc 外部 API 接口数据源构造器
+ * @file ModelDSBuilder
+ * @desc 实体数据源构造器
  */
 
 import sortBy from 'lodash/sortBy';
@@ -36,9 +36,8 @@ import type {
   CRUDScaffoldConfig
 } from './type';
 import type {DSBuilderBaseOptions} from './DSBuilder';
-import qs from 'qs';
 
-export interface ApiDSBuilderOptions<R extends DSRendererType>
+export interface ModelDSBuilderOptions<R extends DSRendererType>
   extends DSBuilderBaseOptions {
   /** 渲染器类型 */
   renderer: DSRendererType;
@@ -66,14 +65,14 @@ export interface ApiDSBuilderOptions<R extends DSRendererType>
   };
 }
 
-export class ApiDSBuilder extends DSBuilder<
-  ApiDSBuilderOptions<DSRendererType>
+export class ModelDSBuilder extends DSBuilder<
+  ModelDSBuilderOptions<DSRendererType>
 > {
-  static key = 'api';
+  static key = 'model';
 
-  isDefault = true;
+  isDefault = false;
 
-  readonly name: string = 'API接口';
+  readonly name: string = '实体';
 
   readonly order: number = 1;
 
@@ -92,190 +91,35 @@ export class ApiDSBuilder extends DSBuilder<
    * 获取键值。
    */
   get key() {
-    return (this.constructor as typeof ApiDSBuilder).key;
+    return (this.constructor as typeof ModelDSBuilder).key;
   }
 
   match(schema: any, key?: string) {
-    const sourceKey = key && typeof key === 'string' ? key : 'api';
-    const apiSchema = schema?.[sourceKey];
+    const sourceKey = key && typeof key === 'string' ? key : 'model';
+    const modelSchema = schema?.[sourceKey];
 
-    if (schema?.dsType != null || apiSchema?.sourceType != null) {
-      return schema?.dsType === this.key || apiSchema?.sourceType === this.key;
-    }
-
-    /**
-     * 携带 jsonql 一定不是 API 接口
-     * 携带 strategy 为实体接口通过混合构建策略生成
-     *  */
-    if (
-      isObject(apiSchema) &&
-      (apiSchema.jsonql != null || apiSchema.strategy != null)
-    ) {
-      return false;
-    }
-
-    const maybeApiUrl =
-      typeof apiSchema === 'string'
-        ? apiSchema
-        : isObject(apiSchema)
-        ? apiSchema?.url || ''
-        : '';
-
-    if (
-      typeof maybeApiUrl === 'string' &&
-      (/^(get|post|put|delete|patch|option|jsonp):/.test(apiSchema) ||
-        !~maybeApiUrl.indexOf('api://'))
-    ) {
-      return true;
+    if (schema?.dsType != null || modelSchema?.sourceType != null) {
+      return (
+        schema?.dsType === this.key || modelSchema?.sourceType === this.key
+      );
     }
 
     return false;
   }
 
-  async getContextFields(options: ApiDSBuilderOptions<DSRendererType>) {
+  async getContextFields(options: ModelDSBuilderOptions<DSRendererType>) {
     return [];
   }
 
   async getAvailableContextFields<T extends DSRendererType>(
-    options: ApiDSBuilderOptions<T>,
+    options: ModelDSBuilderOptions<T>,
     target: EditorNodeType
   ): Promise<any> {
-    // console.log("================= options ===============", options)
-    // console.log("================= target ===============", target)
-
-    // const { schema, sourceKey } = options
-    // if (!schema || !sourceKey) {
-    //   return
-    // }
-    // const apiSchema = schema[sourceKey]
-
-    // if (schema && schema.type === 'form') {
-    //   const url = apiSchema.url || apiSchema
-    //   const query = url.substring(url.lastIndexOf('?') + 1)
-    //   const queryObj = qs.parse(query)
-    //   const modelCode = queryObj.code
-    //   if (!modelCode) {
-    //     return
-    //   }
-    //   return {
-    //     "type": "crud",
-    //     "syncLocation": false,
-    //     "api": {
-    //       "method": "get",
-    //       "url": "http://localhost:6060/ecodwork/lowcode/sys/columns?parameter[page]=0&parameter[size]=999&parameter[table_name]=hc_xqd",
-    //       "messages": {},
-    //       "requestAdaptor": "",
-    //       "adaptor": "",
-    //       "forceAppendDataToQuery": true
-    //     },
-    //     "columns": [
-    //       {
-    //         "name": "id",
-    //         "label": "ID",
-    //         "type": "text",
-    //         "id": "u:c781f40f918c",
-    //         "sortable": true,
-    //         "placeholder": "-"
-    //       },
-    //       {
-    //         "name": "column_comment",
-    //         "label": "属性名",
-    //         "type": "text",
-    //         "id": "u:5b9a564accce",
-    //         "placeholder": "-",
-    //         "sortable": true
-    //       },
-    //       {
-    //         "label": "属性编码",
-    //         "name": "column_name",
-    //         "type": "text",
-    //         "sortable": true,
-    //         "id": "u:b9cb52a3d77c",
-    //         "placeholder": "-"
-    //       }
-    //     ],
-    //     "id": "u:c269aa88b7b1",
-    //     "perPageAvailable": [
-    //       10,
-    //       20,
-    //       30,
-    //       40,
-    //       50,
-    //       100
-    //     ],
-    //     "messages": {},
-    //     "footerToolbar": [
-    //       {
-    //         "type": "statistics"
-    //       },
-    //       {
-    //         "type": "pagination",
-    //         "showPageInput": true,
-    //         "layout": "perPage,pager,go"
-    //       }
-    //     ],
-    //     "filter": {
-    //       "title": "查询条件",
-    //       "columnCount": 3,
-    //       "mode": "horizontal",
-    //       "body": [
-    //         {
-    //           "type": "input-text",
-    //           "label": "属性名",
-    //           "name": "column_comment",
-    //           "id": "u:262e8e0b363f"
-    //         },
-    //         {
-    //           "type": "input-text",
-    //           "label": "属性编码",
-    //           "name": "column_name",
-    //           "id": "u:3f1ccc1f4c66",
-    //           "visible": false
-    //         }
-    //       ],
-    //       "actions": [
-    //         {
-    //           "type": "reset",
-    //           "label": "重置",
-    //           "actionType": "reset",
-    //           "id": "u:7e5cf7b5ffee"
-    //         },
-    //         {
-    //           "type": "submit",
-    //           "label": "搜索",
-    //           "primary": true,
-    //           "id": "u:497a472f6ea7"
-    //         }
-    //       ],
-    //       "id": "u:faf0d0c4377e",
-    //       "feat": "Insert",
-    //       "dsType": "api",
-    //       "wrapWithPanel": true
-    //     },
-    //     "alwaysShowPagination": true,
-    //     "name": "create_model_column_form",
-    //     "draggable": false,
-    //     "autoJumpToTopOnPagerChange": false,
-    //     "defaultParams": {
-    //       "orderBy": "id",
-    //       "orderDir": "desc"
-    //     },
-    //     "filterTogglable": true,
-    //     "syncResponse2Query": false,
-    //     "keepItemSelectionOnPageChange": true,
-    //     "checkOnItemClick": true,
-    //     "loadDataOnce": true,
-    //     "matchFunc": "",
-    //     "bulkActions": [],
-    //     "itemActions": []
-    //   }
-    // }
-
     return;
   }
 
   async getCRUDListFields<T extends Record<string, any>>(
-    options: ApiDSBuilderOptions<DSRendererType>
+    options: ModelDSBuilderOptions<DSRendererType>
   ): Promise<T[]> {
     const {schema, controlSettings} = options || {};
     const {fieldMapper} = controlSettings || {};
@@ -295,7 +139,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async getCRUDSimpleQueryFields<T extends Record<string, any>>(
-    options: ApiDSBuilderOptions<DSRendererType>
+    options: ModelDSBuilderOptions<DSRendererType>
   ): Promise<T[]> {
     const {schema, controlSettings} = options || {};
     const {fieldMapper} = controlSettings || {};
@@ -331,7 +175,7 @@ export class ApiDSBuilder extends DSBuilder<
     return result;
   }
 
-  makeSourceSettingForm(options: ApiDSBuilderOptions<DSRendererType>): any[] {
+  makeSourceSettingForm(options: ModelDSBuilderOptions<DSRendererType>): any[] {
     const {feat, renderer, inScaffold, sourceSettings, sourceKey} =
       options || {};
 
@@ -451,7 +295,7 @@ export class ApiDSBuilder extends DSBuilder<
     ].filter(Boolean);
   }
 
-  makeFieldsSettingForm(options: ApiDSBuilderOptions<DSRendererType>) {
+  makeFieldsSettingForm(options: ModelDSBuilderOptions<DSRendererType>) {
     const {feat, inScaffold, renderer, fieldSettings} = options || {};
     const {renderLabel} = fieldSettings || {};
 
@@ -593,7 +437,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   buildBaseButtonSchema(
-    options: ApiDSBuilderOptions<DSRendererType>,
+    options: ModelDSBuilderOptions<DSRendererType>,
     schemaPatch?: {
       formSchema: GenericSchema;
       buttonSchema?: {
@@ -677,7 +521,7 @@ export class ApiDSBuilder extends DSBuilder<
 
   /** 构建表单按钮操作区 */
   buildFormOperators(
-    options: ApiDSBuilderOptions<'form'>,
+    options: ModelDSBuilderOptions<'form'>,
     componentId: string
   ) {
     const {feat, scaffoldConfig} = options || {};
@@ -726,7 +570,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   buildBaseFormSchema(
-    options: ApiDSBuilderOptions<DSRendererType>,
+    options: ModelDSBuilderOptions<DSRendererType>,
     schemaPatch?: GenericSchema,
     componentId?: string
   ) {
@@ -740,7 +584,7 @@ export class ApiDSBuilder extends DSBuilder<
     const fieldsKey = this.getFieldsKey(options);
     const apiKey = this.getApiKey(options);
     const fields: ScaffoldField[] = (scaffoldConfig as any)?.[fieldsKey] ?? [];
-    const apiSchema = (scaffoldConfig as any)?.[apiKey];
+    const modelSchema = (scaffoldConfig as any)?.[apiKey];
     const id = componentId ?? generateNodeId();
     let schema: GenericSchema = {
       id,
@@ -760,11 +604,11 @@ export class ApiDSBuilder extends DSBuilder<
           ...this.appendSchema2InputControl(type)
         };
       }),
-      api: apiSchema,
+      api: modelSchema,
       ...(renderer === 'form'
         ? {
             actions: this.buildFormOperators(
-              options as ApiDSBuilderOptions<'form'>,
+              options as ModelDSBuilderOptions<'form'>,
               id
             )
           }
@@ -784,7 +628,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async buildInsertSchema<T extends DSRendererType>(
-    options: ApiDSBuilderOptions<T>,
+    options: ModelDSBuilderOptions<T>,
     componentId?: string
   ) {
     const {renderer, scaffoldConfig} = options || {};
@@ -839,7 +683,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async buildViewSchema<T extends DSRendererType>(
-    options: ApiDSBuilderOptions<T>,
+    options: ModelDSBuilderOptions<T>,
     componentId?: string
   ) {
     const {renderer} = options || {};
@@ -895,7 +739,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async buildEditSchema<T extends DSRendererType>(
-    options: ApiDSBuilderOptions<T>,
+    options: ModelDSBuilderOptions<T>,
     componentId?: string
   ) {
     const {renderer, scaffoldConfig} = options || {};
@@ -951,7 +795,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async buildBulkEditSchema<T extends DSRendererType>(
-    options: ApiDSBuilderOptions<T>,
+    options: ModelDSBuilderOptions<T>,
     componentId?: string
   ) {
     const {renderer, scaffoldConfig} = options;
@@ -1007,7 +851,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async buildCRUDDeleteSchema(
-    options: ApiDSBuilderOptions<'crud'>,
+    options: ModelDSBuilderOptions<'crud'>,
     componentId?: string
   ) {
     const {scaffoldConfig} = options || {};
@@ -1042,7 +886,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async buildCRUDBulkDeleteSchema(
-    options: ApiDSBuilderOptions<'crud'>,
+    options: ModelDSBuilderOptions<'crud'>,
     componentId?: string
   ) {
     const {scaffoldConfig} = options || {};
@@ -1077,7 +921,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async buildSimpleQueryCollectionSchema(
-    options: ApiDSBuilderOptions<'crud'>
+    options: ModelDSBuilderOptions<'crud'>
   ): Promise<GenericSchema[] | undefined> {
     const {renderer, schema} = options || {};
 
@@ -1118,7 +962,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async buildCRUDFilterSchema(
-    options: ApiDSBuilderOptions<'crud'>,
+    options: ModelDSBuilderOptions<'crud'>,
     componentId?: string
   ) {
     const {scaffoldConfig} = options || {};
@@ -1153,7 +997,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async buildCRUDOpColumn(
-    options: ApiDSBuilderOptions<'crud'>,
+    options: ModelDSBuilderOptions<'crud'>,
     componentId?: string
   ) {
     const {feats} = options || {};
@@ -1180,7 +1024,7 @@ export class ApiDSBuilder extends DSBuilder<
 
   async buildCRUDColumn(
     field: ScaffoldField,
-    options: ApiDSBuilderOptions<'crud'>,
+    options: ModelDSBuilderOptions<'crud'>,
     componentId?: string
   ) {
     return {
@@ -1193,7 +1037,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async buildCRUDColumnsSchema(
-    options: ApiDSBuilderOptions<'crud'>,
+    options: ModelDSBuilderOptions<'crud'>,
     componentId?: string
   ) {
     const {scaffoldConfig} = options;
@@ -1278,7 +1122,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   async buildHeaderToolbar(
-    options: ApiDSBuilderOptions<'crud'>,
+    options: ModelDSBuilderOptions<'crud'>,
     componentId?: string
   ) {
     const {feats} = options || {};
@@ -1300,7 +1144,7 @@ export class ApiDSBuilder extends DSBuilder<
   }
 
   buildFooterToolbar(
-    options: ApiDSBuilderOptions<'crud'>,
+    options: ModelDSBuilderOptions<'crud'>,
     componentId: string
   ) {
     return this.buildToolbarFlex(
@@ -1545,7 +1389,7 @@ export class ApiDSBuilder extends DSBuilder<
     return config as CRUDScaffoldConfig;
   }
 
-  async buildCRUDSchema(options: ApiDSBuilderOptions<'crud'>) {
+  async buildCRUDSchema(options: ModelDSBuilderOptions<'crud'>) {
     const {feats, scaffoldConfig} = options;
     const {
       primaryField = 'id',
@@ -1582,7 +1426,7 @@ export class ApiDSBuilder extends DSBuilder<
     };
   }
 
-  async buildFormSchema(options: ApiDSBuilderOptions<'form'>) {
+  async buildFormSchema(options: ModelDSBuilderOptions<'form'>) {
     const {feat, scaffoldConfig} = options;
     const {initApi, __pristineSchema} = scaffoldConfig || {};
     let formSchema: GenericSchema;
@@ -1615,11 +1459,11 @@ export class ApiDSBuilder extends DSBuilder<
     return baseSchema;
   }
 
-  async buildApiSchema(options: ApiDSBuilderOptions<any>) {
+  async buildApiSchema(options: ModelDSBuilderOptions<any>) {
     const {schema} = options;
 
     return schema;
   }
 }
 
-registerDSBuilder(ApiDSBuilder);
+registerDSBuilder(ModelDSBuilder);

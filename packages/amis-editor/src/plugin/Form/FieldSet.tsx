@@ -143,7 +143,9 @@ export class FieldSetControlPlugin extends BasePlugin {
 
       getSchemaTpl('subFormItemMode'),
       getSchemaTpl('subFormHorizontalMode'),
-      getSchemaTpl('subFormHorizontal')
+      getSchemaTpl('subFormHorizontal'),
+      getSchemaTpl('visible'),
+      getSchemaTpl('hidden')
     ];
   };
 

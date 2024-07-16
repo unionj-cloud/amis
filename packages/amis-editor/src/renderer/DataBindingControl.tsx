@@ -56,6 +56,7 @@ export class DataBindingControl extends React.Component<
 
   @autobind
   handleConfirm(result: DSField) {
+    debugger;
     const {manager, data, onChange, onBulkChange, onBindingChange} = this.props;
 
     if (result?.value) {
