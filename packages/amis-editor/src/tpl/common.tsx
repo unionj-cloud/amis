@@ -88,163 +88,168 @@ setSchemaTpl('formItemName', (schema: object = {}, options: any) => {
   if (options) {
     const { manager, context } = options
     if (manager) {
-      const offset = context.node.path.split('/').lastIndexOf('form') - (context.node.path.split('/').length - 1)
-      const formSchema = manager.store.getSchemaByPath(context.node.schemaPath.split('/').slice(0, offset))
-      const modelCode = formSchema.modelCode
-      if (modelCode) {
-        return {
-          ...schema,
-          type: 'picker',
-          label: '字段名',
-          name: 'name',
-          overflowConfig: {
-            maxTagCount: -1,
-            displayPosition: ['select']
-          },
-          modalClassName: 'app-popover :AMISCSSWrapper',
-          id: 'u:894398235bd0',
-          multiple: false,
-          pickerSchema: {
-            mode: 'table',
-            syncLocation: false,
-            footerToolbar: [
-              {
-                type: 'statistics'
-              },
-              {
-                type: 'pagination',
-                showPageInput: true,
-                layout: 'perPage,pager,go'
-              }
-            ],
-            filter: {
-              title: '查询条件',
-              columnCount: 3,
-              mode: 'horizontal',
-              body: [
+      const result = manager.getSimpleContextSchemas(context.node)
+      const scopeId = result.scope.id
+      const nodeId = scopeId.split('-')[0]
+      const nodeType = scopeId.split('-')[1]
+      if (nodeType == 'form') {
+        const formSchema = manager.store.getSchema(nodeId)
+        const modelCode = formSchema.modelCode
+        if (modelCode) {
+          return {
+            ...schema,
+            type: 'picker',
+            label: '字段名',
+            name: 'name',
+            overflowConfig: {
+              maxTagCount: -1,
+              displayPosition: ['select']
+            },
+            modalClassName: 'app-popover :AMISCSSWrapper',
+            id: 'u:894398235bd0',
+            multiple: false,
+            pickerSchema: {
+              mode: 'table',
+              syncLocation: false,
+              footerToolbar: [
                 {
-                  type: 'input-text',
+                  type: 'statistics'
+                },
+                {
+                  type: 'pagination',
+                  showPageInput: true,
+                  layout: 'perPage,pager,go'
+                }
+              ],
+              filter: {
+                title: '查询条件',
+                columnCount: 3,
+                mode: 'horizontal',
+                body: [
+                  {
+                    type: 'input-text',
+                    label: '属性名',
+                    name: 'column_comment',
+                    id: 'u:262e8e0b363f'
+                  },
+                  {
+                    type: 'input-text',
+                    label: '属性编码',
+                    name: 'column_name',
+                    id: 'u:3f1ccc1f4c66'
+                  }
+                ],
+                actions: [
+                  {
+                    type: 'reset',
+                    label: '重置',
+                    actionType: 'reset',
+                    id: 'u:7e5cf7b5ffee'
+                  },
+                  {
+                    type: 'submit',
+                    label: '搜索',
+                    primary: true,
+                    id: 'u:497a472f6ea7'
+                  }
+                ],
+                id: 'u:faf0d0c4377e',
+                feat: 'Insert',
+                dsType: 'api',
+                wrapWithPanel: true
+              },
+              perPageAvailable: [10, 20, 30, 40, 50, 100],
+              columns: [
+                {
+                  label: 'ID',
+                  name: 'id',
+                  type: 'text',
+                  sortable: true,
+                  id: 'u:c781f40f918c',
+                  placeholder: '-'
+                },
+                {
                   label: '属性名',
                   name: 'column_comment',
-                  id: 'u:262e8e0b363f'
+                  type: 'text',
+                  sortable: true,
+                  id: 'u:5b9a564accce',
+                  placeholder: '-'
                 },
                 {
-                  type: 'input-text',
                   label: '属性编码',
                   name: 'column_name',
-                  id: 'u:3f1ccc1f4c66'
+                  type: 'text',
+                  sortable: true,
+                  id: 'u:b9cb52a3d77c',
+                  placeholder: '-'
                 }
               ],
-              actions: [
+              alwaysShowPagination: true,
+              name: 'create_model_column_form',
+              draggable: false,
+              autoJumpToTopOnPagerChange: false,
+              defaultParams: {
+                orderBy: 'id',
+                orderDir: 'desc'
+              },
+              filterTogglable: true,
+              syncResponse2Query: false,
+              filterDefaultVisible: false,
+              keepItemSelectionOnPageChange: true,
+              checkOnItemClick: true,
+              "headerToolbar": [
                 {
-                  type: 'reset',
-                  label: '重置',
-                  actionType: 'reset',
-                  id: 'u:7e5cf7b5ffee'
+                  "type": "filter-toggler",
+                  "tpl": "内容",
+                  "wrapperComponent": "",
+                  "id": "u:9f8f9195ed56"
                 },
                 {
-                  type: 'submit',
-                  label: '搜索',
-                  primary: true,
-                  id: 'u:497a472f6ea7'
+                  "type": "columns-toggler",
+                  "align": "right",
+                  "draggable": true,
+                  "icon": "fas fa-cog",
+                  "overlay": true,
+                  "footerBtnSize": "md"
                 }
               ],
-              id: 'u:faf0d0c4377e',
-              feat: 'Insert',
-              dsType: 'api',
-              wrapWithPanel: true
+              messages: {},
+              id: 'u:c269aa88b7b1',
+              labelField: 'column_name',
+              valueField: 'column_name',
             },
-            perPageAvailable: [10, 20, 30, 40, 50, 100],
-            columns: [
-              {
-                label: 'ID',
-                name: 'id',
-                type: 'text',
-                sortable: true,
-                id: 'u:c781f40f918c',
-                placeholder: '-'
-              },
-              {
-                label: '属性名',
-                name: 'column_comment',
-                type: 'text',
-                sortable: true,
-                id: 'u:5b9a564accce',
-                placeholder: '-'
-              },
-              {
-                label: '属性编码',
-                name: 'column_name',
-                type: 'text',
-                sortable: true,
-                id: 'u:b9cb52a3d77c',
-                placeholder: '-'
-              }
-            ],
-            alwaysShowPagination: true,
-            name: 'create_model_column_form',
-            draggable: false,
-            autoJumpToTopOnPagerChange: false,
-            defaultParams: {
-              orderBy: 'id',
-              orderDir: 'desc'
+            source: {
+              "url": "${window:location.origin}/${ls:extention_module_config.api_prefix}/sys/columns?parameter[page]=0&parameter[size]=9999&parameter[table_name]=" + modelCode,
+              // url: 'http://localhost:6060/ecodwork/lowcode/sys/columns?parameter[page]=0&parameter[size]=999&parameter[table_name]=' + modelCode,
+              method: 'get',
+              "requestAdaptor": "const query = JSON.parse(JSON.stringify(api.query))\nquery.parameter.page = query.page\nquery.parameter.size = query.perPage\nif (query.orderBy && query.orderDir) {\n  query.parameter.sort = query.orderDir != 'asc' ? '-' + query.orderBy : query.orderBy\n}\nif (query['column_name'] !== '' && query['column_name'] !== undefined && query['column_name'] !== null) {\n  query.parameter['column_name'] = query['column_name']\n}\ndelete query['column_name']\nif (query['column_comment'] !== '' && query['column_comment'] !== undefined && query['column_comment'] !== null) {\n  query.parameter['column_comment'] = query['column_comment']\n}\ndelete query['column_comment']\ndelete query.page\ndelete query.perPage\napi.query = query\nvar url = new URL(api.url)\nurl.search = '?' + Qs.stringify(api.query, { encode: false })\napi.url = url.toString()\nreturn api",
+              adaptor: '',
+              messages: {},
+              forceAppendDataToQuery: true
             },
-            filterTogglable: true,
-            syncResponse2Query: false,
-            filterDefaultVisible: false,
-            keepItemSelectionOnPageChange: true,
-            checkOnItemClick: true,
-            "headerToolbar": [
-              {
-                "type": "filter-toggler",
-                "tpl": "内容",
-                "wrapperComponent": "",
-                "id": "u:9f8f9195ed56"
-              },
-              {
-                "type": "columns-toggler",
-                "align": "right",
-                "draggable": true,
-                "icon": "fas fa-cog",
-                "overlay": true,
-                "footerBtnSize": "md"
-              }
-            ],
-            messages: {},
-            id: 'u:c269aa88b7b1',
-            labelField: 'column_name',
             valueField: 'column_name',
-          },
-          source: {
-            "url": "${window:location.origin}/${ls:extention_module_config.api_prefix}/sys/columns?parameter[page]=0&parameter[size]=9999&parameter[table_name]=" + modelCode,
-            // url: 'http://localhost:6060/ecodwork/lowcode/sys/columns?parameter[page]=0&parameter[size]=999&parameter[table_name]=' + modelCode,
-            method: 'get',
-            "requestAdaptor": "const query = JSON.parse(JSON.stringify(api.query))\nquery.parameter.page = query.page\nquery.parameter.size = query.perPage\nif (query.orderBy && query.orderDir) {\n  query.parameter.sort = query.orderDir != 'asc' ? '-' + query.orderBy : query.orderBy\n}\nif (query['column_name'] !== '' && query['column_name'] !== undefined && query['column_name'] !== null) {\n  query.parameter['column_name'] = query['column_name']\n}\ndelete query['column_name']\nif (query['column_comment'] !== '' && query['column_comment'] !== undefined && query['column_comment'] !== null) {\n  query.parameter['column_comment'] = query['column_comment']\n}\ndelete query['column_comment']\ndelete query.page\ndelete query.perPage\napi.query = query\nvar url = new URL(api.url)\nurl.search = '?' + Qs.stringify(api.query, { encode: false })\napi.url = url.toString()\nreturn api",
-            adaptor: '',
-            messages: {},
-            forceAppendDataToQuery: true
-          },
-          valueField: 'column_name',
-          labelField: 'column_name',
-          embed: false,
-          modalMode: 'dialog',
-          size: 'md',
-          onEvent: {
-            change: {
-              weight: 0,
-              actions: [
-                {
-                  ignoreError: false,
-                  actionType: 'setValue',
-                  args: {
-                    value: '${event.data.selectedItems.column_comment}'
-                  },
-                  componentName: 'label'
-                }
-              ]
+            labelField: 'column_name',
+            embed: false,
+            modalMode: 'dialog',
+            size: 'md',
+            onEvent: {
+              change: {
+                weight: 0,
+                actions: [
+                  {
+                    ignoreError: false,
+                    actionType: 'setValue',
+                    args: {
+                      value: '${event.data.selectedItems.column_comment}'
+                    },
+                    componentName: 'label'
+                  }
+                ]
+              }
             }
-          }
-        };
+          };
+        }
       }
     }
   }

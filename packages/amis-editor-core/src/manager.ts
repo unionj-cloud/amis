@@ -2289,4 +2289,41 @@ export class EditorManager {
     this.lazyPatchSchema.cancel();
     this.dnd.dispose();
   }
+
+  getSimpleContextSchemas(id: string | EditorNodeType): any {
+    const node = typeof id === 'string' ? this.store.getNodeById(id) : id;
+    if (!node) {
+      return [];
+    }
+
+    let scope: DataScope | void = undefined;
+    let from = node;
+    let region = node;
+
+    // 删掉当前行记录scope，保持原始scope
+    for (const key in this.dataSchema.idMap) {
+      if (/\-currentRow$/.test(key)) {
+        this.dataSchema.removeScope(key);
+      }
+    }
+
+    // 查找最近一层的数据域
+    while (!scope && from) {
+      const nodeId = from.info?.id;
+      const type = from.info?.type;
+      scope = this.dataSchema.hasScope(`${nodeId}-${type}`)
+        ? this.dataSchema.getScope(`${nodeId}-${type}`)
+        : undefined;
+      from = from.parent;
+      if (from?.isRegion) {
+        region = from;
+      }
+    }
+
+    return {
+      scope,
+      from,
+      region
+    }
+  }
 }
