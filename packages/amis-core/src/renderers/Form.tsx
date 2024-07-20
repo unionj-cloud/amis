@@ -1,7 +1,7 @@
 import React from 'react';
 import extend from 'lodash/extend';
-import {Renderer, RendererProps} from '../factory';
-import {FormStore, IFormStore} from '../store/form';
+import { Renderer, RendererProps } from '../factory';
+import { FormStore, IFormStore } from '../store/form';
 import {
   Api,
   SchemaNode,
@@ -13,7 +13,7 @@ import {
   SchemaExpression,
   SchemaClassName
 } from '../types';
-import {filter, evalExpression} from '../utils/tpl';
+import { filter, evalExpression } from '../utils/tpl';
 import getExprProperties from '../utils/filter-schema';
 import {
   promisify,
@@ -42,15 +42,15 @@ import {
   filterTarget
 } from '../Scoped';
 
-import {IComboStore} from '../store/combo';
-import {dataMapping} from '../utils/tpl-builtin';
-import {isApiOutdated, isEffectiveApi} from '../utils/api';
+import { IComboStore } from '../store/combo';
+import { dataMapping } from '../utils/tpl-builtin';
+import { isApiOutdated, isEffectiveApi } from '../utils/api';
 import LazyComponent from '../components/LazyComponent';
-import {isAlive} from 'mobx-state-tree';
+import { isAlive } from 'mobx-state-tree';
 
-import type {LabelAlign} from './Item';
-import {injectObjectChain} from '../utils';
-import {reaction} from 'mobx';
+import type { LabelAlign } from './Item';
+import { injectObjectChain } from '../utils';
+import { reaction } from 'mobx';
 import groupBy from 'lodash/groupBy';
 import isEqual from 'lodash/isEqual';
 
@@ -65,6 +65,11 @@ export interface FormHorizontal {
 }
 
 export interface FormSchemaBase {
+  /**
+   * 实体编码
+   */
+  modelCode?: string;
+
   /**
    * 表单标题
    */
@@ -355,11 +360,11 @@ export type FormGroup = FormSchemaBase & {
   className?: string;
 };
 export type FormGroupNode = FormGroup | FormGroupArray;
-export interface FormGroupArray extends Array<FormGroupNode> {}
+export interface FormGroupArray extends Array<FormGroupNode> { }
 
 export interface FormProps
   extends RendererProps,
-    Omit<FormSchemaBase, 'mode' | 'className'> {
+  Omit<FormSchemaBase, 'mode' | 'className'> {
   data: any;
   store: IFormStore;
   wrapperComponent: React.ElementType;
@@ -502,7 +507,7 @@ export default class Form extends React.Component<FormProps, object> {
     this.beforePageUnload = this.beforePageUnload.bind(this);
     this.formItemDispatchEvent = this.formItemDispatchEvent.bind(this);
 
-    const {store, canAccessSuperData, persistData, simpleMode} = props;
+    const { store, canAccessSuperData, persistData, simpleMode } = props;
 
     store.setCanAccessSuperData(canAccessSuperData !== false);
     store.setPersistData(persistData);
@@ -548,7 +553,7 @@ export default class Form extends React.Component<FormProps, object> {
       initFinishedField,
       initCheckInterval,
       store,
-      messages: {fetchSuccess, fetchFailed},
+      messages: { fetchSuccess, fetchFailed },
       onValidate,
       onValidChange,
       promptPageLeave,
@@ -665,7 +670,7 @@ export default class Form extends React.Component<FormProps, object> {
         props.data
       )
     ) {
-      const {fetchSuccess, fetchFailed} = props;
+      const { fetchSuccess, fetchFailed } = props;
 
       store[store.hasRemoteData ? 'fetchData' : 'fetchInitData'](
         props.initApi as Api,
@@ -694,7 +699,7 @@ export default class Form extends React.Component<FormProps, object> {
 
   /** 获取表单联合校验的规则 */
   getNormalizedRules() {
-    const {rules, translate: __} = this.props;
+    const { rules, translate: __ } = this.props;
 
     if (!Array.isArray(rules) || rules.length < 1) {
       return [];
@@ -704,14 +709,14 @@ export default class Form extends React.Component<FormProps, object> {
       .map(item => ({
         ...item,
         ...(!item.message || typeof item.message !== 'string'
-          ? {message: __('Form.rules.message')}
+          ? { message: __('Form.rules.message') }
           : {})
       }))
       .filter(item => item.rule && typeof item.rule === 'string');
   }
 
   async dispatchInited(value: any) {
-    const {data, store, dispatchEvent} = this.props;
+    const { data, store, dispatchEvent } = this.props;
 
     if (!isAlive(store) || store.fetching) {
       return value;
@@ -733,7 +738,7 @@ export default class Form extends React.Component<FormProps, object> {
 
   blockRouting(): any {
     const store = this.props.store;
-    const {promptPageLeaveMessage, promptPageLeave} = this.props;
+    const { promptPageLeaveMessage, promptPageLeave } = this.props;
 
     if (promptPageLeave && store.modified) {
       return promptPageLeaveMessage || '新的修改没有保存，确认要离开？';
@@ -750,7 +755,7 @@ export default class Form extends React.Component<FormProps, object> {
   }
 
   async onInit() {
-    const {onInit, store, persistData, submitOnInit, dispatchEvent} =
+    const { onInit, store, persistData, submitOnInit, dispatchEvent } =
       this.props;
     if (!isAlive(store)) {
       return;
@@ -768,8 +773,8 @@ export default class Form extends React.Component<FormProps, object> {
       (item as any).__enforce === 'prev'
         ? 'prev'
         : (item as any).__enforce === 'post'
-        ? 'post'
-        : 'normal'
+          ? 'post'
+          : 'normal'
     );
 
     await Promise.all((groupedHooks.prev || []).map(hook => hook(data)));
@@ -806,7 +811,7 @@ export default class Form extends React.Component<FormProps, object> {
     onInit && onInit(data, this.props);
 
     // 派发初始化事件
-    const dispatch = await this.dispatchInited({data});
+    const dispatch = await this.dispatchInited({ data });
 
     if (dispatch?.prevented) {
       return;
@@ -838,7 +843,7 @@ export default class Form extends React.Component<FormProps, object> {
       initApi,
       initAsyncApi,
       initFinishedField,
-      messages: {fetchSuccess, fetchFailed}
+      messages: { fetchSuccess, fetchFailed }
     } = this.props;
 
     isEffectiveApi(initAsyncApi, store.data) &&
@@ -884,7 +889,7 @@ export default class Form extends React.Component<FormProps, object> {
   }
 
   receive(values: object, name?: string, replace?: boolean) {
-    const {store} = this.props;
+    const { store } = this.props;
 
     store.updateData(values, undefined, replace);
     return this.reload();
@@ -895,7 +900,7 @@ export default class Form extends React.Component<FormProps, object> {
   }
 
   initInterval(value: any) {
-    const {interval, silentPolling, stopAutoRefreshWhen, data} = this.props;
+    const { interval, silentPolling, stopAutoRefreshWhen, data } = this.props;
 
     clearTimeout(this.timer);
     value?.ok &&
@@ -919,7 +924,7 @@ export default class Form extends React.Component<FormProps, object> {
     toastErrors: boolean = true,
     skipFlush = false
   ): Promise<boolean> {
-    const {store, dispatchEvent, data, messages, translate: __} = this.props;
+    const { store, dispatchEvent, data, messages, translate: __ } = this.props;
 
     if (!skipFlush) {
       await this.flush();
@@ -931,33 +936,33 @@ export default class Form extends React.Component<FormProps, object> {
       toastErrors === false
         ? ''
         : typeof messages?.validateFailed === 'string'
-        ? __(filter(messages.validateFailed, store.data))
-        : undefined
+          ? __(filter(messages.validateFailed, store.data))
+          : undefined
     );
 
     dispatchEvent(result ? 'validateSucc' : 'validateError', data);
     return result;
   }
 
-  setErrors(errors: {[propName: string]: string}, tag = 'remote') {
-    const {store} = this.props;
+  setErrors(errors: { [propName: string]: string }, tag = 'remote') {
+    const { store } = this.props;
     store.setFormItemErrors(errors, tag);
   }
 
   clearErrors() {
-    const {store} = this.props;
+    const { store } = this.props;
 
     return store.clearErrors();
   }
 
   getValues() {
-    const {store} = this.props;
+    const { store } = this.props;
     this.flush();
     return store.data;
   }
 
   setValues(value: any, replace?: boolean) {
-    const {store} = this.props;
+    const { store } = this.props;
     this.flush();
     store.setValues(value, undefined, replace);
   }
@@ -967,7 +972,7 @@ export default class Form extends React.Component<FormProps, object> {
     throwErrors: boolean = false,
     skipFlush = false
   ): Promise<any> {
-    const {store, messages, translate: __, dispatchEvent, data} = this.props;
+    const { store, messages, translate: __, dispatchEvent, data } = this.props;
     if (!skipFlush) {
       await this.flush();
     }
@@ -1003,7 +1008,7 @@ export default class Form extends React.Component<FormProps, object> {
   }
 
   reset() {
-    const {store, onReset} = this.props;
+    const { store, onReset } = this.props;
     store.reset(onReset);
   }
 
@@ -1046,7 +1051,7 @@ export default class Form extends React.Component<FormProps, object> {
     submit: boolean,
     changePristine = false
   ) {
-    const {store, formLazyChange, persistDataKeys} = this.props;
+    const { store, formLazyChange, persistDataKeys } = this.props;
     if (typeof name !== 'string') {
       return;
     }
@@ -1062,7 +1067,7 @@ export default class Form extends React.Component<FormProps, object> {
     }
   }
   formItemDispatchEvent(type: string, data: any) {
-    const {dispatchEvent} = this.props;
+    const { dispatchEvent } = this.props;
     return dispatchEvent(type, data);
   }
 
@@ -1072,7 +1077,7 @@ export default class Form extends React.Component<FormProps, object> {
     try {
       this.emitting = true;
 
-      const {onChange, store, submitOnChange, dispatchEvent, data, originData} =
+      const { onChange, store, submitOnChange, dispatchEvent, data, originData } =
         this.props;
 
       if (!isAlive(store)) {
@@ -1120,7 +1125,7 @@ export default class Form extends React.Component<FormProps, object> {
   }
 
   handleBulkChange(values: Object, submit: boolean) {
-    const {onChange, store, formLazyChange} = this.props;
+    const { onChange, store, formLazyChange } = this.props;
     store.setValues(values);
     // store.updateData(values);
 
@@ -1139,7 +1144,7 @@ export default class Form extends React.Component<FormProps, object> {
   }
 
   handleFormSubmit(e: React.UIEvent<any>) {
-    const {preventEnterSubmit, onActionSensor, close} = this.props;
+    const { preventEnterSubmit, onActionSensor, close } = this.props;
 
     e.preventDefault();
     if (preventEnterSubmit) {
@@ -1161,7 +1166,7 @@ export default class Form extends React.Component<FormProps, object> {
   }
 
   handleReset(action: any) {
-    const {onReset} = this.props;
+    const { onReset } = this.props;
 
     return (data: any) => {
       onReset && onReset(data, action);
@@ -1182,7 +1187,7 @@ export default class Form extends React.Component<FormProps, object> {
       asyncApi,
       finishedField,
       checkInterval,
-      messages: {saveSuccess, saveFailed},
+      messages: { saveSuccess, saveFailed },
       resetAfterSubmit,
       clearAfterSubmit,
       onAction,
@@ -1221,7 +1226,7 @@ export default class Form extends React.Component<FormProps, object> {
 
       const fields = action.required.map(item => ({
         name: item,
-        rules: {isRequired: true}
+        rules: { isRequired: true }
       }));
       const validationRes = await store.validateFields(fields);
 
@@ -1249,7 +1254,7 @@ export default class Form extends React.Component<FormProps, object> {
       action.actionType === 'clear-and-submit'
     ) {
       // 配了submit事件的表示将提交逻辑全部托管给事件
-      const {dispatchEvent, onEvent} = this.props;
+      const { dispatchEvent, onEvent } = this.props;
       const submitEvent = onEvent?.submit?.actions?.length;
       const dispatcher = await dispatchEvent('submit', this.props.data);
       if (dispatcher?.prevented || submitEvent) {
@@ -1335,7 +1340,7 @@ export default class Form extends React.Component<FormProps, object> {
                   // result为提交接口返回的内容
                   const dispatcher = await dispatchEvent(
                     'submitSucc',
-                    createObject(this.props.data, {result})
+                    createObject(this.props.data, { result })
                   );
                   if (
                     !isEffectiveApi(finnalAsyncApi, store.data) ||
@@ -1363,7 +1368,7 @@ export default class Form extends React.Component<FormProps, object> {
                 onFailed: async (result: Payload) => {
                   const dispatcher = await dispatchEvent(
                     'submitFail',
-                    createObject(this.props.data, {error: result})
+                    createObject(this.props.data, { error: result })
                   );
                   return {
                     dispatcher
@@ -1580,7 +1585,7 @@ export default class Form extends React.Component<FormProps, object> {
     ctx: any,
     targets: Array<any>
   ) {
-    const {store, onChange} = this.props;
+    const { store, onChange } = this.props;
 
     if (
       (action.mergeData || store.action.mergeData) &&
@@ -1595,7 +1600,7 @@ export default class Form extends React.Component<FormProps, object> {
   }
 
   handleDialogClose(confirmed = false) {
-    const {store} = this.props;
+    const { store } = this.props;
     store.closeDialog(confirmed);
   }
 
@@ -1605,7 +1610,7 @@ export default class Form extends React.Component<FormProps, object> {
     ctx: any,
     targets: Array<any>
   ) {
-    const {store, onChange} = this.props;
+    const { store, onChange } = this.props;
 
     if (
       (action.mergeData || store.action.mergeData) &&
@@ -1626,7 +1631,7 @@ export default class Form extends React.Component<FormProps, object> {
   }
 
   handleDrawerClose() {
-    const {store} = this.props;
+    const { store } = this.props;
     store.closeDrawer(false);
   }
 
@@ -1644,7 +1649,7 @@ export default class Form extends React.Component<FormProps, object> {
 
   openFeedback(dialog: any, ctx: any) {
     return new Promise(resolve => {
-      const {store} = this.props;
+      const { store } = this.props;
       store.setCurrentAction(
         {
           type: 'button',
@@ -1682,8 +1687,8 @@ export default class Form extends React.Component<FormProps, object> {
             item &&
             !!~['submit', 'button', 'button-group', 'reset'].indexOf(
               (item as any)?.body?.[0]?.type ||
-                (item as any)?.body?.type ||
-                (item as any).type
+              (item as any)?.body?.type ||
+              (item as any).type
             )
         ))
     ) {
@@ -1710,8 +1715,8 @@ export default class Form extends React.Component<FormProps, object> {
     let body: Array<any> = Array.isArray(schema.body)
       ? schema.body
       : schema.body
-      ? [schema.body]
-      : [];
+        ? [schema.body]
+        : [];
 
     // 旧用法，让 wrapper 走走 compat 逻辑兼容旧用法
     // 后续可以删除。
@@ -1736,7 +1741,7 @@ export default class Form extends React.Component<FormProps, object> {
     otherProps: Partial<FormProps> = {}
   ): React.ReactNode {
     children = children || [];
-    const {classnames: cx} = this.props;
+    const { classnames: cx } = this.props;
 
     if (!Array.isArray(children)) {
       children = [children];
@@ -1771,7 +1776,7 @@ export default class Form extends React.Component<FormProps, object> {
         <div className={cx('Form-row')}>
           {children.map((control, key) =>
             ~['hidden', 'formula'].indexOf((control as any).type) ||
-            (control as any).mode === 'inline' ? (
+              (control as any).mode === 'inline' ? (
               this.renderChild(control, key, otherProps)
             ) : (
               <div
@@ -1891,9 +1896,8 @@ export default class Form extends React.Component<FormProps, object> {
     const subProps = {
       formStore: form,
       data: store.data,
-      key: `${(control as Schema).name || ''}-${
-        (control as Schema).type
-      }-${key}`,
+      key: `${(control as Schema).name || ''}-${(control as Schema).type
+        }-${key}`,
       formInited: form.inited,
       formSubmited: form.submited,
       formMode: mode,
@@ -1961,7 +1965,7 @@ export default class Form extends React.Component<FormProps, object> {
       testid
     } = this.props;
 
-    const {restError} = store;
+    const { restError } = store;
 
     const WrapperComponent =
       this.props.wrapperComponent ||
@@ -1992,21 +1996,21 @@ export default class Form extends React.Component<FormProps, object> {
         noValidate
       >
         {/* 实现回车自动提交 */}
-        <input type="submit" style={{display: 'none'}} />
+        <input type="submit" style={{ display: 'none' }} />
 
         {debug
           ? render('form-debug-json', {
-              type: 'json',
-              value: store.data,
-              ellipsisThreshold: 120,
-              className: cx('Form--debug'),
-              ...debugConfig
-            })
+            type: 'json',
+            value: store.data,
+            ellipsisThreshold: 120,
+            className: cx('Form--debug'),
+            ...debugConfig
+          })
           : null}
 
         {render(
           'spinner',
-          {type: 'spinner'},
+          { type: 'spinner' },
           {
             overlay: true,
             show: store.loading,
@@ -2327,7 +2331,7 @@ export class FormRenderer extends Form {
   }
 
   setData(values: object, replace?: boolean) {
-    const {onChange, store} = this.props;
+    const { onChange, store } = this.props;
     super.setValues(values, replace);
     // 触发表单change
     onChange &&

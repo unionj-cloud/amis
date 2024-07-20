@@ -2,14 +2,14 @@
  * @file 把一些功能性的东西放在了这个里面，辅助 compoennt/Editor.tsx 组件的。
  * 编辑器非 UI 相关的东西应该放在这。
  */
-import {reaction} from 'mobx';
-import {isAlive} from 'mobx-state-tree';
-import {parse, stringify} from 'json-ast-comments';
+import { reaction } from 'mobx';
+import { isAlive } from 'mobx-state-tree';
+import { parse, stringify } from 'json-ast-comments';
 import debounce from 'lodash/debounce';
 import findIndex from 'lodash/findIndex';
 import omit from 'lodash/omit';
-import {openContextMenus, toast, alert, DataScope, DataSchema} from 'amis';
-import {getRenderers, RenderOptions, JSONTraverse} from 'amis-core';
+import { openContextMenus, toast, alert, DataScope, DataSchema } from 'amis';
+import { getRenderers, RenderOptions, JSONTraverse } from 'amis-core';
 import {
   PluginInterface,
   BasicPanelItem,
@@ -60,22 +60,22 @@ import {
   generateNodeId,
   JSONGetNodesById
 } from './util';
-import {hackIn, makeSchemaFormRender, makeWrapper} from './component/factory';
-import {env} from './env';
-import {EditorNodeType} from './store/node';
-import {EditorProps} from './component/Editor';
-import {EditorDNDManager} from './dnd';
-import {VariableManager} from './variable';
+import { hackIn, makeSchemaFormRender, makeWrapper } from './component/factory';
+import { env } from './env';
+import { EditorNodeType } from './store/node';
+import { EditorProps } from './component/Editor';
+import { EditorDNDManager } from './dnd';
+import { VariableManager } from './variable';
 
-import type {IScopedContext} from 'amis';
-import type {SchemaObject, SchemaCollection} from 'amis';
-import type {RendererConfig} from 'amis-core';
+import type { IScopedContext } from 'amis';
+import type { SchemaObject, SchemaCollection } from 'amis';
+import type { RendererConfig } from 'amis-core';
 
 export interface EditorManagerConfig
-  extends Omit<EditorProps, 'value' | 'onChange'> {}
+  extends Omit<EditorProps, 'value' | 'onChange'> { }
 
 export interface PluginClass {
-  new (manager: EditorManager, options?: any): PluginInterface;
+  new(manager: EditorManager, options?: any): PluginInterface;
   id?: string;
   /** 优先级，值为整数，当存在两个ID相同的Plugin时，数字更大的优先级更高 */
   priority?: number;
@@ -86,7 +86,7 @@ const builtInPlugins: Array<
   PluginClass | [PluginClass, Record<string, any> | (() => Record<string, any>)]
 > = [];
 
-declare const window: Window & {AMISEditorCustomPlugins: any};
+declare const window: Window & { AMISEditorCustomPlugins: any };
 
 /**
  * 自动加载预先注册的自定义插件
@@ -141,11 +141,11 @@ export function registerEditorPlugin(klass: PluginClass) {
     exsitedPluginIdx = ~exsitedPluginIdx
       ? exsitedPluginIdx
       : builtInPlugins.findIndex(
-          item =>
-            !Array.isArray(item) &&
-            item.id === klass.id &&
-            item?.prototype instanceof BasePlugin
-        );
+        item =>
+          !Array.isArray(item) &&
+          item.id === klass.id &&
+          item?.prototype instanceof BasePlugin
+      );
 
     if (!~exsitedPluginIdx) {
       builtInPlugins.push(klass);
@@ -171,7 +171,7 @@ export function registerEditorPlugin(klass: PluginClass) {
  * 获取当前已经注册的插件。
  */
 export function getEditorPlugins(options: any = {}) {
-  const {scene = 'global'} = options;
+  const { scene = 'global' } = options;
   return builtInPlugins.filter(item =>
     (Array.isArray(item) ? item[0] : item).scene?.includes(scene)
   );
@@ -340,13 +340,13 @@ export class EditorManager {
             'active',
             id
               ? ({
-                  ...this.buildEventContext(id),
-                  active: true
-                } as any)
+                ...this.buildEventContext(id),
+                active: true
+              } as any)
               : {
-                  id: oldValue,
-                  active: false
-                }
+                id: oldValue,
+                active: false
+              }
           );
         }
       ),
@@ -369,7 +369,7 @@ export class EditorManager {
 
       // 给当前高亮region添加 is-active 类名。
       reactionWithOldValue(
-        () => ({id: store.hoverId, region: store.hoverRegion}),
+        () => ({ id: store.hoverId, region: store.hoverRegion }),
         (value, oldValue) => {
           const doc = store.getDoc();
           if (value.id && value.region) {
@@ -456,7 +456,7 @@ export class EditorManager {
   // 首次初始化时，增加组件物料和面板加载逻辑，避免 autoFocus 为 false 时，左右面板为空
   buildRenderersAndPanels() {
     setTimeout(async () => {
-      const {store} = this;
+      const { store } = this;
       if (!store.activeId && store?.schema?.$$id) {
         // 默认使用根节点id
         await this.buildRenderers();
@@ -696,7 +696,7 @@ export class EditorManager {
    * @param pluginType 组件类型
    */
   updateConfigPanel(pluginType?: string) {
-    const {activeId, getSchema, getNodeById} = this.store;
+    const { activeId, getSchema, getNodeById } = this.store;
     let curPluginType = pluginType;
 
     if (!curPluginType && this.store.activeId) {
@@ -1424,7 +1424,7 @@ export class EditorManager {
     return context.data;
   }
 
-  closeContextMenu() {}
+  closeContextMenu() { }
 
   /**
    * 将当前选中的节点上移
@@ -1586,7 +1586,7 @@ export class EditorManager {
     }
 
     // 记录组件新旧ID映射关系方便当前组件内事件动作替换
-    let idRefs: {[propKey: string]: string} = {};
+    let idRefs: { [propKey: string]: string } = {};
 
     // 如果有多个重复组件，则重新生成ID
     JSONTraverse(schema, (value: any, key: string, host: any) => {
@@ -1744,7 +1744,7 @@ export class EditorManager {
 
     const context: ReplaceEventContext = {
       ...this.buildEventContext(id),
-      data: {...curJson},
+      data: { ...curJson },
       subRenderer,
       region
     };
@@ -1877,7 +1877,7 @@ export class EditorManager {
     }
     this.patching = true;
     this.patchingInvalid = false;
-    const batch: Array<{id: string; value: any}> = [];
+    const batch: Array<{ id: string; value: any }> = [];
     let patchList = (list: Array<EditorNodeType>) => {
       // 深度优先
       list.forEach((node: EditorNodeType) => {
@@ -1887,7 +1887,7 @@ export class EditorManager {
 
         if (isAlive(node) && !node.isRegion) {
           node.patch(this.store, force, (id, value) =>
-            batch.unshift({id, value})
+            batch.unshift({ id, value })
           );
         }
       });
@@ -1919,7 +1919,7 @@ export class EditorManager {
             )) ||
           (plugin.overrides &&
             (plugin.overrideTargetRendererName ?? plugin.rendererName) ===
-              renderer.name)
+            renderer.name)
       );
 
       plugins.forEach(plugin => {
@@ -1938,7 +1938,7 @@ export class EditorManager {
         if (
           plugin.overrides &&
           (plugin.overrideTargetRendererName ?? plugin.rendererName) ===
-            renderer.name
+          renderer.name
         ) {
           toHackList.push({
             renderer,
@@ -1947,7 +1947,7 @@ export class EditorManager {
         }
       });
     });
-    toHackList.forEach(({regions, renderer, overrides}) =>
+    toHackList.forEach(({ regions, renderer, overrides }) =>
       this.hackIn(renderer, regions, overrides)
     );
   }
@@ -2129,7 +2129,7 @@ export class EditorManager {
             ...tmpSchema,
             ...(tmpSchema?.$id
               ? {}
-              : {$id: `${scopeNode!.id}-${scopeNode!.type}`})
+              : { $id: `${scopeNode!.id}-${scopeNode!.type}` })
           };
           scope.removeSchema(jsonschema.$id);
           scope.addSchema(jsonschema);
@@ -2163,7 +2163,7 @@ export class EditorManager {
           if (tmpSchema) {
             const jsonschema = {
               ...tmpSchema,
-              ...(tmpSchema?.$id ? {} : {$id: `${node!.id}-${node!.type}`})
+              ...(tmpSchema?.$id ? {} : { $id: `${node!.id}-${node!.type}` })
             };
             scope.removeSchema(jsonschema.$id);
             scope.addSchema(jsonschema);

@@ -1,12 +1,12 @@
-import {registerEditorPlugin} from 'amis-editor-core';
-import {defaultValue, getSchemaTpl} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext, tipedLabel} from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { defaultValue, getSchemaTpl } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext, tipedLabel } from 'amis-editor-core';
 
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {FormulaDateType} from '../../renderer/FormulaControl';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
-import type {Schema} from 'amis';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { FormulaDateType } from '../../renderer/FormulaControl';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
+import type { Schema } from 'amis';
 
 const formatX = [
   {
@@ -23,7 +23,7 @@ const DateType: {
   [key: string]: {
     format: string; // 各类型时间的默认格式
     placeholder: string;
-    formatOptions: Array<{label: string; value: string; timeFormat?: string}>; // 各类型时间支持展示格式
+    formatOptions: Array<{ label: string; value: string; timeFormat?: string }>; // 各类型时间支持展示格式
   };
 } = {
   date: {
@@ -276,10 +276,17 @@ export class DateControlPlugin extends BasePlugin {
             {
               title: '基本',
               body: [
-                getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-                getSchemaTpl('formItemName', {
-                  required: true
-                }),
+                getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+                getSchemaTpl(
+                  'formItemName',
+                  {
+                    required: true
+                  },
+                  {
+                    context,
+                    manager: this.manager
+                  }
+                ),
                 getSchemaTpl('label'),
                 getSchemaTpl('selectDateType', {
                   value: this.scaffold.type,
@@ -390,7 +397,7 @@ export class DateControlPlugin extends BasePlugin {
                 getSchemaTpl('autoFillApi')
               ]
             },
-            getSchemaTpl('status', {isFormItem: true}),
+            getSchemaTpl('status', { isFormItem: true }),
             getSchemaTpl('validation', {
               tag: ValidatorTag.Date,
               rendererSchema: (schema: Schema) => {
@@ -402,7 +409,7 @@ export class DateControlPlugin extends BasePlugin {
               }
             })
           ],
-          {...context?.schema, configTitle: 'props'}
+          { ...context?.schema, configTitle: 'props' }
         )
       },
       {
@@ -444,7 +451,7 @@ export class DateControlPlugin extends BasePlugin {
               }
             ])
           ],
-          {...context?.schema, configTitle: 'style'}
+          { ...context?.schema, configTitle: 'style' }
         )
       },
       {

@@ -7,8 +7,8 @@ import {
   EditorNodeType,
   EditorManager
 } from 'amis-editor-core';
-import {isPureVariable} from 'amis';
-import {registerEditorPlugin} from 'amis-editor-core';
+import { isPureVariable } from 'amis';
+import { registerEditorPlugin } from 'amis-editor-core';
 import {
   BasePlugin,
   BasicSubRenderInfo,
@@ -17,9 +17,9 @@ import {
   BaseEventContext,
   tipedLabel
 } from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
+import { ValidatorTag } from '../../validator';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
 import omit from 'lodash/omit';
 
 setSchemaTpl('option', {
@@ -124,10 +124,17 @@ export class CheckboxControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               getSchemaTpl('option'),
               {
@@ -150,13 +157,13 @@ export class CheckboxControlPlugin extends BasePlugin {
                         model: any,
                         form: any
                       ) => {
-                        const {value: defaultValue, trueValue} =
+                        const { value: defaultValue, trueValue } =
                           form?.data || {};
                         if (isPureVariable(defaultValue)) {
                           return;
                         }
                         if (trueValue === defaultValue && trueValue !== value) {
-                          form.setValues({value});
+                          form.setValues({ value });
                         }
                       }
                     },
@@ -172,7 +179,7 @@ export class CheckboxControlPlugin extends BasePlugin {
                         model: any,
                         form: any
                       ) => {
-                        const {value: defaultValue, falseValue} =
+                        const { value: defaultValue, falseValue } =
                           form?.data || {};
                         if (isPureVariable(defaultValue)) {
                           return;
@@ -181,7 +188,7 @@ export class CheckboxControlPlugin extends BasePlugin {
                           falseValue === defaultValue &&
                           falseValue !== value
                         ) {
-                          form.setValues({value});
+                          form.setValues({ value });
                         }
                       }
                     }
@@ -207,7 +214,7 @@ export class CheckboxControlPlugin extends BasePlugin {
                   if (isPureVariable(value)) {
                     return value;
                   }
-                  const {trueValue = true, falseValue = false} = data;
+                  const { trueValue = true, falseValue = false } = data;
                   return value ? trueValue : falseValue;
                 }
               }),
@@ -219,15 +226,15 @@ export class CheckboxControlPlugin extends BasePlugin {
               })
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
-          getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+          getSchemaTpl('status', { isFormItem: true }),
+          getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
         ])
       },
       {
         title: '外观',
         body: [
           getSchemaTpl('collapseGroup', [
-            getSchemaTpl('style:formItem', {renderer: context.info.renderer}),
+            getSchemaTpl('style:formItem', { renderer: context.info.renderer }),
             getSchemaTpl('style:classNames')
           ])
         ]

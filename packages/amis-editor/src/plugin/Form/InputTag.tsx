@@ -4,7 +4,7 @@ import {
   getSchemaTpl,
   tipedLabel
 } from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
 import {
   BasePlugin,
   BasicSubRenderInfo,
@@ -13,10 +13,10 @@ import {
   BaseEventContext
 } from 'amis-editor-core';
 
-import {formItemControl} from '../../component/BaseControl';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
-import {resolveOptionEventDataSchame, resolveOptionType} from '../../util';
-import type {Schema} from 'amis';
+import { formItemControl } from '../../component/BaseControl';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
+import { resolveOptionEventDataSchame, resolveOptionType } from '../../util';
+import type { Schema } from 'amis';
 
 export class TagControlPlugin extends BasePlugin {
   static id = 'TagControlPlugin';
@@ -39,9 +39,9 @@ export class TagControlPlugin extends BasePlugin {
     label: '标签',
     name: 'tag',
     options: [
-      {label: '红色', value: 'red'},
-      {label: '绿色', value: 'green'},
-      {label: '蓝色', value: 'blue'}
+      { label: '红色', value: 'red' },
+      { label: '绿色', value: 'green' },
+      { label: '蓝色', value: 'blue' }
     ]
   };
   previewSchema: any = {
@@ -67,7 +67,7 @@ export class TagControlPlugin extends BasePlugin {
       eventLabel: '值变化',
       description: '选中值变化',
       dataSchema: (manager: EditorManager) => {
-        const {value, selectedItems, items} = resolveOptionEventDataSchame(
+        const { value, selectedItems, items } = resolveOptionEventDataSchame(
           manager,
           true
         );
@@ -95,7 +95,7 @@ export class TagControlPlugin extends BasePlugin {
       eventLabel: '获取焦点',
       description: '获取焦点',
       dataSchema: (manager: EditorManager) => {
-        const {value, selectedItems, items} = resolveOptionEventDataSchame(
+        const { value, selectedItems, items } = resolveOptionEventDataSchame(
           manager,
           true
         );
@@ -123,7 +123,7 @@ export class TagControlPlugin extends BasePlugin {
       eventLabel: '失去焦点',
       description: '失去焦点',
       dataSchema: (manager: EditorManager) => {
-        const {value, selectedItems, items} = resolveOptionEventDataSchame(
+        const { value, selectedItems, items } = resolveOptionEventDataSchame(
           manager,
           true
         );
@@ -173,10 +173,17 @@ export class TagControlPlugin extends BasePlugin {
         common: {
           replace: true,
           body: [
-            getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-            getSchemaTpl('formItemName', {
-              required: true
-            }),
+            getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+            getSchemaTpl(
+              'formItemName',
+              {
+                required: true
+              },
+              {
+                context,
+                manager: this.manager
+              }
+            ),
             getSchemaTpl('label'),
             getSchemaTpl('clearable'),
             getSchemaTpl('optionsTip'),

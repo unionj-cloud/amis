@@ -1,10 +1,10 @@
-import {EditorNodeType, getSchemaTpl, tipedLabel} from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext} from 'amis-editor-core';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {inputStateTpl} from '../../renderer/style-control/helper';
-import {ValidatorTag} from '../../validator';
+import { EditorNodeType, getSchemaTpl, tipedLabel } from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext } from 'amis-editor-core';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { inputStateTpl } from '../../renderer/style-control/helper';
+import { ValidatorTag } from '../../validator';
 
 export class LocationControlPlugin extends BasePlugin {
   static id = 'LocationControlPlugin';
@@ -116,10 +116,17 @@ export class LocationControlPlugin extends BasePlugin {
             {
               title: '基本',
               body: [
-                getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-                getSchemaTpl('formItemName', {
-                  required: true
-                }),
+                getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+                getSchemaTpl(
+                  'formItemName',
+                  {
+                    required: true
+                  },
+                  {
+                    context,
+                    manager: this.manager
+                  }
+                ),
                 getSchemaTpl('label'),
                 /* 备注: 暂时不开放
                 getSchemaTpl('valueFormula', {
@@ -143,8 +150,8 @@ export class LocationControlPlugin extends BasePlugin {
                   label: '坐标格式',
                   value: 'bd09',
                   options: [
-                    {label: '百度坐标', value: 'bd09'},
-                    {label: '国测局坐标', value: 'gcj02'}
+                    { label: '百度坐标', value: 'bd09' },
+                    { label: '国测局坐标', value: 'gcj02' }
                   ]
                 },
                 getSchemaTpl('formulaControl', {
@@ -199,7 +206,7 @@ export class LocationControlPlugin extends BasePlugin {
               isFormItem: true,
               readonly: false
             }),
-            getSchemaTpl('validation', {tag: ValidatorTag.File})
+            getSchemaTpl('validation', { tag: ValidatorTag.File })
           ])
         ]
       },
@@ -207,7 +214,7 @@ export class LocationControlPlugin extends BasePlugin {
         title: '外观',
         body: [
           getSchemaTpl('collapseGroup', [
-            getSchemaTpl('style:formItem', {renderer}),
+            getSchemaTpl('style:formItem', { renderer }),
             getSchemaTpl('theme:form-label'),
             getSchemaTpl('theme:classNames', {
               schema: [

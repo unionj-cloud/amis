@@ -7,8 +7,8 @@ import {
   getEventControlConfig,
   SUPPORT_STATIC_FORMITEM_CMPTS
 } from '../renderer/event-control/helper';
-import {getSchemaTpl, isObject, tipedLabel} from 'amis-editor-core';
-import type {BaseEventContext} from 'amis-editor-core';
+import { getSchemaTpl, isObject, tipedLabel } from 'amis-editor-core';
+import type { BaseEventContext } from 'amis-editor-core';
 
 // 默认动作
 export const BUTTON_DEFAULT_ACTION = {
@@ -70,20 +70,20 @@ export const BaseLabelMark = (schema: Record<string, any> | string) => {
   };
 
   if (!isObject(schema) || typeof schema === 'string') {
-    return schema ? {...base, content: schema.toString()} : undefined;
+    return schema ? { ...base, content: schema.toString() } : undefined;
   }
 
-  const {className, content, ...rest} = schema;
+  const { className, content, ...rest } = schema;
 
   return content
     ? {
-        ...base,
-        ...rest,
-        ...(className
-          ? {className: `${base.className} ${rest.className}`}
-          : {}),
-        content
-      }
+      ...base,
+      ...rest,
+      ...(className
+        ? { className: `${base.className} ${rest.className}` }
+        : {}),
+      content
+    }
     : undefined;
 };
 
@@ -91,20 +91,20 @@ const normalizCollapsedGroup = (publicProps = {}, body: any) => {
   return body
     ? Array.isArray(body)
       ? body
-          .filter(item => item)
-          .map((item, index) => ({
-            ...publicProps,
-            key: item.key || index.toString(),
-            ...item,
-            body: flatten(item.body)
-          }))
+        .filter(item => item)
+        .map((item, index) => ({
+          ...publicProps,
+          key: item.key || index.toString(),
+          ...item,
+          body: flatten(item.body)
+        }))
       : [
-          {
-            ...publicProps,
-            key: '0',
-            ...body
-          }
-        ]
+        {
+          ...publicProps,
+          key: '0',
+          ...body
+        }
+      ]
     : [];
 };
 
@@ -132,8 +132,8 @@ const normalizeBodySchema = (
     replace
       ? normalizedBody
       : reverse
-      ? [...normalizedBody, ...defaultBody]
-      : [...defaultBody, ...normalizedBody]
+        ? [...normalizedBody, ...defaultBody]
+        : [...defaultBody, ...normalizedBody]
   );
 
   return schema;
@@ -217,78 +217,85 @@ export const formItemControl: (
   const collapseGroupBody = panels?.property
     ? normalizCollapsedGroup(collapseProps, panels?.property)
     : [
-        {
-          ...collapseProps,
-          header: '基本',
-          key: 'common',
-          body: normalizeBodySchema(
-            [
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
-              getSchemaTpl('label'),
-              getSchemaTpl('labelRemark'),
-              getSchemaTpl('remark'),
-              getSchemaTpl('placeholder'),
-              getSchemaTpl('description')
-            ],
-            panels?.common?.body,
-            panels?.common?.replace,
-            panels?.common?.reverse
-          )
-        },
-        ...(optionBody.length !== 0
-          ? [
+      {
+        ...collapseProps,
+        header: '基本',
+        key: 'common',
+        body: normalizeBodySchema(
+          [
+            getSchemaTpl(
+              'formItemName',
               {
-                ...collapseProps,
-                header: panels?.option?.title || '选项',
-                key: 'option',
-                body: optionBody
+                required: true
+              },
+              {
+                context,
+                manager: context!.info.plugin.manager
               }
-            ]
-          : []),
-        {
-          ...collapseProps,
-          header: '状态',
-          key: 'status',
-          body: normalizeBodySchema(
-            [
-              getSchemaTpl('visible'),
-              getSchemaTpl('hidden'),
-              getSchemaTpl('clearValueOnHidden'),
-              supportStatic ? getSchemaTpl('static') : null,
-              // TODO: 下面的部分表单项才有，是不是判断一下是否是表单项
-              getSchemaTpl('disabled')
-            ],
-            panels?.status?.body,
-            panels?.status?.replace,
-            panels?.status?.reverse
-          )
-        }
-        // ...(panels?.validation?.hidden
-        //   ? []
-        //   : [
-        //       {
-        //         ...collapseProps,
-        //         className: 'ae-ValidationControl-Panel',
-        //         header: '校验',
-        //         key: 'validation',
-        //         body: normalizeBodySchema(
-        //           [
-        //             getSchemaTpl(
-        //               'validationControl',
-        //               panels?.validation?.validationType
-        //             ),
-        //             getSchemaTpl('validateOnChange'),
-        //             getSchemaTpl('submitOnChange')
-        //           ],
-        //           panels?.validation?.body,
-        //           panels?.validation?.replace,
-        //           panels?.validation?.reverse
-        //         )
-        //       }
-        //     ])
-      ];
+            ),
+            getSchemaTpl('label'),
+            getSchemaTpl('labelRemark'),
+            getSchemaTpl('remark'),
+            getSchemaTpl('placeholder'),
+            getSchemaTpl('description')
+          ],
+          panels?.common?.body,
+          panels?.common?.replace,
+          panels?.common?.reverse
+        )
+      },
+      ...(optionBody.length !== 0
+        ? [
+          {
+            ...collapseProps,
+            header: panels?.option?.title || '选项',
+            key: 'option',
+            body: optionBody
+          }
+        ]
+        : []),
+      {
+        ...collapseProps,
+        header: '状态',
+        key: 'status',
+        body: normalizeBodySchema(
+          [
+            getSchemaTpl('visible'),
+            getSchemaTpl('hidden'),
+            getSchemaTpl('clearValueOnHidden'),
+            supportStatic ? getSchemaTpl('static') : null,
+            // TODO: 下面的部分表单项才有，是不是判断一下是否是表单项
+            getSchemaTpl('disabled')
+          ],
+          panels?.status?.body,
+          panels?.status?.replace,
+          panels?.status?.reverse
+        )
+      }
+      // ...(panels?.validation?.hidden
+      //   ? []
+      //   : [
+      //       {
+      //         ...collapseProps,
+      //         className: 'ae-ValidationControl-Panel',
+      //         header: '校验',
+      //         key: 'validation',
+      //         body: normalizeBodySchema(
+      //           [
+      //             getSchemaTpl(
+      //               'validationControl',
+      //               panels?.validation?.validationType
+      //             ),
+      //             getSchemaTpl('validateOnChange'),
+      //             getSchemaTpl('submitOnChange')
+      //           ],
+      //           panels?.validation?.body,
+      //           panels?.validation?.replace,
+      //           panels?.validation?.reverse
+      //         )
+      //       }
+      //     ])
+    ];
   return [
     {
       type: 'tabs',
@@ -346,11 +353,11 @@ export const formItemControl: (
               ...(!supportStatic
                 ? []
                 : [
-                    getSchemaTpl('className', {
-                      label: '静态 CSS 类名',
-                      name: 'staticClassName'
-                    })
-                  ])
+                  getSchemaTpl('className', {
+                    label: '静态 CSS 类名',
+                    name: 'staticClassName'
+                  })
+                ])
             ],
             panels?.style?.body,
             panels?.style?.replace,
@@ -359,24 +366,24 @@ export const formItemControl: (
         },
         ...(isObject(context) && !panels?.event?.hidden
           ? [
-              {
-                title: '事件',
-                className: 'p-none',
-                body: normalizeBodySchema(
-                  [
-                    getSchemaTpl('eventControl', {
-                      name: 'onEvent',
-                      ...getEventControlConfig(
-                        context!.info.plugin.manager,
-                        context!
-                      )
-                    })
-                  ],
-                  panels?.event?.body,
-                  panels?.event?.replace
-                )
-              }
-            ]
+            {
+              title: '事件',
+              className: 'p-none',
+              body: normalizeBodySchema(
+                [
+                  getSchemaTpl('eventControl', {
+                    name: 'onEvent',
+                    ...getEventControlConfig(
+                      context!.info.plugin.manager,
+                      context!
+                    )
+                  })
+                ],
+                panels?.event?.body,
+                panels?.event?.replace
+              )
+            }
+          ]
           : [])
       ]
     }

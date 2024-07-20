@@ -7,9 +7,9 @@ import {
   BaseEventContext,
   registerEditorPlugin
 } from 'amis-editor-core';
-import {tipedLabel} from 'amis-editor-core';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {ValidatorTag} from '../../validator';
+import { tipedLabel } from 'amis-editor-core';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { ValidatorTag } from '../../validator';
 
 const addBtnCssClassName = 'themeCss.addBtnControlClassName';
 const IconCssClassName = 'themeCss.iconControlClassName';
@@ -208,10 +208,17 @@ export class ImageControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
 
               {
@@ -361,8 +368,8 @@ export class ImageControlPlugin extends BasePlugin {
                     label: '裁剪区域',
                     value: 1,
                     options: [
-                      {label: '无限制', value: 0},
-                      {label: '绘图区域', value: 1}
+                      { label: '无限制', value: 0 },
+                      { label: '绘图区域', value: 1 }
                     ],
                     pipeOut: valuePipeOut
                   }
@@ -465,7 +472,7 @@ export class ImageControlPlugin extends BasePlugin {
             isFormItem: true,
             unsupportStatic: true
           }),
-          getSchemaTpl('validation', {tag: ValidatorTag.File})
+          getSchemaTpl('validation', { tag: ValidatorTag.File })
         ])
       },
       {
@@ -473,7 +480,7 @@ export class ImageControlPlugin extends BasePlugin {
         body: getSchemaTpl(
           'collapseGroup',
           [
-            getSchemaTpl('style:formItem', {renderer: context.info.renderer}),
+            getSchemaTpl('style:formItem', { renderer: context.info.renderer }),
             {
               title: '基本样式',
               body: [
@@ -543,7 +550,7 @@ export class ImageControlPlugin extends BasePlugin {
               isFormItem: true
             })
           ],
-          {...context?.schema, configTitle: 'style'}
+          { ...context?.schema, configTitle: 'style' }
         )
       },
       {

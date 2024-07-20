@@ -1,17 +1,17 @@
-import {EditorAvailableLanguages as availableLanguages} from 'amis';
+import { EditorAvailableLanguages as availableLanguages } from 'amis';
 import {
   defaultValue,
   getSchemaTpl,
   undefinedPipeOut,
   valuePipeOut
 } from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin} from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin } from 'amis-editor-core';
 
-import type {BaseEventContext} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {RendererPluginEvent, RendererPluginAction} from 'amis-editor-core';
+import type { BaseEventContext } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { RendererPluginEvent, RendererPluginAction } from 'amis-editor-core';
 
 export class DiffEditorControlPlugin extends BasePlugin {
   static id = 'DiffEditorControlPlugin';
@@ -155,10 +155,17 @@ export class DiffEditorControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               {
                 label: '语言',

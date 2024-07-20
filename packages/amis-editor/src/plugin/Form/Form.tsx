@@ -3,7 +3,7 @@ import DeepDiff from 'deep-diff';
 import flatten from 'lodash/flatten';
 import cloneDeep from 'lodash/cloneDeep';
 import pick from 'lodash/pick';
-import {isObject, getRendererByName, setVariable} from 'amis-core';
+import { isObject, getRendererByName, setVariable } from 'amis-core';
 import {
   BasePlugin,
   tipedLabel,
@@ -32,19 +32,19 @@ import {
   ModelDSBuilderKey,
   ApiDSBuilderKey
 } from '../../builder';
-import {FormOperatorMap} from '../../builder/constants';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {FieldSetting} from '../../renderer/FieldSetting';
-import {_isModelComp} from '../../util';
+import { FormOperatorMap } from '../../builder/constants';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { FieldSetting } from '../../renderer/FieldSetting';
+import { _isModelComp } from '../../util';
 
-import type {FormSchema} from 'amis/lib/Schema';
+import type { FormSchema } from 'amis/lib/Schema';
 import type {
   IFormStore,
   IFormItemStore,
   Schema,
   RendererConfig
 } from 'amis-core';
-import type {FormScaffoldConfig} from '../../builder';
+import type { FormScaffoldConfig } from '../../builder';
 
 export type FormPluginFeat = Extract<
   DSFeatureType,
@@ -372,11 +372,11 @@ export class FormPlugin extends BasePlugin {
     value: DSFeatureType;
     disabled?: boolean;
   }> = [
-    {label: '新增', value: DSFeatureEnum.Insert},
-    {label: '编辑', value: DSFeatureEnum.Edit},
-    {label: '查看', value: DSFeatureEnum.View},
-    {label: '批量编辑', value: DSFeatureEnum.BulkEdit, disabled: true}
-  ];
+      { label: '新增', value: DSFeatureEnum.Insert },
+      { label: '编辑', value: DSFeatureEnum.Edit },
+      { label: '查看', value: DSFeatureEnum.View },
+      { label: '批量编辑', value: DSFeatureEnum.BulkEdit, disabled: true }
+    ];
 
   dsManager: DSBuilderManager;
 
@@ -431,7 +431,7 @@ export class FormPlugin extends BasePlugin {
                 dsType: this.dsManager.getDefaultBuilderKey(),
                 initApi:
                   DSFeatureEnum.Insert === value ||
-                  DSFeatureEnum.BulkEdit === value
+                    DSFeatureEnum.BulkEdit === value
                     ? undefined
                     : ''
               });
@@ -462,7 +462,7 @@ export class FormPlugin extends BasePlugin {
               form.setValues({
                 initApi:
                   DSFeatureEnum.Insert === value ||
-                  DSFeatureEnum.BulkEdit === value
+                    DSFeatureEnum.BulkEdit === value
                     ? undefined
                     : ''
               });
@@ -520,12 +520,12 @@ export class FormPlugin extends BasePlugin {
         const builder = this.dsManager.getBuilderByKey(dsType);
 
         if (!builder) {
-          return {dsType};
+          return { dsType };
         }
 
-        const config = await builder.guessFormScaffoldConfig({schema});
+        const config = await builder.guessFormScaffoldConfig({ schema });
 
-        return {...config};
+        return { ...config };
       },
       pipeOut: async (config: FormScaffoldConfig) => {
         const scaffold: any = cloneDeep(this.scaffold);
@@ -550,7 +550,7 @@ export class FormPlugin extends BasePlugin {
         return schema;
       },
       validate: (data: FormScaffoldConfig, form: IFormStore) => {
-        const {feat} = data;
+        const { feat } = data;
         const builder = this.dsManager.getBuilderByScaffoldSetting(data);
         const featValue = builder?.getFeatValueByKey(
           feat ?? DSFeatureEnum.Insert
@@ -593,7 +593,7 @@ export class FormPlugin extends BasePlugin {
       );
     }
 
-    this._dynamicControls = {...this._dynamicControls, ...controls};
+    this._dynamicControls = { ...this._dynamicControls, ...controls };
   }
 
   /** 获取可能的使用场景 */
@@ -698,11 +698,9 @@ export class FormPlugin extends BasePlugin {
               return {
                 type: 'container',
                 className: 'form-item-gap',
-                visibleOn: `$\{feat === '${
-                  feat.value
-                }' && (dsType == null ? '${builderKey}' === '${
-                  defaultDsType || ApiDSBuilderKey
-                }' : dsType === '${builderKey}')}`,
+                visibleOn: `$\{feat === '${feat.value
+                  }' && (dsType == null ? '${builderKey}' === '${defaultDsType || ApiDSBuilderKey
+                  }' : dsType === '${builderKey}')}`,
                 body: flatten([
                   builder.makeSourceSettingForm({
                     feat: feat.value,
@@ -717,7 +715,7 @@ export class FormPlugin extends BasePlugin {
                        * 2. 配置面板中要读取Schema 配置，所以使用 initApi
                        */
                       ...(feat.value === DSFeatureEnum.View
-                        ? {name: 'initApi'}
+                        ? { name: 'initApi' }
                         : {})
                     }
                   })
@@ -826,7 +824,7 @@ export class FormPlugin extends BasePlugin {
                     dsType: this.dsManager.getDefaultBuilderKey(),
                     initApi:
                       DSFeatureEnum.Insert === value ||
-                      DSFeatureEnum.BulkEdit === value
+                        DSFeatureEnum.BulkEdit === value
                         ? undefined
                         : '',
                     api: undefined
@@ -857,6 +855,7 @@ export class FormPlugin extends BasePlugin {
                     label: '标题',
                     visibleOn: isWrapped
                   },
+                  getSchemaTpl('modelCode'),
                   getSchemaTpl('switch', {
                     name: 'autoFocus',
                     label: tipedLabel(
@@ -906,7 +905,7 @@ export class FormPlugin extends BasePlugin {
 
                               return isFormItem &&
                                 typeof item?.name === 'string'
-                                ? {label: item.name, value: item.name}
+                                ? { label: item.name, value: item.name }
                                 : false;
                             })
                             .filter(Boolean)
@@ -931,7 +930,7 @@ export class FormPlugin extends BasePlugin {
                     ),
                     pipeIn: defaultValue(true)
                   }),
-                  getSchemaTpl('loadingConfig', {label: '加载设置'}, {context})
+                  getSchemaTpl('loadingConfig', { label: '加载设置' }, { context })
                 ]
               },
               {
@@ -980,10 +979,10 @@ export class FormPlugin extends BasePlugin {
                   //     }),
                   isInDialog
                     ? getSchemaTpl('switch', {
-                        label: '提交后关闭对话框',
-                        name: 'closeDialogOnSubmit',
-                        pipeIn: (value: any) => value !== false
-                      })
+                      label: '提交后关闭对话框',
+                      name: 'closeDialogOnSubmit',
+                      pipeIn: (value: any) => value !== false
+                    })
                     : null
                   // isCRUDFilter
                   //   ? null
@@ -1271,7 +1270,7 @@ export class FormPlugin extends BasePlugin {
         );
         jsonschema.properties[schema.name] = {
           ...tmpSchema,
-          ...(tmpSchema?.$id ? {} : {$id: `${current.id}-${current.type}`})
+          ...(tmpSchema?.$id ? {} : { $id: `${current.id}-${current.type}` })
         };
       } else {
         pool.push(...current.children);
@@ -1300,7 +1299,7 @@ export class FormPlugin extends BasePlugin {
    */
   patchSchema(schema: Schema, info: RendererConfig, props: any) {
     let shouldUpdateSchema = false;
-    let patchedSchema: Schema = {...schema};
+    let patchedSchema: Schema = { ...schema };
 
     if (
       !(
@@ -1312,8 +1311,8 @@ export class FormPlugin extends BasePlugin {
               item &&
               !!~['submit', 'button', 'button-group', 'reset'].indexOf(
                 (item as any)?.body?.[0]?.type ||
-                  (item as any)?.body?.type ||
-                  (item as any).type
+                (item as any)?.body?.type ||
+                (item as any).type
               )
           ))
       )

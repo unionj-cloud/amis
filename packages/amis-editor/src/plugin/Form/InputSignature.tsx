@@ -1,9 +1,9 @@
-import {EditorNodeType, getSchemaTpl} from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
+import { EditorNodeType, getSchemaTpl } from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
 
 export class SignaturePlugin extends BasePlugin {
   static id = 'SignaturePlugin';
@@ -55,10 +55,17 @@ export class SignaturePlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               getSchemaTpl('labelRemark'),
               {
@@ -171,7 +178,7 @@ export class SignaturePlugin extends BasePlugin {
             getSchemaTpl('style:formItem', {
               renderer: context.info.renderer
             }),
-            getSchemaTpl('style:classNames', {unsupportStatic: true})
+            getSchemaTpl('style:classNames', { unsupportStatic: true })
           ])
         ]
       },

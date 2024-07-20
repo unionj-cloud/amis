@@ -4,14 +4,14 @@ import {
   defaultValue,
   getSchemaTpl
 } from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext} from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext } from 'amis-editor-core';
 
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
-import {resolveOptionEventDataSchame, resolveOptionType} from '../../util';
-import type {Schema} from 'amis';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
+import { resolveOptionEventDataSchame, resolveOptionType } from '../../util';
+import type { Schema } from 'amis';
 
 export class RadiosControlPlugin extends BasePlugin {
   static id = 'RadiosControlPlugin';
@@ -68,7 +68,7 @@ export class RadiosControlPlugin extends BasePlugin {
       eventLabel: '值变化',
       description: '选中值变化时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, selectedItems, items} = resolveOptionEventDataSchame(
+        const { value, selectedItems, items } = resolveOptionEventDataSchame(
           manager,
           false
         );
@@ -126,10 +126,17 @@ export class RadiosControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               getSchemaTpl('valueFormula', {
                 rendererSchema: (schema: Schema) => schema,
@@ -148,8 +155,8 @@ export class RadiosControlPlugin extends BasePlugin {
             title: '选项',
             body: [getSchemaTpl('optionControlV2'), getSchemaTpl('selectFirst')]
           },
-          getSchemaTpl('status', {isFormItem: true}),
-          getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+          getSchemaTpl('status', { isFormItem: true }),
+          getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
         ])
       },
       {

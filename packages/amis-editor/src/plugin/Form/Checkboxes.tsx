@@ -7,7 +7,7 @@ import {
   EditorManager,
   undefinedPipeOut
 } from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
 import {
   BasePlugin,
   BasicSubRenderInfo,
@@ -15,11 +15,11 @@ import {
   SubRendererInfo,
   BaseEventContext
 } from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
+import { ValidatorTag } from '../../validator';
 
-import type {Schema} from 'amis';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
+import type { Schema } from 'amis';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
 import {
   OPTION_EDIT_EVENTS,
   resolveOptionEventDataSchame,
@@ -82,7 +82,7 @@ export class CheckboxesControlPlugin extends BasePlugin {
       eventLabel: '值变化',
       description: '选中值变化时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value} = resolveOptionEventDataSchame(manager, true);
+        const { value } = resolveOptionEventDataSchame(manager, true);
 
         return [
           {
@@ -137,10 +137,17 @@ export class CheckboxesControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               [
                 getSchemaTpl('switch', {
@@ -222,15 +229,15 @@ export class CheckboxesControlPlugin extends BasePlugin {
               getSchemaTpl('optionDeleteControl')
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
-          getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+          getSchemaTpl('status', { isFormItem: true }),
+          getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
         ])
       },
       {
         title: '外观',
         body: [
           getSchemaTpl('collapseGroup', [
-            getSchemaTpl('style:formItem', {renderer}),
+            getSchemaTpl('style:formItem', { renderer }),
             getSchemaTpl('style:classNames')
           ])
         ]

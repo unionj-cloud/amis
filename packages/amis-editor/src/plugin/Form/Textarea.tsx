@@ -1,11 +1,11 @@
-import {defaultValue, getSchemaTpl} from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin, tipedLabel} from 'amis-editor-core';
+import { defaultValue, getSchemaTpl } from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin, tipedLabel } from 'amis-editor-core';
 
-import type {BaseEventContext} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
+import type { BaseEventContext } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
 
 export class TextareaControlPlugin extends BasePlugin {
   static id = 'TextareaControlPlugin';
@@ -137,10 +137,17 @@ export class TextareaControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               // getSchemaTpl('valueFormula', {
               //   rendererSchema: context?.schema,

@@ -1,4 +1,4 @@
-import {Button} from 'amis';
+import { Button } from 'amis';
 import React from 'react';
 import {
   BasePlugin,
@@ -99,26 +99,26 @@ export class PanelPlugin extends BasePlugin {
                 className: 'p-none',
                 title: '基本',
                 body: [
-                  getSchemaTpl('layout:originPosition', {value: 'left-top'}),
+                  getSchemaTpl('layout:originPosition', { value: 'left-top' }),
                   getSchemaTpl('title'),
                   isForm
                     ? null
                     : {
-                        children: (
-                          <Button
-                            size="sm"
-                            level="info"
-                            className="m-b"
-                            onClick={() => {
-                              // this.manager.showInsertPanel('body')
-                              this.manager.showRendererPanel('');
-                            }}
-                            block
-                          >
-                            内容区新增内容
-                          </Button>
-                        )
-                      }
+                      children: (
+                        <Button
+                          size="sm"
+                          level="info"
+                          className="m-b"
+                          onClick={() => {
+                            // this.manager.showInsertPanel('body')
+                            this.manager.showRendererPanel('');
+                          }}
+                          block
+                        >
+                          内容区新增内容
+                        </Button>
+                      )
+                    }
                 ]
               },
               getSchemaTpl('status')
@@ -149,7 +149,7 @@ export class PanelPlugin extends BasePlugin {
                 className: 'p-none',
                 title: '内容区域展示',
                 body: [
-                  getSchemaTpl('subFormItemMode', {label: '表单展示模式'}),
+                  getSchemaTpl('subFormItemMode', { label: '表单展示模式' }),
                   getSchemaTpl('subFormHorizontalMode', {
                     label: '表单水平占比'
                   }),
@@ -167,17 +167,17 @@ export class PanelPlugin extends BasePlugin {
                     size: 'sm',
                     pipeIn: (value: any) =>
                       typeof value === 'string' &&
-                      /(?:^|\s)(Panel\-\-(\w+))(?:$|\s)/.test(value)
+                        /(?:^|\s)(Panel\-\-(\w+))(?:$|\s)/.test(value)
                         ? RegExp.$1
                         : 'Panel--default',
                     pipeOut: (value: string, origin: string) =>
                       origin
                         ? `${origin.replace(
-                            /(?:^|\s)(Panel\-\-(\w+))(?=($|\s))/g,
-                            ''
-                          )} ${value}`
-                            .replace(/\s+/g, ' ')
-                            .trim()
+                          /(?:^|\s)(Panel\-\-(\w+))(?=($|\s))/g,
+                          ''
+                        )} ${value}`
+                          .replace(/\s+/g, ' ')
+                          .trim()
                         : value,
                     options: [
                       {

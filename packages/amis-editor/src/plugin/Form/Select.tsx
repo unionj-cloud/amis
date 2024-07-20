@@ -1,7 +1,7 @@
 import React from 'react';
 import omit from 'lodash/omit';
-import {findObjectsWithKey} from 'amis-core';
-import {Button, Icon} from 'amis-ui';
+import { findObjectsWithKey } from 'amis-core';
+import { Button, Icon } from 'amis-ui';
 import {
   registerEditorPlugin,
   getSchemaTpl,
@@ -11,8 +11,8 @@ import {
   undefinedPipeOut
 } from 'amis-editor-core';
 
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
 import {
   OPTION_EDIT_EVENTS,
   OPTION_EDIT_EVENTS_OLD,
@@ -20,7 +20,7 @@ import {
   resolveOptionType
 } from '../../util';
 
-import type {Schema} from 'amis';
+import type { Schema } from 'amis';
 import type {
   EditorNodeType,
   RendererPluginAction,
@@ -67,8 +67,8 @@ export class SelectControlPlugin extends BasePlugin {
     label: '选项',
     name: 'select',
     options: [
-      {label: '选项A', value: 'A'},
-      {label: '选项B', value: 'B'}
+      { label: '选项A', value: 'A' },
+      { label: '选项B', value: 'B' }
     ]
   };
 
@@ -92,7 +92,7 @@ export class SelectControlPlugin extends BasePlugin {
         eventLabel: '值变化',
         description: '选中值变化时触发',
         dataSchema: (manager: EditorManager) => {
-          const {value, selectedItems, items} =
+          const { value, selectedItems, items } =
             resolveOptionEventDataSchame(manager);
 
           return [
@@ -118,7 +118,7 @@ export class SelectControlPlugin extends BasePlugin {
         eventLabel: '获取焦点',
         description: '输入框获取焦点时触发',
         dataSchema: (manager: EditorManager) => {
-          const {value, items} = resolveOptionEventDataSchame(manager);
+          const { value, items } = resolveOptionEventDataSchame(manager);
 
           return [
             {
@@ -142,7 +142,7 @@ export class SelectControlPlugin extends BasePlugin {
         eventLabel: '失去焦点',
         description: '输入框失去焦点时触发',
         dataSchema: (manager: EditorManager) => {
-          const {value, items} = resolveOptionEventDataSchame(manager);
+          const { value, items } = resolveOptionEventDataSchame(manager);
 
           return [
             {
@@ -198,10 +198,17 @@ export class SelectControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               getSchemaTpl('clearable'),
               getSchemaTpl('searchable'),
@@ -260,12 +267,12 @@ export class SelectControlPlugin extends BasePlugin {
                 {
                   visibleOn: 'this.source || !this.options'
                 },
-                {context}
+                { context }
               ),
               // 模板
               getSchemaTpl('optionsMenuTpl', {
                 manager: this.manager,
-                onChange: (value: any) => {}
+                onChange: (value: any) => { }
               }),
               /** 新增选项 */
               getSchemaTpl('optionAddControl', {
@@ -293,15 +300,15 @@ export class SelectControlPlugin extends BasePlugin {
               getSchemaTpl('virtualItemHeight')
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
-          getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+          getSchemaTpl('status', { isFormItem: true }),
+          getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
         ])
       },
       {
         title: '外观',
         body: [
           getSchemaTpl('collapseGroup', [
-            getSchemaTpl('style:formItem', {renderer: context.info.renderer}),
+            getSchemaTpl('style:formItem', { renderer: context.info.renderer }),
             getSchemaTpl('style:classNames')
           ])
         ]

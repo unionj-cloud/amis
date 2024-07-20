@@ -1,8 +1,8 @@
-import {registerEditorPlugin} from 'amis-editor-core';
-import {defaultValue, getSchemaTpl, tipedLabel} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {BasePlugin, BaseEventContext} from 'amis-editor-core';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { defaultValue, getSchemaTpl, tipedLabel } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { BasePlugin, BaseEventContext } from 'amis-editor-core';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
 import tinyColor from 'tinycolor2';
 
 function convertColor(value: string[], format: string): string[];
@@ -26,7 +26,7 @@ function convertColor(value: any, format: string): any {
       case 'rgb':
         return color.toRgbString();
       case 'rgba':
-        const {r, g, b, a} = color.toRgb();
+        const { r, g, b, a } = color.toRgb();
         return `rgba(${r}, ${g}, ${b}, ${a})`;
       default:
         return color.toString();
@@ -130,7 +130,7 @@ export class ColorControlPlugin extends BasePlugin {
           key: `${color}-${index}`,
           color: convertColor(color, format)
         })),
-      pipeOut: (value: any[]) => value.map(({color = ''}) => color)
+      pipeOut: (value: any[]) => value.map(({ color = '' }) => color)
     });
   }
 
@@ -150,10 +150,17 @@ export class ColorControlPlugin extends BasePlugin {
             {
               title: '基本',
               body: [
-                getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-                getSchemaTpl('formItemName', {
-                  required: true
-                }),
+                getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+                getSchemaTpl(
+                  'formItemName',
+                  {
+                    required: true
+                  },
+                  {
+                    context,
+                    manager: this.manager
+                  }
+                ),
                 getSchemaTpl('label'),
                 {
                   type: 'select',
@@ -167,7 +174,7 @@ export class ColorControlPlugin extends BasePlugin {
                     model: any,
                     form: any
                   ) => {
-                    const {value, presetColors} = form.data;
+                    const { value, presetColors } = form.data;
                     if (value) {
                       form.setValueByName('value', convertColor(value, format));
                     }
@@ -181,7 +188,7 @@ export class ColorControlPlugin extends BasePlugin {
                 },
                 // todo: 待优化
                 [
-                  ...formatOptions.map(({value}) =>
+                  ...formatOptions.map(({ value }) =>
                     this.getConditionalColorPanel(value)
                   )
                 ],
@@ -224,7 +231,7 @@ export class ColorControlPlugin extends BasePlugin {
                   pipeOut: (
                     value: any,
                     originValue: any,
-                    {format = 'hex'}: any
+                    { format = 'hex' }: any
                   ) => {
                     return !value ? undefined : presetColorsByFormat[format];
                   },
@@ -239,7 +246,7 @@ export class ColorControlPlugin extends BasePlugin {
                     }
                   }
                 }),
-                ...formatOptions.map(({value}) =>
+                ...formatOptions.map(({ value }) =>
                   this.getConditionalColorComb(value)
                 )
               ]
@@ -251,7 +258,7 @@ export class ColorControlPlugin extends BasePlugin {
               tag: ValidatorTag.MultiSelect
             })
           ],
-          {...context?.schema, configTitle: 'props'}
+          { ...context?.schema, configTitle: 'props' }
         )
       },
       {
@@ -259,7 +266,7 @@ export class ColorControlPlugin extends BasePlugin {
         body: getSchemaTpl(
           'collapseGroup',
           [
-            getSchemaTpl('style:formItem', {renderer}),
+            getSchemaTpl('style:formItem', { renderer }),
             getSchemaTpl('style:classNames', {
               schema: [
                 getSchemaTpl('className', {
@@ -270,7 +277,7 @@ export class ColorControlPlugin extends BasePlugin {
               ]
             })
           ],
-          {...context?.schema, configTitle: 'style'}
+          { ...context?.schema, configTitle: 'style' }
         )
       }
       // {

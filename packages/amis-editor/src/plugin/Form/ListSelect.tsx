@@ -4,15 +4,15 @@ import {
   JSONPipeOut,
   getSchemaTpl
 } from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext, diff} from 'amis-editor-core';
-import {formItemControl} from '../../component/BaseControl';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext, diff } from 'amis-editor-core';
+import { formItemControl } from '../../component/BaseControl';
 import type {
   EditorManager,
   RendererPluginAction,
   RendererPluginEvent
 } from 'amis-editor-core';
-import type {Schema} from 'amis';
+import type { Schema } from 'amis';
 import {
   resolveOptionEventDataSchame,
   resolveOptionType,
@@ -77,7 +77,7 @@ export class ListControlPlugin extends BasePlugin {
       eventLabel: '值变化',
       description: '选中值变化时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value} = resolveOptionEventDataSchame(manager);
+        const { value } = resolveOptionEventDataSchame(manager);
 
         return [
           {
@@ -121,7 +121,7 @@ export class ListControlPlugin extends BasePlugin {
     }
   ];
 
-  getSubEditorVariable(schema: any): Array<{label: string; children: any}> {
+  getSubEditorVariable(schema: any): Array<{ label: string; children: any }> {
     let labelField = schema?.labelField || 'label';
     let valueField = schema?.valueField || 'value';
 
@@ -148,10 +148,17 @@ export class ListControlPlugin extends BasePlugin {
         common: {
           replace: true,
           body: [
-            getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-            getSchemaTpl('formItemName', {
-              required: true
-            }),
+            getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+            getSchemaTpl(
+              'formItemName',
+              {
+                required: true
+              },
+              {
+                context,
+                manager: this.manager
+              }
+            ),
             getSchemaTpl('label'),
             getSchemaTpl('multiple'),
             getSchemaTpl('extractValue'),
@@ -326,7 +333,7 @@ export class ListControlPlugin extends BasePlugin {
           body: '$$'
         },
         onChange: (newValue: any) => {
-          newValue = {...value, [field]: schemaArrayFormat(newValue)};
+          newValue = { ...value, [field]: schemaArrayFormat(newValue) };
           manager.panelChangeValue(newValue, diff(value, newValue));
         },
         data: {

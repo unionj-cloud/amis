@@ -1,12 +1,12 @@
-import {EditorAvailableLanguages as availableLanguages} from 'amis';
-import {defaultValue, getSchemaTpl, undefinedPipeOut} from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin} from 'amis-editor-core';
+import { EditorAvailableLanguages as availableLanguages } from 'amis';
+import { defaultValue, getSchemaTpl, undefinedPipeOut } from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin } from 'amis-editor-core';
 
-import type {BaseEventContext} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {RendererPluginEvent, RendererPluginAction} from 'amis-editor-core';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
+import type { BaseEventContext } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { RendererPluginEvent, RendererPluginAction } from 'amis-editor-core';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
 
 export class CodeEditorControlPlugin extends BasePlugin {
   static id = 'CodeEditorControlPlugin';
@@ -148,10 +148,17 @@ export class CodeEditorControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               {
                 label: '语言',

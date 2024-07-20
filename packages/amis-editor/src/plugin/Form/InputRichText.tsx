@@ -5,10 +5,10 @@ import {
   RendererPluginEvent,
   tipedLabel
 } from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin} from 'amis-editor-core';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {ValidatorTag} from '../../validator';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin } from 'amis-editor-core';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { ValidatorTag } from '../../validator';
 
 const tinymceToolbarsDelimiter = ' ';
 
@@ -225,9 +225,16 @@ export class RichTextControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               getSchemaTpl('valueFormula', {
                 rendererSchema: {
@@ -426,8 +433,8 @@ export class RichTextControlPlugin extends BasePlugin {
               getSchemaTpl('description')
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
-          getSchemaTpl('validation', {tag: ValidatorTag.Code})
+          getSchemaTpl('status', { isFormItem: true }),
+          getSchemaTpl('validation', { tag: ValidatorTag.Code })
         ])
       },
       {

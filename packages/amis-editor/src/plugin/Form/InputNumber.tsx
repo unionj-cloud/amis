@@ -5,9 +5,9 @@ import {
   RendererPluginEvent
 } from 'amis-editor-core';
 import flatten from 'lodash/flatten';
-import {ContainerWrapper} from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {isObject} from 'amis-editor-core';
+import { ContainerWrapper } from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { isObject } from 'amis-editor-core';
 import {
   BasePlugin,
   BasicSubRenderInfo,
@@ -15,11 +15,11 @@ import {
   SubRendererInfo,
   BaseEventContext
 } from 'amis-editor-core';
-import {defaultValue, getSchemaTpl, tipedLabel} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {inputStateTpl} from '../../renderer/style-control/helper';
-import {Schema} from 'amis-core';
+import { defaultValue, getSchemaTpl, tipedLabel } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { inputStateTpl } from '../../renderer/style-control/helper';
+import { Schema } from 'amis-core';
 
 export class NumberControlPlugin extends BasePlugin {
   static id = 'NumberControlPlugin';
@@ -160,10 +160,17 @@ export class NumberControlPlugin extends BasePlugin {
             {
               title: '基本',
               body: [
-                getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-                getSchemaTpl('formItemName', {
-                  required: true
-                }),
+                getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+                getSchemaTpl(
+                  'formItemName',
+                  {
+                    required: true
+                  },
+                  {
+                    context,
+                    manager: this.manager
+                  }
+                ),
                 getSchemaTpl('label'),
                 {
                   type: 'switch',
@@ -253,9 +260,9 @@ export class NumberControlPlugin extends BasePlugin {
                       return value.map(item =>
                         typeof item === 'string'
                           ? {
-                              label: item,
-                              value: item
-                            }
+                            label: item,
+                            value: item
+                          }
                           : item
                       );
                     }
@@ -266,7 +273,7 @@ export class NumberControlPlugin extends BasePlugin {
                       return undefined;
                     }
                     return value.map(item =>
-                      item.value ? item : {label: item.label, value: item.label}
+                      item.value ? item : { label: item.label, value: item.label }
                     );
                   }
                 }),
@@ -277,10 +284,10 @@ export class NumberControlPlugin extends BasePlugin {
                 getSchemaTpl('autoFillApi')
               ]
             },
-            getSchemaTpl('status', {isFormItem: true}),
-            getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+            getSchemaTpl('status', { isFormItem: true }),
+            getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
           ],
-          {...context?.schema, configTitle: 'props'}
+          { ...context?.schema, configTitle: 'props' }
         )
       },
       {
@@ -333,7 +340,7 @@ export class NumberControlPlugin extends BasePlugin {
                 isFormItem: true
               })
             ],
-            {...context?.schema, configTitle: 'style'}
+            { ...context?.schema, configTitle: 'style' }
           )
         ]
       },

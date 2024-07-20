@@ -1,14 +1,14 @@
-import {defaultValue, getSchemaTpl, tipedLabel} from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext} from 'amis-editor-core';
+import { defaultValue, getSchemaTpl, tipedLabel } from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext } from 'amis-editor-core';
 
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {FormulaDateType} from '../../renderer/FormulaControl';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
-import {getRendererByName} from 'amis-core';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { FormulaDateType } from '../../renderer/FormulaControl';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
+import { getRendererByName } from 'amis-core';
 import omit from 'lodash/omit';
-import type {Schema} from 'amis';
+import type { Schema } from 'amis';
 
 const formatX = [
   {
@@ -30,7 +30,7 @@ const DateType: {
     sizeMutable?: boolean;
     type?: string;
     timeFormat?: string;
-    formatOptions: Array<{label: string; value: string; timeFormat?: string}>;
+    formatOptions: Array<{ label: string; value: string; timeFormat?: string }>;
   };
 } = {
   date: {
@@ -322,10 +322,17 @@ export class DateRangeControlPlugin extends BasePlugin {
             {
               title: '基本',
               body: [
-                getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-                getSchemaTpl('formItemName', {
-                  required: true
-                }),
+                getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+                getSchemaTpl(
+                  'formItemName',
+                  {
+                    required: true
+                  },
+                  {
+                    context,
+                    manager: this.manager
+                  }
+                ),
 
                 getSchemaTpl('formItemExtraName'),
 
@@ -504,7 +511,7 @@ export class DateRangeControlPlugin extends BasePlugin {
                 getSchemaTpl('autoFillApi')
               ]
             },
-            getSchemaTpl('status', {isFormItem: true}),
+            getSchemaTpl('status', { isFormItem: true }),
             getSchemaTpl('validation', {
               tag: ValidatorTag.Date,
               rendererSchema: (schema: Schema) => {
@@ -516,7 +523,7 @@ export class DateRangeControlPlugin extends BasePlugin {
               }
             })
           ],
-          {...context?.schema, configTitle: 'props'}
+          { ...context?.schema, configTitle: 'props' }
         )
       },
       {
@@ -525,7 +532,7 @@ export class DateRangeControlPlugin extends BasePlugin {
           'collapseGroup',
           [
             getSchemaTpl('style:formItem', {
-              renderer: {...renderer, sizeMutable: false},
+              renderer: { ...renderer, sizeMutable: false },
               schema: [
                 // 需要作为一个字符串表达式传入，因为切换 type 后 panelBodyCreator 不会重新执行
                 getSchemaTpl('formItemSize', {
@@ -568,7 +575,7 @@ export class DateRangeControlPlugin extends BasePlugin {
               }
             ])
           ],
-          {...context?.schema, configTitle: 'style'}
+          { ...context?.schema, configTitle: 'style' }
         )
       },
       {

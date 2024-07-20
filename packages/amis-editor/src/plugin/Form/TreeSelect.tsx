@@ -5,22 +5,22 @@ import {
   RendererPluginAction,
   RendererPluginEvent
 } from 'amis-editor-core';
-import {defaultValue, getSchemaTpl} from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BaseEventContext, BasePlugin} from 'amis-editor-core';
+import { defaultValue, getSchemaTpl } from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BaseEventContext, BasePlugin } from 'amis-editor-core';
 import cloneDeep from 'lodash/cloneDeep';
 import {
   getArgsWrapper,
   getEventControlConfig
 } from '../../renderer/event-control/helper';
-import {ValidatorTag} from '../../validator';
-import {tipedLabel} from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { tipedLabel } from 'amis-editor-core';
 import {
   resolveOptionEventDataSchame,
   resolveOptionType,
   TREE_BASE_EVENTS
 } from '../../util';
-import {TreeCommonAction} from './InputTree';
+import { TreeCommonAction } from './InputTree';
 
 export class TreeSelectControlPlugin extends BasePlugin {
   static id = 'TreeSelectControlPlugin';
@@ -90,7 +90,7 @@ export class TreeSelectControlPlugin extends BasePlugin {
       eventLabel: '获取焦点',
       description: '输入框获取焦点时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, items, itemSchema} =
+        const { value, items, itemSchema } =
           resolveOptionEventDataSchame(manager);
 
         return [
@@ -120,7 +120,7 @@ export class TreeSelectControlPlugin extends BasePlugin {
       eventLabel: '失去焦点',
       description: '输入框失去焦点时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, items, itemSchema} =
+        const { value, items, itemSchema } =
           resolveOptionEventDataSchame(manager);
 
         return [
@@ -223,10 +223,17 @@ export class TreeSelectControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               {
                 type: 'button-group-select',
@@ -351,7 +358,7 @@ export class TreeSelectControlPlugin extends BasePlugin {
                 {
                   visibleOn: 'this.source || !this.options'
                 },
-                {context}
+                { context }
               ),
               getSchemaTpl('switch', {
                 label: '只可选择叶子节点',
@@ -530,13 +537,13 @@ export class TreeSelectControlPlugin extends BasePlugin {
           getSchemaTpl('status', {
             isFormItem: true
           }),
-          getSchemaTpl('validation', {tag: ValidatorTag.Tree})
+          getSchemaTpl('validation', { tag: ValidatorTag.Tree })
         ])
       },
       {
         title: '外观',
         body: getSchemaTpl('collapseGroup', [
-          getSchemaTpl('style:formItem', {renderer}),
+          getSchemaTpl('style:formItem', { renderer }),
           getSchemaTpl('style:classNames', {
             schema: [
               getSchemaTpl('className', {

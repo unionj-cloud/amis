@@ -15,10 +15,10 @@ import {
   getSchemaTpl,
   defaultValue
 } from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import type {Schema} from 'amis';
-import {resolveOptionEventDataSchame} from '../../util';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import type { Schema } from 'amis';
+import { resolveOptionEventDataSchame } from '../../util';
 
 export class ChainedSelectControlPlugin extends BasePlugin {
   static id = 'ChainedSelectControlPlugin';
@@ -58,7 +58,7 @@ export class ChainedSelectControlPlugin extends BasePlugin {
       eventLabel: '值变化',
       description: '选中值变化时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value} = resolveOptionEventDataSchame(manager);
+        const { value } = resolveOptionEventDataSchame(manager);
 
         return [
           {
@@ -114,10 +114,17 @@ export class ChainedSelectControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
 
               getSchemaTpl('valueFormula', {
@@ -178,7 +185,7 @@ export class ChainedSelectControlPlugin extends BasePlugin {
                 {
                   visibleOn: 'this.source || !this.options'
                 },
-                {context}
+                { context }
               ),
 
               {
@@ -202,15 +209,15 @@ export class ChainedSelectControlPlugin extends BasePlugin {
               }
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
-          getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+          getSchemaTpl('status', { isFormItem: true }),
+          getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
         ])
       },
       {
         title: '外观',
         body: [
           getSchemaTpl('collapseGroup', [
-            getSchemaTpl('style:formItem', {renderer: context.info.renderer}),
+            getSchemaTpl('style:formItem', { renderer: context.info.renderer }),
             getSchemaTpl('style:classNames', {
               schema: [
                 getSchemaTpl('className', {

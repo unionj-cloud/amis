@@ -1,7 +1,7 @@
 import React from 'react';
 import get from 'lodash/get';
-import {getVariable} from 'amis-core';
-import {Button} from 'amis';
+import { getVariable } from 'amis-core';
+import { Button } from 'amis';
 import {
   defaultValue,
   getSchemaTpl,
@@ -9,10 +9,10 @@ import {
   tipedLabel,
   RendererPluginEvent
 } from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BaseEventContext, BasePlugin} from 'amis-editor-core';
-import {EditorNodeType} from 'amis-editor-core';
-import {mockValue} from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BaseEventContext, BasePlugin } from 'amis-editor-core';
+import { EditorNodeType } from 'amis-editor-core';
+import { mockValue } from 'amis-editor-core';
 
 // 快速编辑
 setSchemaTpl('quickEdit', (patch: any, manager: any) => ({
@@ -28,7 +28,7 @@ setSchemaTpl('quickEdit', (patch: any, manager: any) => ({
     mode: 'popOver'
   },
   isChecked: (e: any) => {
-    const {data, name} = e;
+    const { data, name } = e;
     return !!get(data, name);
   },
   form: {
@@ -76,13 +76,13 @@ setSchemaTpl('quickEdit', (patch: any, manager: any) => ({
         asFormItem: true,
         visibleOn: 'this.quickEdit',
         mode: 'row',
-        children: ({value, onChange, data}: any) => {
+        children: ({ value, onChange, data }: any) => {
           if (value === true) {
             value = {};
           } else if (typeof value === 'undefined') {
             value = getVariable(data, 'quickEdit');
           }
-          value = {...value};
+          value = { ...value };
           const originMode = value.mode || 'popOver';
           if (value.mode) {
             delete value.mode;
@@ -94,22 +94,22 @@ setSchemaTpl('quickEdit', (patch: any, manager: any) => ({
           value =
             value.body && ['container', 'wrapper'].includes(value.type)
               ? {
-                  // schema中存在容器，用自己的就行
-                  type: 'wrapper',
-                  body: [],
-                  ...value
-                }
+                // schema中存在容器，用自己的就行
+                type: 'wrapper',
+                body: [],
+                ...value
+              }
               : {
-                  // schema中不存在容器，打开子编辑器时需要包裹一层
-                  type: 'wrapper',
-                  body: [
-                    {
-                      type: 'input-text',
-                      name: data.name,
-                      ...value
-                    }
-                  ]
-                };
+                // schema中不存在容器，打开子编辑器时需要包裹一层
+                type: 'wrapper',
+                body: [
+                  {
+                    type: 'input-text',
+                    name: data.name,
+                    ...value
+                  }
+                ]
+              };
           // todo 多个快速编辑表单模式看来只能代码模式编辑了。
           return (
             <Button
@@ -226,7 +226,7 @@ setSchemaTpl('morePopOver', (patch: any, manager: any) => ({
         name: 'popOver',
         mode: 'row',
         asFormItem: true,
-        children: ({value, onChange}: any) => {
+        children: ({ value, onChange }: any) => {
           value = {
             type: 'panel',
             title: '查看详情',
@@ -325,9 +325,16 @@ export class StaticControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('formItemName', {
-                required: false
-              }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: false
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               // getSchemaTpl('value'),
               getSchemaTpl('valueFormula', {
@@ -375,7 +382,7 @@ export class StaticControlPlugin extends BasePlugin {
       {
         title: '外观',
         body: getSchemaTpl('collapseGroup', [
-          getSchemaTpl('style:formItem', {renderer}),
+          getSchemaTpl('style:formItem', { renderer }),
           {
             title: '控件',
             body: [getSchemaTpl('borderMode')]

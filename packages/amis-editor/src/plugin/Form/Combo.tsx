@@ -1,4 +1,4 @@
-import {setVariable, someTree} from 'amis-core';
+import { setVariable, someTree } from 'amis-core';
 import {
   BaseEventContext,
   BasePlugin,
@@ -14,13 +14,13 @@ import {
   EditorNodeType,
   EditorManager
 } from 'amis-editor-core';
-import {DSBuilderManager} from '../../builder/DSBuilderManager';
-import {ValidatorTag} from '../../validator';
+import { DSBuilderManager } from '../../builder/DSBuilderManager';
+import { ValidatorTag } from '../../validator';
 import {
   getArgsWrapper,
   getEventControlConfig
 } from '../../renderer/event-control/helper';
-import {resolveInputTableEventDataSchame} from '../../util';
+import { resolveInputTableEventDataSchame } from '../../util';
 
 export class ComboControlPlugin extends BasePlugin {
   static id = 'ComboControlPlugin';
@@ -81,7 +81,7 @@ export class ComboControlPlugin extends BasePlugin {
     body: [
       {
         ...this.scaffold,
-        value: [{text: 'Row 1', select: 'a'}, {}]
+        value: [{ text: 'Row 1', select: 'a' }, {}]
       }
     ]
   };
@@ -103,7 +103,7 @@ export class ComboControlPlugin extends BasePlugin {
       eventLabel: '添加',
       description: '添加组合项时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value} = resolveInputTableEventDataSchame(manager);
+        const { value } = resolveInputTableEventDataSchame(manager);
 
         return [
           {
@@ -130,7 +130,7 @@ export class ComboControlPlugin extends BasePlugin {
       eventLabel: '删除',
       description: '删除组合项',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager);
+        const { value, item } = resolveInputTableEventDataSchame(manager);
 
         return [
           {
@@ -166,7 +166,7 @@ export class ComboControlPlugin extends BasePlugin {
       eventLabel: '拖拽结束',
       description: '当组合项拖拽结束且位置发生变化时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager);
+        const { value, item } = resolveInputTableEventDataSchame(manager);
 
         return [
           {
@@ -211,7 +211,7 @@ export class ComboControlPlugin extends BasePlugin {
       eventLabel: '切换tab',
       description: '当设置 tabsMode 为 true 时，切换选项卡时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager);
+        const { value, item } = resolveInputTableEventDataSchame(manager);
 
         return [
           {
@@ -320,9 +320,16 @@ export class ComboControlPlugin extends BasePlugin {
               className: 'p-none',
               title: '常用',
               body: [
-                getSchemaTpl('formItemName', {
-                  required: true
-                }),
+                getSchemaTpl(
+                  'formItemName',
+                  {
+                    required: true
+                  },
+                  {
+                    context,
+                    manager: this.manager
+                  }
+                ),
                 getSchemaTpl('label'),
 
                 getSchemaTpl('valueFormula', {
@@ -560,9 +567,9 @@ export class ComboControlPlugin extends BasePlugin {
                     ],
                     value: [],
                     pipeIn(value?: Array<string>) {
-                      return (value ?? []).map(item => ({field: item}));
+                      return (value ?? []).map(item => ({ field: item }));
                     },
-                    pipeOut(value?: Array<{field: string}>) {
+                    pipeOut(value?: Array<{ field: string }>) {
                       return (value ?? []).map(item => {
                         const keys = Object.keys(item);
                         return keys.length > 0 ? item.field : '';
@@ -586,7 +593,7 @@ export class ComboControlPlugin extends BasePlugin {
               isFormItem: true,
               readonly: true
             }),
-            getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+            getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
           ])
         ]
       },
@@ -605,8 +612,8 @@ export class ComboControlPlugin extends BasePlugin {
                 inputClassName: 'items-center',
                 size: 'sm',
                 options: [
-                  {label: '表单', value: false},
-                  {label: '选项卡', value: true}
+                  { label: '表单', value: false },
+                  { label: '选项卡', value: true }
                 ],
                 pipeIn: defaultValue(false),
                 onChange: (
@@ -745,9 +752,8 @@ export class ComboControlPlugin extends BasePlugin {
     const items = node.children?.find(
       child => child.isRegion && child.region === 'items'
     );
-    const parentScopeId = `${parent?.id}-${parent?.type}${
-      node.parent?.type === 'cell' ? '-currentRow' : ''
-    }`;
+    const parentScopeId = `${parent?.id}-${parent?.type}${node.parent?.type === 'cell' ? '-currentRow' : ''
+      }`;
     let isColumnChild = false;
 
     if (trigger && items) {
@@ -783,7 +789,7 @@ export class ComboControlPlugin extends BasePlugin {
         );
         itemsSchema.properties[schema.name] = {
           tmpSchema,
-          ...(tmpSchema?.$id ? {} : {$id: `${current!.id}-${current!.type}`})
+          ...(tmpSchema?.$id ? {} : { $id: `${current!.id}-${current!.type}` })
         };
       }
     }
