@@ -85,15 +85,11 @@ setSchemaTpl(
  * 表单项字段name
  */
 setSchemaTpl('formItemName', (schema: object = {}, options: any) => {
-  console.log(schema);
-  console.log(options);
   if (options) {
-    const { manager } = options
+    const { manager, context } = options
     if (manager) {
-      const scopeId = manager.dataSchema.current.id
-      console.log('scopeId', scopeId);
-      const nodeId = scopeId.split('-')[0]
-      const formSchema = manager.store.getSchema(nodeId)
+      const offset = context.node.path.split('/').lastIndexOf('form') - (context.node.path.split('/').length - 1)
+      const formSchema = manager.store.getSchemaByPath(context.node.schemaPath.split('/').slice(0, offset))
       const modelCode = formSchema.modelCode
       if (modelCode) {
         return {
