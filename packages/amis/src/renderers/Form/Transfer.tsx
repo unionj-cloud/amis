@@ -394,7 +394,7 @@ export class BaseTransferRenderer<
         }
 
         const result =
-          payload.data.options || payload.data.items || payload.data;
+          payload.data.options || payload.data.items || payload.data || [];
         if (!Array.isArray(result)) {
           throw new Error(__('CRUD.invalidArray'));
         }

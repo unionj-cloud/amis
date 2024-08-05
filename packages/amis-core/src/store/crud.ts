@@ -387,6 +387,7 @@ export const CRUDStore = ServiceStore.named('CRUDStore')
             items = [];
           }
 
+          items = items || []
           if (!Array.isArray(items)) {
             throw new Error(self.__('CRUD.invalidArray'));
           } else {
