@@ -1,4 +1,4 @@
-import {isObject} from 'amis';
+import { isObject } from 'amis';
 import {
   BasePlugin,
   defaultValue,
@@ -6,10 +6,10 @@ import {
   tipedLabel,
   registerEditorPlugin
 } from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
 
-import type {IFormStore, IFormItemStore} from 'amis-core';
+import type { IFormStore, IFormItemStore } from 'amis-core';
 import type {
   EditorNodeType,
   RendererPluginAction,
@@ -193,10 +193,17 @@ export class RangeControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               getSchemaTpl('switch', {
                 label: '双滑块',
@@ -320,11 +327,11 @@ export class RangeControlPlugin extends BasePlugin {
                     label: '方向',
                     value: 'auto',
                     options: [
-                      {label: '自动', value: 'auto'},
-                      {label: '上', value: 'top'},
-                      {label: '下', value: 'bottom'},
-                      {label: '左', value: 'left'},
-                      {label: '右', value: 'right'}
+                      { label: '自动', value: 'auto' },
+                      { label: '上', value: 'top' },
+                      { label: '下', value: 'bottom' },
+                      { label: '左', value: 'left' },
+                      { label: '右', value: 'right' }
                     ]
                   }
                 ]
@@ -359,15 +366,15 @@ export class RangeControlPlugin extends BasePlugin {
               }
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
-          getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+          getSchemaTpl('status', { isFormItem: true }),
+          getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
         ])
       },
       {
         title: '外观',
         body: [
           getSchemaTpl('collapseGroup', [
-            getSchemaTpl('style:formItem', {renderer: context.info.renderer}),
+            getSchemaTpl('style:formItem', { renderer: context.info.renderer }),
             getSchemaTpl('style:classNames')
           ])
         ]

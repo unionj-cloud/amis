@@ -1,9 +1,9 @@
 import React from 'react';
-import {getEventControlConfig} from '../renderer/event-control/helper';
-import {tipedLabel} from 'amis-editor-core';
-import {registerEditorPlugin, getSchemaTpl, diff} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext} from 'amis-editor-core';
-import {schemaArrayFormat, schemaToArray} from '../util';
+import { getEventControlConfig } from '../renderer/event-control/helper';
+import { tipedLabel } from 'amis-editor-core';
+import { registerEditorPlugin, getSchemaTpl, diff } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext } from 'amis-editor-core';
+import { schemaArrayFormat, schemaToArray } from '../util';
 
 export class TimelinePlugin extends BasePlugin {
   static id = 'TimelinePlugin';
@@ -22,9 +22,9 @@ export class TimelinePlugin extends BasePlugin {
     label: '时间轴',
     name: 'timeline',
     items: [
-      {time: '2012-12-21', title: '节点示例数据'},
-      {time: '2012-12-24', title: '节点示例数据'},
-      {time: '2012-12-27', title: '节点示例数据'}
+      { time: '2012-12-21', title: '节点示例数据' },
+      { time: '2012-12-24', title: '节点示例数据' },
+      { time: '2012-12-27', title: '节点示例数据' }
     ]
   };
   previewSchema = {
@@ -41,10 +41,17 @@ export class TimelinePlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               {
                 label: '排序',
@@ -54,8 +61,8 @@ export class TimelinePlugin extends BasePlugin {
                 inline: false,
                 size: 'sm',
                 options: [
-                  {label: '正序', value: false},
-                  {label: '反序', value: true}
+                  { label: '正序', value: false },
+                  { label: '反序', value: true }
                 ]
               },
               {
@@ -66,8 +73,8 @@ export class TimelinePlugin extends BasePlugin {
                 size: 'sm',
                 inline: true,
                 options: [
-                  {label: '垂直', value: 'vertical'},
-                  {label: '水平', value: 'horizontal'}
+                  { label: '垂直', value: 'vertical' },
+                  { label: '水平', value: 'horizontal' }
                 ]
               },
               {
@@ -78,9 +85,9 @@ export class TimelinePlugin extends BasePlugin {
                 visibleOn: 'this.direction === "vertical"',
                 size: 'sm',
                 options: [
-                  {label: '左侧', value: 'right'},
-                  {label: '右侧', value: 'left'},
-                  {label: '两侧交替', value: 'alternate'}
+                  { label: '左侧', value: 'right' },
+                  { label: '右侧', value: 'left' },
+                  { label: '两侧交替', value: 'alternate' }
                 ]
               }
             ]
@@ -159,7 +166,7 @@ export class TimelinePlugin extends BasePlugin {
     ]);
 
   editDetail(context: BaseEventContext) {
-    const {id, schema} = context;
+    const { id, schema } = context;
     const manager = this.manager;
     const store = manager.store;
     const node = store.getNodeById(id);
@@ -178,7 +185,7 @@ export class TimelinePlugin extends BasePlugin {
           body: '$$'
         },
         onChange: (newValue: any) => {
-          newValue = {...value, itemTitleSchema: schemaArrayFormat(newValue)};
+          newValue = { ...value, itemTitleSchema: schemaArrayFormat(newValue) };
           manager.panelChangeValue(newValue, diff(value, newValue));
         },
         data: schema

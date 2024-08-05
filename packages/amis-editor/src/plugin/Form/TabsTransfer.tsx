@@ -5,12 +5,12 @@ import {
   getSchemaTpl,
   tipedLabel
 } from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext} from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext } from 'amis-editor-core';
 
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {resolveOptionEventDataSchame, resolveOptionType} from '../../util';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { resolveOptionEventDataSchame, resolveOptionType } from '../../util';
 
 export class TabsTransferPlugin extends BasePlugin {
   static id = 'TabsTransferPlugin';
@@ -148,7 +148,7 @@ export class TabsTransferPlugin extends BasePlugin {
       eventLabel: '值变化',
       description: '选中值变化时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, items} = resolveOptionEventDataSchame(manager, true);
+        const { value, items } = resolveOptionEventDataSchame(manager, true);
 
         return [
           {
@@ -281,10 +281,17 @@ export class TabsTransferPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               {
                 label: '左侧选项展示',
@@ -359,7 +366,7 @@ export class TabsTransferPlugin extends BasePlugin {
                 {
                   visibleOn: 'this.source || !this.options'
                 },
-                {context}
+                { context }
               ),
               getSchemaTpl('joinValues'),
               getSchemaTpl('delimiter'),
@@ -377,7 +384,7 @@ export class TabsTransferPlugin extends BasePlugin {
               getSchemaTpl('virtualItemHeight')
             ]
           },
-          getSchemaTpl('status', {isFormItem: true})
+          getSchemaTpl('status', { isFormItem: true })
         ])
       },
       {

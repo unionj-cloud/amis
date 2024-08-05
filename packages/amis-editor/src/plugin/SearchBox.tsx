@@ -6,10 +6,10 @@ import {
   RendererPluginEvent,
   RendererPluginAction
 } from 'amis-editor-core';
-import {getSchemaTpl} from 'amis-editor-core';
-import {getEventControlConfig} from '../renderer/event-control/helper';
+import { getSchemaTpl } from 'amis-editor-core';
+import { getEventControlConfig } from '../renderer/event-control/helper';
 
-import type {Schema} from 'amis-core';
+import type { Schema } from 'amis-core';
 
 export class SearchBoxPlugin extends BasePlugin {
   static id = 'SearchBoxPlugin';
@@ -46,7 +46,7 @@ export class SearchBoxPlugin extends BasePlugin {
     showCloseButton: true
   };
 
-  regions = [{key: 'body', label: '内容区', placeholder: '搜索框内容'}];
+  regions = [{ key: 'body', label: '内容区', placeholder: '搜索框内容' }];
 
   // 事件定义
   events: RendererPluginEvent[] = [
@@ -164,9 +164,16 @@ export class SearchBoxPlugin extends BasePlugin {
           {
             title: '基础',
             body: [
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('switch', {
                 label: '可清除',
                 name: 'clearable'
@@ -197,7 +204,7 @@ export class SearchBoxPlugin extends BasePlugin {
       {
         title: '外观',
         body: getSchemaTpl('collapseGroup', [
-          getSchemaTpl('style:classNames', {isFormItem: false})
+          getSchemaTpl('style:classNames', { isFormItem: false })
         ])
       },
       {

@@ -6,11 +6,11 @@ import {
   isObject,
   undefinedPipeOut
 } from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext, tipedLabel} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext, tipedLabel } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
 
 export class RateControlPlugin extends BasePlugin {
   static id = 'RateControlPlugin';
@@ -104,10 +104,17 @@ export class RateControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
 
               getSchemaTpl('label', {
                 label: 'Label'
@@ -225,7 +232,7 @@ export class RateControlPlugin extends BasePlugin {
               getSchemaTpl('autoFillApi')
             ]
           },
-          getSchemaTpl('status', {isFormItem: true, readonly: true}),
+          getSchemaTpl('status', { isFormItem: true, readonly: true }),
           getSchemaTpl('validation', {
             tag: ValidatorTag.Check
           })

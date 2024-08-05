@@ -4,13 +4,13 @@ import {
   RendererPluginAction,
   RendererPluginEvent
 } from 'amis-editor-core';
-import {getSchemaTpl} from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext, tipedLabel} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {resolveOptionEventDataSchame, resolveOptionType} from '../../util';
-import type {Schema} from 'amis';
+import { getSchemaTpl } from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext, tipedLabel } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { resolveOptionEventDataSchame, resolveOptionType } from '../../util';
+import type { Schema } from 'amis';
 
 export class NestedSelectControlPlugin extends BasePlugin {
   static id = 'NestedSelectControlPlugin';
@@ -125,7 +125,7 @@ export class NestedSelectControlPlugin extends BasePlugin {
       eventLabel: '值变化',
       description: '选中值变化时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value} = resolveOptionEventDataSchame(manager);
+        const { value } = resolveOptionEventDataSchame(manager);
 
         return [
           {
@@ -148,7 +148,7 @@ export class NestedSelectControlPlugin extends BasePlugin {
       eventLabel: '获取焦点',
       description: '输入框获取焦点时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value} = resolveOptionEventDataSchame(manager);
+        const { value } = resolveOptionEventDataSchame(manager);
 
         return [
           {
@@ -171,7 +171,7 @@ export class NestedSelectControlPlugin extends BasePlugin {
       eventLabel: '失去焦点',
       description: '输入框失去焦点时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value} = resolveOptionEventDataSchame(manager);
+        const { value } = resolveOptionEventDataSchame(manager);
 
         return [
           {
@@ -223,10 +223,17 @@ export class NestedSelectControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               getSchemaTpl('clearable'),
               {
@@ -328,11 +335,11 @@ export class NestedSelectControlPlugin extends BasePlugin {
                 {
                   visibleOn: 'this.source || !this.options'
                 },
-                {context}
+                { context }
               )
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
+          getSchemaTpl('status', { isFormItem: true }),
           getSchemaTpl('validation', {
             tag: (data: any) => {
               return ValidatorTag.MultiSelect;
@@ -343,7 +350,7 @@ export class NestedSelectControlPlugin extends BasePlugin {
       {
         title: '外观',
         body: getSchemaTpl('collapseGroup', [
-          getSchemaTpl('style:formItem', {renderer}),
+          getSchemaTpl('style:formItem', { renderer }),
           {
             title: '边框',
             key: 'borderMode',

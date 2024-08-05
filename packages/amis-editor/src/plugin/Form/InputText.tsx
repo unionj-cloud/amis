@@ -10,11 +10,11 @@ import {
   SubRendererInfo,
   BaseEventContext
 } from 'amis-editor-core';
-import {defaultValue, getSchemaTpl, tipedLabel} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {inputStateTpl} from '../../renderer/style-control/helper';
-import {resolveOptionType} from '../../util';
+import { defaultValue, getSchemaTpl, tipedLabel } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { inputStateTpl } from '../../renderer/style-control/helper';
+import { resolveOptionType } from '../../util';
 
 const isText = 'this.type === "input-text"';
 const isPassword = 'this.type === "input-password"';
@@ -218,10 +218,17 @@ export class TextControlPlugin extends BasePlugin {
             {
               title: '基本',
               body: [
-                getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-                getSchemaTpl('formItemName', {
-                  required: true
-                }),
+                getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+                getSchemaTpl(
+                  'formItemName',
+                  {
+                    required: true
+                  },
+                  {
+                    context,
+                    manager: this.manager
+                  }
+                ),
                 getSchemaTpl('label'),
                 getSchemaTpl('inputType', {
                   value: this.scaffold.type,
@@ -260,8 +267,8 @@ export class TextControlPlugin extends BasePlugin {
                         ? autoComplete
                         : undefined
                     });
-                    form.changeValue('validations', {...validations});
-                    form.changeValue('validationErrors', {...validationErrors});
+                    form.changeValue('validations', { ...validations });
+                    form.changeValue('validationErrors', { ...validationErrors });
                   }
                 }),
                 getSchemaTpl('tplFormulaControl', {
@@ -408,7 +415,7 @@ export class TextControlPlugin extends BasePlugin {
             //   ]
             // }
           ],
-          {...context?.schema, configTitle: 'props'}
+          { ...context?.schema, configTitle: 'props' }
         )
       },
       {
@@ -416,7 +423,7 @@ export class TextControlPlugin extends BasePlugin {
         body: getSchemaTpl(
           'collapseGroup',
           [
-            getSchemaTpl('style:formItem', {renderer}),
+            getSchemaTpl('style:formItem', { renderer }),
             getSchemaTpl('theme:form-label'),
             getSchemaTpl('theme:form-description'),
             {
@@ -458,7 +465,7 @@ export class TextControlPlugin extends BasePlugin {
               isFormItem: true
             })
           ],
-          {...context?.schema, configTitle: 'style'}
+          { ...context?.schema, configTitle: 'style' }
         )
       },
       {

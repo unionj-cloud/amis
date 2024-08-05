@@ -17,9 +17,9 @@ import {
   EditorNodeType,
   EditorManager
 } from 'amis-editor-core';
-import {setVariable, someTree} from 'amis-core';
-import {DSBuilderManager} from '../../builder/DSBuilderManager';
-import {ValidatorTag} from '../../validator';
+import { setVariable, someTree } from 'amis-core';
+import { DSBuilderManager } from '../../builder/DSBuilderManager';
+import { ValidatorTag } from '../../validator';
 import {
   getEventControlConfig,
   getArgsWrapper
@@ -115,7 +115,7 @@ export class TableControlPlugin extends BasePlugin {
     mode: 'horizontal',
     body: {
       ...this.scaffold,
-      value: [{color: 'green', name: '绿色'}]
+      value: [{ color: 'green', name: '绿色' }]
     }
   };
 
@@ -271,15 +271,15 @@ export class TableControlPlugin extends BasePlugin {
             type: column.type,
             quickEdit: column.quickEdit?.type
               ? {
-                  type: column.quickEdit.type,
-                  name: column.name
-                }
+                type: column.quickEdit.type,
+                name: column.name
+              }
               : false
           };
           rawColumns.push(rawColumn);
         });
         schema.columns = rawColumns;
-        return {...schema};
+        return { ...schema };
       },
       canRebuild: true
     };
@@ -296,7 +296,7 @@ export class TableControlPlugin extends BasePlugin {
       eventLabel: '添加行',
       description: '点击左下角添加按钮 或 某一行右侧操作栏添加按钮时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager, true);
+        const { value, item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -337,7 +337,7 @@ export class TableControlPlugin extends BasePlugin {
       description:
         '开启”确认模式“，点击添加按钮，填入数据后点击“保存”按钮后触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager, true);
+        const { value, item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -378,7 +378,7 @@ export class TableControlPlugin extends BasePlugin {
       description:
         '开启”确认模式“并且配置”新增接口“，点击“保存”后成功添加时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager, true);
+        const { value, item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -419,7 +419,7 @@ export class TableControlPlugin extends BasePlugin {
       description:
         '开启”确认模式“并且配置”新增接口“，点击“保存”后调用接口失败时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager, true);
+        const { value, item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -463,7 +463,7 @@ export class TableControlPlugin extends BasePlugin {
       eventLabel: '编辑行',
       description: '点击某一行右侧操作栏“编辑”按钮时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager, true);
+        const { value, item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -504,7 +504,7 @@ export class TableControlPlugin extends BasePlugin {
       description:
         '开启”确认模式“，点击“编辑”按钮，填入数据后点击“保存”按钮后触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager, true);
+        const { value, item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -545,7 +545,7 @@ export class TableControlPlugin extends BasePlugin {
       description:
         '开启”确认模式“并且配置”编辑接口“，点击“保存”后成功编辑时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager, true);
+        const { value, item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -586,7 +586,7 @@ export class TableControlPlugin extends BasePlugin {
       description:
         '开启”确认模式“并且配置”编辑接口“，点击“保存”后调用接口失败时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager, true);
+        const { value, item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -630,7 +630,7 @@ export class TableControlPlugin extends BasePlugin {
       eventLabel: '删除行',
       description: '点击某一行右侧操作栏“删除”按钮时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager, true);
+        const { value, item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -670,7 +670,7 @@ export class TableControlPlugin extends BasePlugin {
       eventLabel: '删除成功',
       description: '配置了“删除接口”，调用接口成功时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager, true);
+        const { value, item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -710,7 +710,7 @@ export class TableControlPlugin extends BasePlugin {
       eventLabel: '删除失败',
       description: '配置了“删除接口”，调用接口失败时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, item} = resolveInputTableEventDataSchame(manager, true);
+        const { value, item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -754,7 +754,7 @@ export class TableControlPlugin extends BasePlugin {
       eventLabel: '值变化',
       description: '表格数据发生改变时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value} = resolveInputTableEventDataSchame(manager, true);
+        const { value } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -781,7 +781,7 @@ export class TableControlPlugin extends BasePlugin {
       eventLabel: '行排序',
       description: '手动拖拽行排序事件',
       dataSchema: (manager: EditorManager) => {
-        const {item} = resolveInputTableEventDataSchame(manager, true);
+        const { item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -808,7 +808,7 @@ export class TableControlPlugin extends BasePlugin {
       eventLabel: '行单击',
       description: '点击整行事件',
       dataSchema: (manager: EditorManager) => {
-        const {item} = resolveInputTableEventDataSchame(manager, true);
+        const { item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -843,7 +843,7 @@ export class TableControlPlugin extends BasePlugin {
       eventLabel: '行双击',
       description: '双击整行事件',
       dataSchema: (manager: EditorManager) => {
-        const {item} = resolveInputTableEventDataSchame(manager, true);
+        const { item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -878,7 +878,7 @@ export class TableControlPlugin extends BasePlugin {
       eventLabel: '鼠标移入行事件',
       description: '移入整行时触发',
       dataSchema: (manager: EditorManager) => {
-        const {item} = resolveInputTableEventDataSchame(manager, true);
+        const { item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -913,7 +913,7 @@ export class TableControlPlugin extends BasePlugin {
       eventLabel: '鼠标移出行事件',
       description: '移出整行时触发',
       dataSchema: (manager: EditorManager) => {
-        const {item} = resolveInputTableEventDataSchame(manager, true);
+        const { item } = resolveInputTableEventDataSchame(manager, true);
 
         return [
           {
@@ -1130,10 +1130,17 @@ export class TableControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               {
                 type: 'ae-switch-more',
@@ -1327,7 +1334,7 @@ export class TableControlPlugin extends BasePlugin {
               })
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
+          getSchemaTpl('status', { isFormItem: true }),
           getSchemaTpl('validation', {
             tag: ValidatorTag.MultiSelect
           })
@@ -1383,7 +1390,7 @@ export class TableControlPlugin extends BasePlugin {
               })
             ]
           },
-          getSchemaTpl('style:formItem', {renderer: context.info.renderer}),
+          getSchemaTpl('style:formItem', { renderer: context.info.renderer }),
           getSchemaTpl('style:classNames', {
             schema: [
               getSchemaTpl('className', {
@@ -1422,7 +1429,7 @@ export class TableControlPlugin extends BasePlugin {
       } else {
         value.push({});
       }
-      node.updateState({value});
+      node.updateState({ value });
     }
 
     return {
@@ -1461,9 +1468,8 @@ export class TableControlPlugin extends BasePlugin {
     const columns: EditorNodeType = node.children.find(
       item => item.isRegion && item.region === 'columns'
     );
-    const parentScopeId = `${parent?.id}-${parent?.type}${
-      node.parent?.type === 'cell' ? '-currentRow' : ''
-    }`;
+    const parentScopeId = `${parent?.id}-${parent?.type}${node.parent?.type === 'cell' ? '-currentRow' : ''
+      }`;
     let isColumnChild = false;
 
     // 追加当前行scope
@@ -1507,7 +1513,7 @@ export class TableControlPlugin extends BasePlugin {
           );
           itemsSchema.properties[schema.name] = {
             ...tmpSchema,
-            ...(tmpSchema?.$id ? {} : {$id: `${current!.id}-${current!.type}`})
+            ...(tmpSchema?.$id ? {} : { $id: `${current!.id}-${current!.type}` })
           };
         }
       }

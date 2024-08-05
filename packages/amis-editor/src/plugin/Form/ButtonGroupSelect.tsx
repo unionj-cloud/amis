@@ -3,18 +3,18 @@ import {
   EditorNodeType,
   registerEditorPlugin
 } from 'amis-editor-core';
-import {BasePlugin, BaseEventContext} from 'amis-editor-core';
+import { BasePlugin, BaseEventContext } from 'amis-editor-core';
 
 import {
   RendererPluginAction,
   RendererPluginEvent,
   tipedLabel
 } from 'amis-editor-core';
-import {getSchemaTpl, defaultValue} from 'amis-editor-core';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {ValidatorTag} from '../../validator';
-import {resolveOptionEventDataSchame, resolveOptionType} from '../../util';
-import type {Schema} from 'amis';
+import { getSchemaTpl, defaultValue } from 'amis-editor-core';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { ValidatorTag } from '../../validator';
+import { resolveOptionEventDataSchame, resolveOptionType } from '../../util';
+import type { Schema } from 'amis';
 
 export class ButtonGroupControlPlugin extends BasePlugin {
   static id = 'ButtonGroupControlPlugin';
@@ -70,7 +70,7 @@ export class ButtonGroupControlPlugin extends BasePlugin {
       eventLabel: '值变化',
       description: '选中值变化时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value} = resolveOptionEventDataSchame(manager);
+        const { value } = resolveOptionEventDataSchame(manager);
 
         return [
           {
@@ -125,10 +125,17 @@ export class ButtonGroupControlPlugin extends BasePlugin {
             {
               title: '基本',
               body: [
-                getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-                getSchemaTpl('formItemName', {
-                  required: true
-                }),
+                getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+                getSchemaTpl(
+                  'formItemName',
+                  {
+                    required: true
+                  },
+                  {
+                    context,
+                    manager: this.manager
+                  }
+                ),
                 getSchemaTpl('label'),
                 getSchemaTpl('multiple'),
                 getSchemaTpl('valueFormula', {
@@ -145,7 +152,7 @@ export class ButtonGroupControlPlugin extends BasePlugin {
             getSchemaTpl('status', {
               isFormItem: true
             }),
-            getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+            getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
           ])
         ]
       },

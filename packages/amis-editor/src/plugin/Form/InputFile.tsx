@@ -1,9 +1,9 @@
-import {defaultValue, getSchemaTpl, valuePipeOut} from 'amis-editor-core';
-import {registerEditorPlugin, tipedLabel} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
+import { defaultValue, getSchemaTpl, valuePipeOut } from 'amis-editor-core';
+import { registerEditorPlugin, tipedLabel } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
 
 export class FileControlPlugin extends BasePlugin {
   static id = 'FileControlPlugin';
@@ -164,10 +164,17 @@ export class FileControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               getSchemaTpl('btnLabel'),
               getSchemaTpl('multiple', {
@@ -398,13 +405,13 @@ export class FileControlPlugin extends BasePlugin {
             isFormItem: true,
             unsupportStatic: true
           }),
-          getSchemaTpl('validation', {tag: ValidatorTag.File})
+          getSchemaTpl('validation', { tag: ValidatorTag.File })
         ])
       },
       {
         title: '外观',
         body: getSchemaTpl('collapseGroup', [
-          getSchemaTpl('style:formItem', {renderer: context.info.renderer}),
+          getSchemaTpl('style:formItem', { renderer: context.info.renderer }),
           getSchemaTpl('style:classNames', {
             unsupportStatic: true,
             schema: [

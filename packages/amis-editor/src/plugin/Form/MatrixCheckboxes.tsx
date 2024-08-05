@@ -9,8 +9,8 @@ import {
   getSchemaTpl,
   EditorNodeType
 } from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
 
 export class MatrixControlPlugin extends BasePlugin {
   static id = 'MatrixControlPlugin';
@@ -122,10 +122,17 @@ export class MatrixControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               getSchemaTpl('switch', {
                 name: 'multiple',
@@ -205,19 +212,19 @@ export class MatrixControlPlugin extends BasePlugin {
                 name: 'source',
                 mode: 'normal'
               }),
-              getSchemaTpl('loadingConfig', {}, {context})
+              getSchemaTpl('loadingConfig', {}, { context })
               // getSchemaTpl('value')
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
-          getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+          getSchemaTpl('status', { isFormItem: true }),
+          getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
         ])
       },
       {
         title: '外观',
         body: [
           getSchemaTpl('collapseGroup', [
-            getSchemaTpl('style:formItem', {renderer: context.info.renderer}),
+            getSchemaTpl('style:formItem', { renderer: context.info.renderer }),
             getSchemaTpl('style:classNames'),
             {
               label: tipedLabel('对齐方式', '默认当开启全选后居左排列'),

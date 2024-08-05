@@ -1,3 +1,9 @@
+windows电脑只能用git bash编译
+
+
+
+
+
 <div align="center">
   <p>
     <img width="284" src="https://github.com/baidu/amis/raw/master/examples/static/logo.png">

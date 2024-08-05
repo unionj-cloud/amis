@@ -1,5 +1,5 @@
 import React from 'react';
-import {Editor} from 'amis-ui';
+import { Editor } from 'amis-ui';
 import {
   isObjectShallowModified,
   guid,
@@ -7,11 +7,11 @@ import {
   filterSchemaForConfig
 } from '../../util';
 import cx from 'classnames';
-import {prompt, toast} from 'amis';
+import { prompt, toast } from 'amis';
 import debounce from 'lodash/debounce';
 import isArray from 'lodash/isArray';
 import findIndex from 'lodash/findIndex';
-import {parse, stringify} from 'json-ast-comments';
+import { parse, stringify } from 'json-ast-comments';
 import isPlainObject from 'lodash/isPlainObject';
 
 const internalSchema = /^\/schemas\/(.*).json$/;
@@ -156,7 +156,7 @@ export default class AMisCodeEditor extends React.Component<AMisCodeEditorProps>
 
   emitChange = debounce(
     () => {
-      const {onChange, value} = this.props;
+      const { onChange, value } = this.props;
       let ret: any = this.str2obj(this.state.contents);
 
       if (!ret || (!isPlainObject(ret) && !isArray(ret))) {
@@ -229,7 +229,7 @@ export default class AMisCodeEditor extends React.Component<AMisCodeEditorProps>
       selectOnLineNumbers: true,
       scrollBeyondLastLine: false,
       folding: true,
-      scrollbar: {alwaysConsumeMouseWheel: false}, // 弹窗编辑中的编辑器有时会无法滚动
+      scrollbar: { alwaysConsumeMouseWheel: false }, // 弹窗编辑中的编辑器有时会无法滚动
       minimap: {
         enabled: false
       },
@@ -262,7 +262,7 @@ export default class AMisCodeEditor extends React.Component<AMisCodeEditorProps>
   };
 
   handleBlur = async () => {
-    const {wrongSchema, value} = this.state;
+    const { wrongSchema, value } = this.state;
     if (!wrongSchema) {
       return;
     }
@@ -300,14 +300,14 @@ export default class AMisCodeEditor extends React.Component<AMisCodeEditorProps>
       '请确认'
     );
     if (result) {
-      this.setState({wrongSchema: '', contents: stringify(value)});
+      this.setState({ wrongSchema: '', contents: stringify(value) });
     } else {
       this.editor.focus();
     }
   };
 
   render() {
-    let {disabled, className, theme} = this.props;
+    let { disabled, className, theme } = this.props;
 
     return (
       // @ts-ignore
@@ -323,7 +323,7 @@ export default class AMisCodeEditor extends React.Component<AMisCodeEditorProps>
         editorWillUnmount={this.editorWillUnmount}
         options={{
           automaticLayout: true,
-          lineNumbers: 'off',
+          lineNumbers: 'on',
           glyphMargin: false,
           tabSize: 2,
           wordWrap: 'on',

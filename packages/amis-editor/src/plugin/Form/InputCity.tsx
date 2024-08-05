@@ -5,7 +5,7 @@ import {
   getSchemaTpl,
   valuePipeOut
 } from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
 import {
   BasePlugin,
   BasicSubRenderInfo,
@@ -14,12 +14,12 @@ import {
   BaseEventContext
 } from 'amis-editor-core';
 import cloneDeep from 'lodash/cloneDeep';
-import type {Schema} from 'amis';
+import type { Schema } from 'amis';
 
-import {formItemControl} from '../../component/BaseControl';
-import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
+import { formItemControl } from '../../component/BaseControl';
+import { RendererPluginAction, RendererPluginEvent } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
 
 export class CityControlPlugin extends BasePlugin {
   static id = 'CityControlPlugin';
@@ -125,10 +125,17 @@ export class CityControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
               getSchemaTpl('valueFormula', {
                 rendererSchema: (schema: Schema) => schema,
@@ -141,8 +148,8 @@ export class CityControlPlugin extends BasePlugin {
                 type: 'button-group-select',
                 size: 'sm',
                 options: [
-                  {label: '行政编码', value: true},
-                  {label: '对象结构', value: false}
+                  { label: '行政编码', value: true },
+                  { label: '对象结构', value: false }
                 ]
               },
 
@@ -193,15 +200,15 @@ export class CityControlPlugin extends BasePlugin {
               getSchemaTpl('description')
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
-          getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+          getSchemaTpl('status', { isFormItem: true }),
+          getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
         ])
       },
       {
         title: '外观',
         body: [
           getSchemaTpl('collapseGroup', [
-            getSchemaTpl('style:formItem', {renderer: context.info.renderer}),
+            getSchemaTpl('style:formItem', { renderer: context.info.renderer }),
             getSchemaTpl('style:classNames')
           ])
         ]

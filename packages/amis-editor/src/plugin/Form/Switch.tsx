@@ -4,17 +4,17 @@ import {
   undefinedPipeOut,
   valuePipeOut
 } from 'amis-editor-core';
-import {registerEditorPlugin, tipedLabel} from 'amis-editor-core';
-import {BasePlugin, BaseEventContext} from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
+import { registerEditorPlugin, tipedLabel } from 'amis-editor-core';
+import { BasePlugin, BaseEventContext } from 'amis-editor-core';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
 import type {
   EditorManager,
   EditorNodeType,
   RendererPluginAction,
   RendererPluginEvent
 } from 'amis-editor-core';
-import {isExpression, isPureVariable} from 'amis-core';
+import { isExpression, isPureVariable } from 'amis-core';
 import omit from 'lodash/omit';
 
 export class SwitchControlPlugin extends BasePlugin {
@@ -121,10 +121,17 @@ export class SwitchControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
-              getSchemaTpl('formItemName', {
-                required: true
-              }),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl(
+                'formItemName',
+                {
+                  required: true
+                },
+                {
+                  context,
+                  manager: this.manager
+                }
+              ),
               getSchemaTpl('label'),
 
               getSchemaTpl('switchOption'),
@@ -159,13 +166,13 @@ export class SwitchControlPlugin extends BasePlugin {
                         model: any,
                         form: any
                       ) => {
-                        const {value: defaultValue, trueValue} =
+                        const { value: defaultValue, trueValue } =
                           form?.data || {};
                         if (isPureVariable(defaultValue)) {
                           return;
                         }
                         if (trueValue === defaultValue && trueValue !== value) {
-                          form.setValues({value});
+                          form.setValues({ value });
                         }
                       }
                     },
@@ -181,7 +188,7 @@ export class SwitchControlPlugin extends BasePlugin {
                         model: any,
                         form: any
                       ) => {
-                        const {value: defaultValue, falseValue} =
+                        const { value: defaultValue, falseValue } =
                           form?.data || {};
                         if (isPureVariable(defaultValue)) {
                           return;
@@ -190,7 +197,7 @@ export class SwitchControlPlugin extends BasePlugin {
                           falseValue === defaultValue &&
                           falseValue !== value
                         ) {
-                          form.setValues({value});
+                          form.setValues({ value });
                         }
                       }
                     }
@@ -230,7 +237,7 @@ export class SwitchControlPlugin extends BasePlugin {
                 pipeOut: (value: any, origin: any, data: any) => {
                   // 如果是表达式，直接返回
                   if (isExpression(value)) return value;
-                  const {trueValue = true, falseValue = false} = data || {};
+                  const { trueValue = true, falseValue = false } = data || {};
                   return value ? trueValue : falseValue;
                 }
               }),
@@ -240,14 +247,14 @@ export class SwitchControlPlugin extends BasePlugin {
               getSchemaTpl('autoFillApi')
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
-          getSchemaTpl('validation', {tag: ValidatorTag.Check})
+          getSchemaTpl('status', { isFormItem: true }),
+          getSchemaTpl('validation', { tag: ValidatorTag.Check })
         ])
       },
       {
         title: '外观',
         body: getSchemaTpl('collapseGroup', [
-          getSchemaTpl('style:formItem', {renderer: context.info.renderer}),
+          getSchemaTpl('style:formItem', { renderer: context.info.renderer }),
           {
             title: '说明',
             body: [

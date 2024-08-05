@@ -3,20 +3,20 @@
  */
 
 import omit from 'lodash/omit';
-import {RegionWrapperProps} from './component/RegionWrapper';
-import {makeAsyncLayer} from './component/AsyncLayer';
-import {EditorManager} from './manager';
-import {EditorStoreType} from './store/editor';
-import {EditorNodeType} from './store/node';
-import {DNDModeInterface} from './dnd/interface';
-import {EditorDNDManager} from './dnd';
+import { RegionWrapperProps } from './component/RegionWrapper';
+import { makeAsyncLayer } from './component/AsyncLayer';
+import { EditorManager } from './manager';
+import { EditorStoreType } from './store/editor';
+import { EditorNodeType } from './store/node';
+import { DNDModeInterface } from './dnd/interface';
+import { EditorDNDManager } from './dnd';
 import React from 'react';
-import {DiffChange} from './util';
+import { DiffChange } from './util';
 import find from 'lodash/find';
-import type {RendererConfig, Schema} from 'amis-core';
-import type {MenuDivider, MenuItem} from 'amis-ui/lib/components/ContextMenu';
-import type {BaseSchema, SchemaCollection} from 'amis';
-import type {AsyncLayerOptions} from './component/AsyncLayer';
+import type { RendererConfig, Schema } from 'amis-core';
+import type { MenuDivider, MenuItem } from 'amis-ui/lib/components/ContextMenu';
+import type { BaseSchema, SchemaCollection } from 'amis';
+import type { AsyncLayerOptions } from './component/AsyncLayer';
 
 /**
  * 区域的定义，容器渲染器都需要定义区域信息。
@@ -111,12 +111,12 @@ export interface RegionConfig {
    * dnd 拖拽模式。比如 table 那种需要配置成 position-h
    */
   dndMode?:
-    | 'default'
-    | 'position-h'
-    | 'position-v'
-    | 'flex'
-    // | (new (dnd: EditorDNDManager) => DNDModeInterface)
-    | ((node: any) => string | undefined);
+  | 'default'
+  | 'position-h'
+  | 'position-v'
+  | 'flex'
+  // | (new (dnd: EditorDNDManager) => DNDModeInterface)
+  | ((node: any) => string | undefined);
 
   /**
    * 可以用来判断是否允许拖入当前节点。
@@ -313,7 +313,7 @@ export interface RendererInfo extends RendererScaffoldInfo {
   dialogType?: string; //区分确认对话框类型
   getSubEditorVariable?: (
     schema?: any
-  ) => Array<{label: string; children: any}>; // 传递给子编辑器的组件自定义变量，如listSelect的选项名称和值
+  ) => Array<{ label: string; children: any }>; // 传递给子编辑器的组件自定义变量，如listSelect的选项名称和值
 }
 
 export type BasicRendererInfo = Omit<
@@ -341,13 +341,13 @@ export interface ScaffoldForm extends PopOverForm {
   /** 是否可跳过创建向导直接创建 */
   canSkip?: boolean;
   mode?:
-    | 'normal'
-    | 'horizontal'
-    | 'inline'
-    | {
-        mode: string;
-        horizontal: any;
-      };
+  | 'normal'
+  | 'horizontal'
+  | 'inline'
+  | {
+    mode: string;
+    horizontal: any;
+  };
 
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
   className?: string;
@@ -364,8 +364,8 @@ export interface ScaffoldForm extends PopOverForm {
     formStore: any
   ) =>
     | void
-    | {[propName: string]: string}
-    | Promise<void | {[propName: string]: string}>;
+    | { [propName: string]: string }
+    | Promise<void | { [propName: string]: string }>;
 
   /**
    * schema 配置转脚手架配置
@@ -761,8 +761,8 @@ export interface PluginEventListener {
  */
 export interface PluginInterface
   extends Partial<BasicRendererInfo>,
-    Partial<BasicSubRenderInfo>,
-    PluginEventListener {
+  Partial<BasicSubRenderInfo>,
+  PluginEventListener {
   readonly manager: EditorManager;
 
   order?: number;
@@ -1007,12 +1007,12 @@ export interface SubRendererPluginAction
   extends Pick<
     RendererPluginAction,
     'actionType' | 'innerArgs' | 'descDetail'
-  > {}
+  > { }
 
 export interface PluginEvents {
   [propName: string]:
-    | RendererPluginEvent[]
-    | ((schema: any) => RendererPluginEvent[]);
+  | RendererPluginEvent[]
+  | ((schema: any) => RendererPluginEvent[]);
 }
 
 export interface PluginActions {
@@ -1023,7 +1023,7 @@ export interface PluginActions {
  * 基类，所有插件都继承这个好了，可以少写些逻辑。
  */
 export abstract class BasePlugin implements PluginInterface {
-  constructor(readonly manager: EditorManager) {}
+  constructor(readonly manager: EditorManager) { }
 
   static scene = ['global'];
 
@@ -1106,8 +1106,8 @@ export abstract class BasePlugin implements PluginInterface {
       const body = plugin.panelBodyAsyncCreator
         ? plugin.panelBodyAsyncCreator(context)
         : plugin.panelBodyCreator
-        ? plugin.panelBodyCreator(context)
-        : plugin.panelBody!;
+          ? plugin.panelBodyCreator(context)
+          : plugin.panelBody!;
 
       this.manager.trigger('after-build-panel-body', {
         context,
@@ -1134,17 +1134,17 @@ export abstract class BasePlugin implements PluginInterface {
         title: plugin.panelTitle || '设置',
         render: enableAsync
           ? makeAsyncLayer(async () => {
-              const panelBody = await (body as Promise<SchemaCollection>);
+            const panelBody = await (body as Promise<SchemaCollection>);
 
-              return this.manager.makeSchemaFormRender({
-                ...baseProps,
-                body: panelBody
-              });
-            }, omit(plugin.async, 'enable'))
-          : this.manager.makeSchemaFormRender({
+            return this.manager.makeSchemaFormRender({
               ...baseProps,
-              body: body as SchemaCollection
-            })
+              body: panelBody
+            });
+          }, omit(plugin.async, 'enable'))
+          : this.manager.makeSchemaFormRender({
+            ...baseProps,
+            body: body as SchemaCollection
+          })
       });
     } else if (
       context.info.plugin === this &&

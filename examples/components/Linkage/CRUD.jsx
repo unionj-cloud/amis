@@ -37,6 +37,7 @@ export default {
               title: '查看',
               body: {
                 type: 'form',
+                "canAccessSuperData": false,
                 body: [
                   {
                     type: 'static',
