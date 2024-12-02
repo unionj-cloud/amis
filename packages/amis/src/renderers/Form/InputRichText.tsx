@@ -9,10 +9,10 @@ import {
 } from 'amis-core';
 import isEqual from 'lodash/isEqual';
 import cx from 'classnames';
-import {LazyComponent} from 'amis-core';
-import {normalizeApi} from 'amis-core';
-import {ucFirst, anyChanged} from 'amis-core';
-import type {FormBaseControlSchema, SchemaApi} from '../../Schema';
+import { LazyComponent } from 'amis-core';
+import { normalizeApi } from 'amis-core';
+import { ucFirst, anyChanged } from 'amis-core';
+import type { FormBaseControlSchema, SchemaApi } from '../../Schema';
 
 /**
  * RichText
@@ -105,7 +105,8 @@ export default class RichTextControl extends React.Component<
 
   state = {
     config: null,
-    focused: false
+    focused: false,
+    viewer: null
   };
 
   constructor(props: RichTextProps) {
@@ -119,6 +120,19 @@ export default class RichTextControl extends React.Component<
   }
 
   componentDidUpdate(prevProps: Readonly<RichTextProps>) {
+    const {
+      static: isStatic,
+    } = this.props;
+    const {
+      static: prevStatic,
+    } = prevProps;
+    console.log('new static', isStatic)
+    console.log('old static', prevStatic)
+    if (isStatic != prevStatic) {
+      console.log((this.state.viewer as any));
+      (this.state.viewer as any).update()
+    }
+
     const props = this.props;
     const finnalVendor =
       props.vendor || (props.env.richTextToken ? 'froala' : 'tinymce');
@@ -144,6 +158,18 @@ export default class RichTextControl extends React.Component<
         });
       }
     }
+  }
+
+  componentDidMount() {
+    var $image = $('.cxd-RichTextControl');
+    ($image as any).viewer();
+    this.setState({
+      viewer: $image.data('viewer'),
+    })
+  }
+
+  componentWillUnmount() {
+    (this.state.viewer as any).destroy()
   }
 
   getConfig(props: RichTextProps) {
@@ -172,20 +198,20 @@ export default class RichTextControl extends React.Component<
         imageDefaultAlign: 'left',
         imageEditButtons: props.imageEditable
           ? [
-              'imageReplace',
-              'imageAlign',
-              'imageRemove',
-              '|',
-              'imageLink',
-              'linkOpen',
-              'linkEdit',
-              'linkRemove',
-              '-',
-              'imageDisplay',
-              'imageStyle',
-              'imageAlt',
-              'imageSize'
-            ]
+            'imageReplace',
+            'imageAlign',
+            'imageRemove',
+            '|',
+            'imageLink',
+            'linkOpen',
+            'linkEdit',
+            'linkRemove',
+            '-',
+            'imageDisplay',
+            'imageStyle',
+            'imageAlt',
+            'imageSize'
+          ]
           : [],
         key: props.env.richTextToken,
         attribution: false,
@@ -209,7 +235,7 @@ export default class RichTextControl extends React.Component<
         },
         language:
           !this.props.locale || this.props.locale === 'zh-CN' ? 'zh_cn' : '',
-        ...(props.buttons ? {toolbarButtons: props.buttons} : {})
+        ...(props.buttons ? { toolbarButtons: props.buttons } : {})
       };
     } else {
       const fetcher = props.env.fetcher;
@@ -298,7 +324,7 @@ export default class RichTextControl extends React.Component<
     submitOnChange?: boolean,
     changeImmediately?: boolean
   ) {
-    const {onChange, disabled, dispatchEvent} = this.props;
+    const { onChange, disabled, dispatchEvent } = this.props;
 
     if (disabled) {
       return;
@@ -306,7 +332,7 @@ export default class RichTextControl extends React.Component<
 
     const rendererEvent = await dispatchEvent(
       'change',
-      resolveEventData(this.props, {value})
+      resolveEventData(this.props, { value })
     );
     if (rendererEvent?.prevented) {
       return;
@@ -347,7 +373,7 @@ export default class RichTextControl extends React.Component<
             'is-disabled': disabled,
             [`${ns}RichTextControl--border${ucFirst(borderMode)}`]: borderMode
           })}
-          dangerouslySetInnerHTML={{__html: env.filterHtml(value)}}
+          dangerouslySetInnerHTML={{ __html: env.filterHtml(value) }}
         ></div>
       );
     }
@@ -381,4 +407,4 @@ export default class RichTextControl extends React.Component<
   sizeMutable: false,
   detectProps: ['options', 'buttons']
 })
-export class RichTextControlRenderer extends RichTextControl {}
+export class RichTextControlRenderer extends RichTextControl { }

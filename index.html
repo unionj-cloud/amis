@@ -33,6 +33,10 @@
     <link rel="stylesheet" href="/examples/doc.css" />
 
     <link rel="stylesheet" href="/examples/style.scss" />
+    <script src="/node_modules/jquery/dist/jquery.js"></script><!-- jQuery is required -->
+    <script src="/node_modules/viewerjs/dist/viewer.js"></script><!-- Viewer.js is required -->
+    <link  href="/node_modules/viewerjs/dist/viewer.css" rel="stylesheet">
+    <script src="/node_modules/jquery-viewer/dist/jquery-viewer.js"></script>
     <style>
       .app-wrapper,
       .schema-wrapper {
@@ -76,20 +80,6 @@
 
   <body>
     <div id="root" class="app-wrapper"></div>
-    <script type="text/javascript">
-      if (location.hostname !== 'localhost') {
-        var _hmt = _hmt || [];
-
-        // 百度统计
-        (function () {
-          var hm = document.createElement('script');
-          hm.src =
-            'https://hm.baidu.com/hm.js?286766a21abb57abefedbd5257a26dc8';
-          var s = document.getElementsByTagName('script')[0];
-          s.parentNode.insertBefore(hm, s);
-        })();
-      }
-    </script>
     <script type="module">
       import {bootstrap} from './examples/index.jsx';
 

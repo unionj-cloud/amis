@@ -1105,3 +1105,18 @@ body.dark {
     }
   }
 }
+
+.relative-box {
+  position: relative;
+}
+
+.absolute-btn {
+  position: absolute;
+  left: 4.6rem;
+  top: 24px;
+  border: 0px !important;
+  
+  i {
+    font-size: 12px !important;
+  }
+}
