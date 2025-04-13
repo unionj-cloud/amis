@@ -181,8 +181,8 @@ export class PickerContainer extends React.Component<
               onConfirm: onConfirm,
               popOverContainer,
               loading
-            })!;
-          }}
+            })!
+          }
         </ConfirmBox>
       </>
     );

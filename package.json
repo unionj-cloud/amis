@@ -1,7 +1,13 @@
 {
   "name": "aisuda",
   "workspaces": [
-    "packages/amis-editor"
+    "packages/amis-formula",
+    "packages/amis-core",
+    "packages/amis-ui",
+    "packages/amis",
+    "packages/amis-editor-core",
+    "packages/amis-editor",
+    "packages/amis-theme-editor-helper"
   ],
   "scripts": {
     "fis3-serve": "fis3 server start --www ./public --port 8888 --no-daemon --no-browse",
@@ -43,7 +49,7 @@
     "path-to-regexp": "^6.2.0",
     "postcss": "^8.4.14",
     "qs": "6.9.7",
-    "viewerjs": "^1.11.7"
+    "viewerjs": "^1.11.7",
     "smooth-signature": "^1.0.15",
     "tslib": "^2.8.1"
   },
