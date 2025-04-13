@@ -11,6 +11,7 @@ import isNumber from 'lodash/isNumber';
 import isString from 'lodash/isString';
 import qs from 'qs';
 import {compile} from 'path-to-regexp';
+import {matchSorter} from 'match-sorter';
 
 import type {Schema, PlainObject, FunctionPropertyNames} from '../types';
 
@@ -40,6 +41,8 @@ import {string2regExp} from './string2regExp';
 import {getVariable} from './getVariable';
 import {keyToPath} from './keyToPath';
 import {isExpression, replaceExpression} from './formula';
+import type {IStatusStore} from '../store/status';
+import {isAlive} from 'mobx-state-tree';
 
 export {
   createObject,
@@ -59,8 +62,19 @@ export function preventDefault(event: TouchEvent | Event): void {
   }
 }
 
+// isMobile根据media宽度判断是否是移动端
 export function isMobile() {
   return (window as any).matchMedia?.('(max-width: 768px)').matches;
+}
+
+// isMobileDevice根据userAgent判断是否为移动端设备
+export function isMobileDevice() {
+  const userAgent = navigator.userAgent;
+  const isMobileUA =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone|Opera Mini|IEMobile|Mobile/i.test(
+      userAgent
+    );
+  return isMobileUA;
 }
 
 export function range(num: number, min: number, max: number): number {
@@ -435,13 +449,30 @@ export function hasVisibleExpression(schema: {
 
 export function isVisible(
   schema: {
+    id?: string;
+    name?: string;
     visibleOn?: string;
     hiddenOn?: string;
     visible?: boolean;
     hidden?: boolean;
   },
-  data?: object
+  data?: object,
+  statusStore?: IStatusStore
 ) {
+  // 有状态时，状态优先
+  if ((schema.id || schema.name) && statusStore) {
+    const id = filter(schema.id, data);
+    const name = filter(schema.name, data);
+
+    const visible = isAlive(statusStore)
+      ? statusStore.visibleState[id] ?? statusStore.visibleState[name]
+      : undefined;
+
+    if (typeof visible !== 'undefined') {
+      return visible;
+    }
+  }
+
   return !(
     schema.hidden ||
     schema.visible === false ||
@@ -641,7 +672,11 @@ export function difference<
         }
 
         // isEquals 里面没有处理好递归引用对象的情况
-        if (!isObjectShallowModified(a, b, false, undefined, undefined, 10)) {
+        if (
+          object.hasOwnProperty(key) && // 其中一个不是自己的属性，就不要比对了
+          base.hasOwnProperty(key) &&
+          !isObjectShallowModified(a, b, true, undefined, undefined, 10)
+        ) {
           return;
         }
 
@@ -1474,6 +1509,64 @@ export function sortArray<T extends any>(
   });
 }
 
+export function applyFilters<T extends any>(
+  items: Array<T>,
+  options: {
+    query: any;
+    columns?: Array<any>;
+    matchFunc?: Function | null;
+    filterOnAllColumns?: boolean;
+  }
+) {
+  if (options.matchFunc && typeof options.matchFunc === 'function') {
+    items = options.matchFunc(items, items, options);
+  } else {
+    if (Array.isArray(options.columns)) {
+      options.columns.forEach((column: any) => {
+        let value: any =
+          typeof column.name === 'string'
+            ? getVariable(options.query, column.name)
+            : undefined;
+        const key = column.name;
+
+        if (
+          (options.filterOnAllColumns ||
+            column.searchable ||
+            column.filterable) &&
+          key &&
+          value != null
+        ) {
+          // value可能为null、undefined、''、0
+          if (Array.isArray(value)) {
+            if (value.length > 0) {
+              const arr = [...items];
+              let arrItems: Array<any> = [];
+              value.forEach(item => {
+                arrItems = [
+                  ...arrItems,
+                  ...matchSorter(arr, item, {
+                    keys: [key],
+                    threshold: matchSorter.rankings.CONTAINS
+                  })
+                ];
+              });
+              items = items.filter((item: any) =>
+                arrItems.find(a => a === item)
+              );
+            }
+          } else {
+            items = matchSorter(items, value, {
+              keys: [key],
+              threshold: matchSorter.rankings.CONTAINS
+            });
+          }
+        }
+      });
+    }
+  } /** 字段的格式类型无法穷举，所以支持使用函数过滤 */
+  return items;
+}
+
 // 只判断一层, 如果层级很深，form-data 也不好表达。
 export function hasFile(object: any): boolean {
   return Object.keys(object).some(key => {
@@ -1680,15 +1773,18 @@ export class SkipOperation extends Error {}
 export class ValidateError extends Error {
   name: 'ValidateError';
   detail: {[propName: string]: Array<string> | string};
+  rawError?: {[propName: string]: any};
 
   constructor(
     message: string,
-    error: {[propName: string]: Array<string> | string}
+    error: {[propName: string]: Array<string> | string},
+    rawError?: {[propName: string]: any}
   ) {
     super();
     this.name = 'ValidateError';
     this.message = message;
     this.detail = error;
+    this.rawError = rawError;
   }
 }
 
@@ -2352,4 +2448,62 @@ export function supportsMjs() {
   } catch (e) {
     return false;
   }
+}
+
+export function formateId(id: string) {
+  if (!id) {
+    return guid();
+  }
+  // 将className非法字符替换为短横线
+  id = id.replace(/[^a-zA-Z0-9-]/g, '-');
+  // 将连续的-替换为单个-
+  id = id.replace(/-{2,}/g, '-');
+  // 去掉首尾的-
+  id = id.replace(/^-|-$/g, '');
+  // 首字母不能为数字
+  if (/^\d/.test(id)) {
+    id = 'amis-' + id;
+  }
+  return id;
+}
+
+export function formateCheckThemeCss(themeCss: any, type: string) {
+  if (!themeCss) {
+    return {};
+  }
+  const className = themeCss[`${type}ClassName`] || {};
+  const controlClassName = themeCss[`${type}ControlClassName`] || {};
+  const defaultControlThemeCss: any = {};
+  const checkedControlThemeCss: any = {};
+  const defaultThemeCss: any = {};
+  const checkedThemeCss: any = {};
+  Object.keys(className).forEach(key => {
+    if (key.includes('checked-')) {
+      const newKey = key.replace('checked-', '');
+      checkedThemeCss[newKey] = className[key];
+    } else if (key.includes(`${type}-`)) {
+      const newKey = key.replace(`${type}-`, '');
+      defaultThemeCss[newKey] = className[key];
+    } else {
+      defaultThemeCss[key] = className[key];
+    }
+  });
+  Object.keys(controlClassName).forEach(key => {
+    if (key.includes('checked-')) {
+      const newKey = key.replace('checked-', '');
+      checkedControlThemeCss[newKey] = controlClassName[key];
+    } else if (key.includes(`${type}-`)) {
+      const newKey = key.replace(`${type}-`, '');
+      defaultControlThemeCss[newKey] = controlClassName[key];
+    } else {
+      defaultControlThemeCss[key] = controlClassName[key];
+    }
+  });
+  return {
+    ...themeCss,
+    [`${type}ControlClassName`]: defaultControlThemeCss,
+    [`${type}ControlCheckedClassName`]: checkedControlThemeCss,
+    [`${type}ClassName`]: defaultThemeCss,
+    [`${type}CheckedClassName`]: checkedThemeCss
+  };
 }

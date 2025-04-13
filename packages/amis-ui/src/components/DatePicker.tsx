@@ -275,6 +275,9 @@ export interface DateProps extends LocaleProps, ThemeProps {
   valueFormat?: string;
   closeOnSelect: boolean;
   disabled?: boolean;
+  /* * 是否禁止输入
+   */
+  inputForbid?: boolean;
   minDate?: moment.Moment;
   maxDate?: moment.Moment;
   minDateRaw?: string;
@@ -525,6 +528,10 @@ export class DatePicker extends React.Component<DateProps, DatePickerState> {
   }
 
   handleBlur(e: React.SyntheticEvent<HTMLDivElement>) {
+    const targetElement = (e.nativeEvent as FocusEvent).relatedTarget;
+    if (targetElement === this.dom || targetElement === this.inputRef.current) {
+      return;
+    }
     this.setState({
       isFocused: false
     });
@@ -681,29 +688,30 @@ export class DatePicker extends React.Component<DateProps, DatePickerState> {
       value = maxDate;
     }
 
+    //  这段逻辑会导致视图上看着选择了0，但实际上是选择了当前时间
     /** 首次选择且当前未绑定值，则默认使用当前时间 */
-    if (!defaultValue && !!curTimeFormat && !isModified) {
-      const now = moment();
-      const timePart: Record<MutableUnitOfTime, number> = {
-        date: value.get('date'),
-        hour: value.get('hour'),
-        minute: value.get('minute'),
-        second: value.get('second'),
-        millisecond: value.get('millisecond')
-      };
+    // if (!defaultValue && !!curTimeFormat && !isModified) {
+    //   const now = moment();
+    //   const timePart: Record<MutableUnitOfTime, number> = {
+    //     date: value.get('date'),
+    //     hour: value.get('hour'),
+    //     minute: value.get('minute'),
+    //     second: value.get('second'),
+    //     millisecond: value.get('millisecond')
+    //   };
 
-      Object.keys(timePart).forEach((unit: MutableUnitOfTime) => {
-        /** 首次选择时间，日期使用当前时间; 将未设置过的时间字段设置为当前值 */
-        if (
-          (unit === 'date' && viewMode === 'time') ||
-          (unit !== 'date' && timePart[unit] === 0)
-        ) {
-          timePart[unit] = now.get(unit);
-        }
-      });
+    //   Object.keys(timePart).forEach((unit: MutableUnitOfTime) => {
+    //     /** 首次选择时间，日期使用当前时间; 将未设置过的时间字段设置为当前值 */
+    //     if (
+    //       (unit === 'date' && viewMode === 'time') ||
+    //       (unit !== 'date' && timePart[unit] === 0)
+    //     ) {
+    //       timePart[unit] = now.get(unit);
+    //     }
+    //   });
 
-      value.set(timePart);
-    }
+    //   value.set(timePart);
+    // }
 
     const updatedValue = utc
       ? moment.utc(value).format(valueFormat || format)
@@ -956,6 +964,7 @@ export class DatePicker extends React.Component<DateProps, DatePickerState> {
       onClick,
       onMouseEnter,
       onMouseLeave,
+      inputForbid,
       closeOnSelect
     } = this.props;
 
@@ -1097,7 +1106,7 @@ export class DatePicker extends React.Component<DateProps, DatePickerState> {
           autoComplete="off"
           value={this.state.inputValue || ''}
           disabled={disabled}
-          readOnly={mobileUI}
+          readOnly={mobileUI || inputForbid}
           {...testIdBuilder?.getChild('input').getTestId()}
         />
 

@@ -40,6 +40,7 @@ export const inheritValueMap: PlainObject = {
 
 interface extra {
   important?: boolean;
+  parent?: string;
   inner?: string;
   pre?: string;
   suf?: string;
@@ -179,7 +180,8 @@ export function formatStyle(
     default: '',
     hover: ':hover',
     active: ':hover:active',
-    disabled: '.is-disabled'
+    focused: '',
+    disabled: ''
   };
 
   for (let item of classNames) {
@@ -200,6 +202,7 @@ export function formatStyle(
       default: {},
       hover: {},
       active: {},
+      focused: {},
       disabled: {}
     };
     Object.keys(body).forEach(key => {
@@ -210,6 +213,8 @@ export function formatStyle(
           statusMap.hover[key.replace(':hover', '')] = body[key];
         } else if (!!~key.indexOf(':active')) {
           statusMap.active[key.replace(':active', '')] = body[key];
+        } else if (!!~key.indexOf(':focused')) {
+          statusMap.focused[key.replace(':focused', '')] = body[key];
         } else if (!!~key.indexOf(':disabled')) {
           statusMap.disabled[key.replace(':disabled', '')] = body[key];
         } else {
@@ -269,11 +274,13 @@ export function formatStyle(
       if (styles.length > 0) {
         const cx = (weights?.pre || '') + className + (weights?.suf || '');
         const inner = weights?.inner || '';
+        const parent = weights?.parent || '';
+
         res.push({
-          className: cx + status2string[status] + inner,
-          content: `.${cx + status2string[status]} ${inner}{\n  ${styles.join(
-            '\n  '
-          )}\n}`
+          className: parent + cx + status2string[status] + inner,
+          content: `${parent} .${
+            cx + status2string[status]
+          } ${inner}{\n  ${styles.join('\n  ')}\n}`
         });
         // TODO:切换状态暂时先不改变组件的样式
         // if (['hover', 'active', 'disabled'].includes(status)) {
@@ -297,11 +304,12 @@ export interface CustomStyleClassName {
     default?: extra;
     hover?: extra;
     active?: extra;
+    focused?: extra;
     disabled?: extra;
   };
 }
 
-export function insertCustomStyle(prams: {
+export function insertCustomStyle(params: {
   themeCss: any;
   classNames: CustomStyleClassName[];
   id: string;
@@ -318,7 +326,7 @@ export function insertCustomStyle(prams: {
     customStyleClassPrefix,
     doc,
     data
-  } = prams;
+  } = params;
   if (!themeCss) {
     return;
   }
@@ -383,9 +391,10 @@ export function insertEditCustomStyle(params: {
   customStyle: any;
   id?: string;
   doc?: Document;
+  customStyleClassPrefix?: string;
   [propName: string]: any;
 }) {
-  const {customStyle, doc, data} = params;
+  const {customStyle, doc, data, customStyleClassPrefix} = params;
   const id = params.id?.replace?.('u:', '') || params.id + '';
   let styles: any = {};
   traverseStyle(customStyle, '', styles);
@@ -396,10 +405,13 @@ export function insertEditCustomStyle(params: {
     index = `-${data.index}`;
   }
   if (!isEmpty(styles)) {
-    const className = `wrapperCustomStyle-${id}${index}`;
+    let className = `.wrapperCustomStyle-${id}${index}`;
+    if (customStyleClassPrefix) {
+      className = `${customStyleClassPrefix} ${className}`;
+    }
     Object.keys(styles).forEach((key: string) => {
       if (!isObject(styles[key])) {
-        content += `\n.${className} {\n  ${key}: ${
+        content += `\n${className} {\n  ${key}: ${
           resolveVariableAndFilter(
             styles[key].replace(/['|"]/g, ''),
             data,
@@ -409,7 +421,7 @@ export function insertEditCustomStyle(params: {
       } else if (key === 'root') {
         const res = map(
           styles[key],
-          (value, key) =>
+          (value: any, key) =>
             `${key}: ${
               resolveVariableAndFilter(
                 value.replace(/['|"]/g, ''),
@@ -418,11 +430,11 @@ export function insertEditCustomStyle(params: {
               ) || value
             };`
         );
-        content += `\n.${className} {\n  ${res.join('\n  ')}\n}`;
+        content += `\n${className} {\n  ${res.join('\n  ')}\n}`;
       } else if (/^root:/.test(key)) {
         const res = map(
           styles[key],
-          (value, key) =>
+          (value: any, key) =>
             `${key}: ${
               resolveVariableAndFilter(
                 value.replace(/['|"]/g, ''),
@@ -432,11 +444,11 @@ export function insertEditCustomStyle(params: {
             };`
         );
         const nowKey = key.replace('root', '');
-        content += `\n.${className} ${nowKey} {\n  ${res.join('\n  ')}\n}`;
+        content += `\n${className}${nowKey} {\n  ${res.join('\n  ')}\n}`;
       } else {
         const res = map(
           styles[key],
-          (value, key) =>
+          (value: any, key) =>
             `${key}: ${
               resolveVariableAndFilter(
                 value.replace(/['|"]/g, ''),
@@ -445,7 +457,7 @@ export function insertEditCustomStyle(params: {
               ) || value
             };`
         );
-        content += `\n.${className} ${key} {\n  ${res.join('\n  ')}\n}`;
+        content += `\n${className} ${key} {\n  ${res.join('\n  ')}\n}`;
       }
     });
   }
@@ -503,7 +515,7 @@ export function formatInputThemeCss(themeCss: any) {
 }
 
 export function setThemeClassName(params: {
-  name: string;
+  name: string | string[];
   id?: string;
   themeCss: any;
   extra?: string;
@@ -514,17 +526,25 @@ export function setThemeClassName(params: {
     return '';
   }
 
-  if (name !== 'wrapperCustomStyle' && !themeCss[name]) {
-    return '';
-  }
   let index = '';
   if (typeof data?.index === 'number') {
     index = `-${data.index}`;
   }
 
-  return (
-    `${name}-${id.replace?.('u:', '') || id}` +
-    (extra ? `-${extra}` : '') +
-    index
-  );
+  function setClassName(name: string, id: string) {
+    if (name !== 'wrapperCustomStyle' && !themeCss[name]) {
+      return '';
+    }
+    return (
+      `${name}-${id.replace?.('u:', '') || id}` +
+      (extra ? `-${extra}` : '') +
+      index
+    );
+  }
+
+  if (typeof name === 'string') {
+    return setClassName(name, id);
+  } else {
+    return name.map(n => setClassName(n, id)).join(' ');
+  }
 }

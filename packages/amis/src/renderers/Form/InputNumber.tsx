@@ -18,6 +18,7 @@ import {
   autobind,
   createObject,
   numberFormatter,
+  numberReverter,
   safeSub,
   normalizeOptions,
   Option,
@@ -103,6 +104,11 @@ export interface NumberControlSchema extends FormBaseControlSchema {
    * 输入框为基础输入框还是加强输入框
    */
   displayMode?: 'base' | 'enhance';
+
+  /**
+   * 用来开启百分号的展示形式
+   */
+  showAsPercent?: boolean;
 }
 
 export interface NumberProps extends FormControlProps {
@@ -162,6 +168,11 @@ export interface NumberProps extends FormControlProps {
   clearValueOnEmpty?: boolean;
 
   testIdBuilder?: TestIdBuilder;
+
+  /**
+   * 用来开启百分号的展示形式，搭配suffix使用
+   */
+  showAsPercent?: boolean;
 }
 
 interface NumberState {
@@ -246,7 +257,12 @@ export default class NumberControl extends React.Component<
   }
 
   formatNumber(value: any, setPrinstine = false) {
-    const {precision, step, big, setPrinstineValue} = this.props;
+    const {showAsPercent, suffix, step, big, setPrinstineValue} = this.props;
+    let {precision} = this.props;
+    //展示百分号情况下，需要精度加2后，才能保持跟配置一致
+    if (showAsPercent && suffix === '%') {
+      precision = (precision || 0) + 2;
+    }
     const unit = this.getUnit();
     const unitOptions = normalizeOptions(this.props.unitOptions);
     const normalizedPrecision = NumberInput.normalizePrecision(
@@ -260,6 +276,7 @@ export default class NumberControl extends React.Component<
       // 大数下不需要进行精度处理，因为是字符串
       big !== true
     ) {
+      // 精度处理，遵循四舍五入的处理规则
       const normalizedValue = parseFloat(
         toFixed(value.toString(), '.', normalizedPrecision)
       );
@@ -418,7 +435,7 @@ export default class NumberControl extends React.Component<
     }
     // 匹配 数字 + ?字符
     const reg = /^([-+]?(([1-9]\d*\.?\d*)|(0\.\d*[1-9]))[^\d\.]*)$/;
-    if (reg.test(this.props.value) && this.props.value !== prevProps.value) {
+    if (this.props.value !== prevProps.value && reg.test(this.props.value)) {
       this.setState({unit: unit});
     }
 
@@ -468,7 +485,9 @@ export default class NumberControl extends React.Component<
       id,
       env,
       name,
-      testIdBuilder
+      showAsPercent,
+      testIdBuilder,
+      popOverContainer
     } = this.props;
     const {unit} = this.state;
     const finalPrecision = this.filterNum(precision);
@@ -481,8 +500,11 @@ export default class NumberControl extends React.Component<
           ) => {
             // 增加千分分隔
             if (kilobitSeparator && value) {
-              if (userTyping) {
-                // 如果是用户输入状态，则只进行千分隔处理，避免光标乱跳
+              if (
+                (userTyping || this.input === document.activeElement) &&
+                numberReverter(value) === numberReverter(this.input?.value)
+              ) {
+                // 如果是用户输入状态，且value与输入框内值相同，则只进行千分隔处理，避免光标乱跳
                 let parts = value.toString().split('.');
                 parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                 value = parts.join('.');
@@ -491,6 +513,14 @@ export default class NumberControl extends React.Component<
                 value = numberFormatter(value, finalPrecision);
               }
             }
+            if (
+              suffix &&
+              userTyping &&
+              this.input?.selectionStart === input.length
+            ) {
+              return `${prefix || ''}${value}`;
+            }
+
             return `${prefix || ''}${value}${suffix || ''}`;
           }
         : undefined;
@@ -520,6 +550,7 @@ export default class NumberControl extends React.Component<
           },
           className
         )}
+        style={style}
       >
         <NumberInput
           name={name}
@@ -554,6 +585,8 @@ export default class NumberControl extends React.Component<
           showSteps={showSteps}
           borderMode={borderMode}
           readOnly={readOnly}
+          suffix={suffix}
+          showAsPercent={showAsPercent}
           onFocus={() => this.dispatchEvent('focus')}
           onBlur={() => this.dispatchEvent('blur')}
           keyboard={keyboard}
@@ -571,13 +604,15 @@ export default class NumberControl extends React.Component<
               onChange={this.handleChangeUnit}
               className={`${ns}NumberControl-unit`}
               disabled={disabled}
+              popOverContainer={popOverContainer}
             />
           ) : (
             <div
               className={cx(
                 `${ns}NumberControl-unit`,
                 `${ns}NumberControl-single-unit`,
-                `${ns}Select`
+                `${ns}Select`,
+                `${readOnly ? `${ns}NumberControl-readonly` : ''}`
               )}
             >
               {typeof unitOptions[0] === 'string'
@@ -594,11 +629,15 @@ export default class NumberControl extends React.Component<
               {
                 key: 'inputControlClassName',
                 weights: {
-                  active: {
-                    pre: `inputControlClassName-${id?.replace(
-                      'u:',
-                      ''
-                    )}.focused, `
+                  focused: {
+                    pre: `${ns}Number-${
+                      displayMode ? displayMode + '-' : ''
+                    }focused.`
+                  },
+                  disabled: {
+                    pre: `${ns}Number-${
+                      displayMode ? displayMode + '-' : ''
+                    }disabled.`
                   }
                 }
               }
@@ -621,11 +660,16 @@ export default class NumberControl extends React.Component<
                   hover: {
                     inner: 'input'
                   },
-                  active: {
-                    pre: `inputControlClassName-${id?.replace(
-                      'u:',
-                      ''
-                    )}.focused, `,
+                  focused: {
+                    pre: `${ns}Number-${
+                      displayMode ? displayMode + '-' : ''
+                    }focused.`,
+                    inner: 'input'
+                  },
+                  disabled: {
+                    pre: `${ns}Number-${
+                      displayMode ? displayMode + '-' : ''
+                    }disabled.`,
                     inner: 'input'
                   }
                 }
@@ -642,7 +686,7 @@ export default class NumberControl extends React.Component<
 
 @FormItem({
   type: 'input-number',
-  detectProps: ['unitOptions', 'precision']
+  detectProps: ['unitOptions', 'precision', 'suffix']
 })
 export class NumberControlRenderer extends NumberControl {
   static defaultProps: Partial<FormControlProps> = {

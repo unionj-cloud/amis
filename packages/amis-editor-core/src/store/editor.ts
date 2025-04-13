@@ -6,7 +6,8 @@ import {
   eachTree,
   extendObject,
   createObject,
-  extractObjectChain
+  extractObjectChain,
+  GlobalVariableItem
 } from 'amis-core';
 import {cast, getEnv, Instance, types} from 'mobx-state-tree';
 import {
@@ -23,8 +24,9 @@ import {
   appTranslate,
   JSONGetByPath,
   addModal,
-  mergeDefinitions
-} from '../../src/util';
+  mergeDefinitions,
+  getModals
+} from '../util';
 import {
   InsertEventContext,
   PluginEvent,
@@ -36,7 +38,8 @@ import {
   ScaffoldForm,
   PopOverForm,
   DeleteEventContext,
-  BaseEventContext
+  BaseEventContext,
+  IGlobalEvent
 } from '../plugin';
 import {
   JSONDuplicate,
@@ -59,9 +62,11 @@ import {EditorNode, EditorNodeType} from './node';
 import findIndex from 'lodash/findIndex';
 import {matchSorter} from 'match-sorter';
 import debounce from 'lodash/debounce';
-import type {DialogSchema} from '../../../amis/src/renderers/Dialog';
-import type {DrawerSchema} from '../../../amis/src/renderers/Drawer';
+import type {DialogSchema} from 'amis/lib/renderers/Dialog';
+import type {DrawerSchema} from 'amis/lib/renderers/Drawer';
 import getLayoutInstance from '../layout';
+import {isAlive} from 'mobx-state-tree';
+import {modalsToDefinitions} from '../util';
 
 export interface SchemaHistory {
   versionId: number;
@@ -71,10 +76,17 @@ export interface SchemaHistory {
 export type SubEditorContext = {
   title: string;
   value: any;
-  onChange: (value: any, diff: any) => void;
+  onChange?: (value: any, diff: any) => void;
   slot?: any;
   data?: any;
   validate?: (value: any) => void | string | Promise<void | string>;
+
+  // 当 definitions 变化的时候，会触发这个回调
+  onDefinitionsChange?: (
+    definitions: any,
+    originDefinitions: any,
+    value: any
+  ) => any;
   canUndo?: boolean;
   canRedo?: boolean;
 
@@ -121,6 +133,14 @@ export interface PopOverFormContext extends PopOverForm {
   node?: EditorNodeType;
 }
 
+export interface ModalFormContext extends PopOverForm {
+  mode?: 'dialog' | 'drawer';
+  size?: string;
+  postion?: string;
+  value: any;
+  callback: (value: any, diff: any) => void;
+}
+
 /**
  * 搜集的 name 信息
  */
@@ -146,6 +166,7 @@ export type EditorModalBody = (DialogSchema | DrawerSchema) & {
 
 export const MainStore = types
   .model('EditorRoot', {
+    ready: false, // 异步组件加载前不可用
     isMobile: false,
     isSubEditor: false,
     // 用于自定义爱速搭中的 amis 文档路径
@@ -161,7 +182,7 @@ export const MainStore = types
     hoverRegion: '',
     activeId: '',
     activeRegion: '', // 记录当前激活的子区域
-    mouseMoveRegion: '', // 记录当前鼠标hover到的区域，后续需要优化（合并MouseMoveRegion和hoverRegion）
+    activeElement: '', // 记录当前编辑的内联元素
 
     // 点选多个的时候用来记录， 单选单个的时候还是 activeId
     selections: types.optional(types.frozen<Array<string>>(), []),
@@ -231,6 +252,12 @@ export const MainStore = types
 
     popOverForm: types.maybe(types.frozen<PopOverFormContext>()),
 
+    // 弹出层表单
+    modalForm: types.maybe(types.frozen<ModalFormContext>()),
+    modalMode: '',
+    modalFormBuzy: false,
+    modalFormError: '',
+
     // 弹出子编辑器相关的信息
     subEditorContext: types.maybe(types.frozen<SubEditorContext>()),
     // 子编辑器中可能需要拿到父编辑器的数据
@@ -249,7 +276,19 @@ export const MainStore = types
     /** 应用语料 */
     appCorpusData: types.optional(types.frozen(), {}),
     /** 应用多语言状态，用于其它组件进行订阅 */
-    appLocaleState: types.optional(types.number, 0)
+    appLocaleState: types.optional(types.number, 0),
+    /** 全局广播事件 */
+    globalEvents: types.optional(types.frozen<Array<IGlobalEvent>>(), []),
+
+    /** 全局变量 */
+    globalVariables: types.optional(
+      types.frozen<Array<GlobalVariableItem & {id: string | number}>>(),
+      []
+    )
+    // types.optional(
+    //   types.array(types.frozen<GlobalVariableItem & {id: string | number}>()),
+    //   []
+    // )
   })
   .views(self => {
     return {
@@ -274,6 +313,10 @@ export const MainStore = types
           return true;
         }
         return false;
+      },
+
+      get rootId() {
+        return this.getRootId();
       },
 
       getRootId() {
@@ -330,16 +373,12 @@ export const MainStore = types
         );
       },
 
-      isRegionHighlightHover(id: string, region: string) {
-        return id === self.hoverId && region === self.mouseMoveRegion;
-      },
-
       isRegionActive(id: string, region: string): boolean {
         return (
           this.isActive(id) ||
           id === self.dropId ||
-          this.isRegionHighlighted(id, region) ||
-          this.isRegionHighlightHover(id, region)
+          id === self.planDropId || // 欲拖拽区域
+          this.isRegionHighlighted(id, region)
         );
       },
 
@@ -388,6 +427,7 @@ export const MainStore = types
 
         self.insertOrigId && nodes.push(self.insertOrigId);
         self.dropId && nodes.push(self.dropId);
+        self.planDropId && nodes.push(self.planDropId);
         self.insertBeforeId && nodes.push(self.insertBeforeId);
 
         return nodes
@@ -401,6 +441,9 @@ export const MainStore = types
         regionOrType?: string
       ): EditorNodeType | undefined {
         return self.root.getNodeById(id, regionOrType);
+      },
+      getNodeByComponentId(id: string): EditorNodeType | undefined {
+        return self.root.getNodeByComponentId(id);
       },
 
       get activeNodeInfo(): RendererInfo | null | undefined {
@@ -574,7 +617,8 @@ export const MainStore = types
             return (
               (key.substring(0, 2) === '$$' &&
                 key !== '$$comments' &&
-                key !== '$$commonSchema') ||
+                key !== '$$commonSchema' &&
+                key !== '$$formSchema') ||
               typeof props === 'function' || // pipeIn 和 pipeOut
               key.substring(0, 2) === '__'
             );
@@ -885,7 +929,7 @@ export const MainStore = types
 
       get subEditorValue() {
         if (self.subEditorContext) {
-          return self.subEditorContext.slot
+          let subSchema = self.subEditorContext.slot
             ? {
                 ...mapObject(self.subEditorContext.slot, function (value: any) {
                   if (value === '$$') {
@@ -897,6 +941,15 @@ export const MainStore = types
                 isSlot: true
               }
             : self.subEditorContext.value;
+
+          if (!subSchema.definitions) {
+            subSchema = {
+              ...subSchema,
+              definitions: modalsToDefinitions(this.modals)
+            };
+          }
+
+          return subSchema;
         }
 
         return undefined;
@@ -1036,64 +1089,7 @@ export const MainStore = types
       // 获取弹窗大纲列表
       get modals(): Array<EditorModalBody> {
         const schema = self.schema;
-        const modals: Array<DialogSchema | DrawerSchema> = [];
-
-        JSONTraverse(schema, (value: any, key: string, host: any) => {
-          if (
-            key === 'actionType' &&
-            ['dialog', 'drawer', 'confirmDialog'].includes(value)
-          ) {
-            const key = value === 'drawer' ? 'drawer' : 'dialog';
-            const body = host[key] || host['args'];
-            if (
-              body &&
-              !body.$ref &&
-              !modals.find(item => item.$$id === body.$$id)
-            ) {
-              modals.push({
-                ...body,
-                type: key,
-                actionType: value
-              });
-            }
-          }
-          return value;
-        });
-
-        // 公共组件排在前面
-        Object.keys(schema.definitions || {})
-          .reverse()
-          .forEach(key => {
-            const definition = schema.definitions[key];
-            if (['dialog', 'drawer'].includes(definition.type)) {
-              // 不要把已经内嵌弹窗中的弹窗再放到外面
-              if (
-                definition.$$originId &&
-                modals.find(item => item.$$id === definition.$$originId)
-              ) {
-                return;
-              }
-
-              modals.unshift({
-                ...definition,
-                $$ref: key
-              });
-            }
-          });
-
-        // 子弹窗时，自己就是个弹窗
-        if (['dialog', 'drawer', 'confirmDialog'].includes(schema.type)) {
-          const idx = modals.findIndex(item => item.$$id === schema.$$id);
-          if (~idx) {
-            modals.splice(idx, 1);
-          }
-
-          modals.unshift({
-            ...schema,
-            // 如果还包含这个，子弹窗里面收集弹窗的时候会出现多份内嵌弹窗
-            definitions: undefined
-          });
-        }
+        const modals: Array<DialogSchema | DrawerSchema> = getModals(schema);
 
         return modals;
       },
@@ -1122,6 +1118,7 @@ export const MainStore = types
     let versionIdIndex = 0;
     let subEditor: any = null;
     let layer: HTMLElement | undefined = undefined;
+    let scale: number = 1;
     let doc: Document = document;
     let iframe: HTMLIFrameElement | undefined = undefined;
 
@@ -1134,12 +1131,41 @@ export const MainStore = types
       }
     );
 
+    const observer = new ResizeObserver(entries => {
+      if (!isAlive(self)) {
+        return;
+      }
+
+      (self as any).calculateHighlightBox([]);
+      for (let entry of entries) {
+        const target = entry.target as HTMLElement;
+        const id =
+          target.getAttribute('data-editor-id') ||
+          target.getAttribute('data-region-host');
+
+        if (id) {
+          const node = self.getNodeById(id);
+          node?.calculateHighlightBox();
+        }
+      }
+    });
+
     return {
+      markReady() {
+        self.ready = true;
+      },
       setLayer(value: any) {
         layer = value;
       },
       getLayer() {
         return layer;
+      },
+      // iframe 缩放比例
+      setScale(num: number) {
+        scale = num;
+      },
+      getScale() {
+        return scale;
       },
       setDoc(value: any) {
         doc = value;
@@ -1349,7 +1375,8 @@ export const MainStore = types
       setActiveId(
         id: string,
         region: string = '',
-        selections: Array<string> = []
+        selections: Array<string> = [],
+        onEditorActive: boolean = true
       ) {
         const node = id ? self.getNodeById(id) : undefined;
 
@@ -1363,6 +1390,43 @@ export const MainStore = types
         // if (!self.panelKey && id) {
         //   self.panelKey = 'config';
         // }
+        const schema = self.getSchema(id);
+
+        onEditorActive && (window as any).onEditorActive?.(schema);
+      },
+
+      setActiveIdByComponentId(id: string) {
+        const node = self.getNodeByComponentId(id);
+        if (node) {
+          this.setActiveId(node.id, node.region, [], false);
+          this.closeSubEditor();
+        } else {
+          const modals = self.modals;
+          const modalSchema = find(modals, modal => modal.id === id);
+          if (modalSchema) {
+            this.openSubEditor({
+              value: modalSchema,
+              title: '弹窗预览',
+              onChange: (value: any) => {}
+            });
+          } else {
+            const subEditorRef = this.getSubEditorRef();
+            if (subEditorRef) {
+              subEditorRef.store.setActiveIdByComponentId(id);
+              const $$id = subEditorRef.props.value.$$id;
+              const modalSchema = find(modals, modal => modal.$$id === $$id);
+              this.openSubEditor({
+                value: modalSchema,
+                title: '弹窗预览',
+                onChange: (value: any) => {}
+              });
+            }
+          }
+        }
+      },
+
+      setActiveElement(selector: string) {
+        self.activeElement = selector;
       },
 
       setSelections(ids: Array<string>) {
@@ -1384,10 +1448,6 @@ export const MainStore = types
 
         self.hoverId = id;
         self.hoverRegion = region || '';
-      },
-
-      setMouseMoveRegion(region: string) {
-        self.mouseMoveRegion = region;
       },
 
       setInsertId(id: string) {
@@ -1986,9 +2046,10 @@ export const MainStore = types
       },
 
       confirmSubEditor([valueRaw]: any) {
-        const {onChange, slot} = self.subEditorContext!;
-        let value = valueRaw.schema;
-        let originValue = valueRaw.__pristine?.schema || value;
+        const {onChange, slot, onDefinitionsChange} = self.subEditorContext!;
+        let {definitions, ...value} = valueRaw.schema;
+        let {definitions: originDefinitions, ...originValue} =
+          valueRaw.__pristine?.schema || value;
 
         if (slot) {
           const slotPath = self.subEditorSlotPath;
@@ -2007,10 +2068,29 @@ export const MainStore = types
           }
         }
 
-        onChange(
+        const prevented =
+          onDefinitionsChange?.(definitions, originDefinitions, value) ===
+          false;
+
+        onChange?.(
           value,
           onChange.length > 1 ? diff(originValue, value) : undefined
         );
+
+        if (!prevented) {
+          // merge definitions
+          const patches = diff(
+            originDefinitions,
+            definitions,
+            (path, key) => key === '$$id'
+          );
+          this.traceableSetSchema(
+            JSONUpdate(self.schema, self.schema.$$id, {
+              definitions: JSONPipeIn(patchDiff(originDefinitions, patches))
+            }),
+            true
+          );
+        }
 
         self.subEditorContext = undefined;
       },
@@ -2102,7 +2182,56 @@ export const MainStore = types
         self.popOverForm = undefined;
       },
 
-      calculateHighlightBox(ids: Array<string>) {
+      openModalForm(context: ModalFormContext) {
+        self.modalForm = context;
+        self.modalMode = context?.mode || self.modalMode;
+        self.modalFormError = '';
+      },
+
+      closeModalForm() {
+        self.modalForm = undefined;
+      },
+
+      markModalFormBuzy(value: any) {
+        self.modalFormBuzy = !!value;
+      },
+
+      setModalFormError(msg: string = '') {
+        self.modalFormError = msg;
+      },
+
+      activeHighlightNodes(ids: Array<string>) {
+        ids.forEach(id => {
+          const node = self.getNodeById(id);
+          const target = node?.getTarget();
+
+          if (target) {
+            (Array.isArray(target) ? target : [target]).forEach(target =>
+              observer.observe(target)
+            );
+          }
+        });
+        setTimeout(() => {
+          isAlive(self) && this.calculateHighlightBox(ids);
+        }, 200);
+      },
+
+      deActiveHighlightNodes(ids: Array<string>) {
+        ids.forEach(id => {
+          const node = self.getNodeById(id);
+          const target = node?.getTarget();
+
+          if (target) {
+            (Array.isArray(target) ? target : [target]).forEach(target =>
+              observer.unobserve(target)
+            );
+          }
+        });
+      },
+
+      calculateHighlightBox(
+        ids: Array<string> = self.highlightNodes.map(item => item.id)
+      ) {
         self.calculateStarted = true;
         ids.forEach(id => {
           const node = self.getNodeById(id);
@@ -2278,7 +2407,18 @@ export const MainStore = types
         this.updateAppLocaleState();
       },
 
+      setGlobalEvents(events: IGlobalEvent[]) {
+        self.globalEvents = events;
+      },
+
+      setGlobalVariables(
+        variables: Array<GlobalVariableItem & {id: string | number}>
+      ) {
+        self.globalVariables = variables;
+      },
+
       beforeDestroy() {
+        observer.disconnect();
         lazyUpdateTargetName.cancel();
       }
     };

@@ -7,9 +7,8 @@
 import React from 'react';
 import {findDOMNode} from 'react-dom';
 import {ClassNamesFn, themeable} from '../theme';
-import {autobind, camel, preventDefault} from '../utils';
+import {autobind, camel, preventDefault, TestIdBuilder} from '../utils';
 import {SubPopoverDisplayedID} from './Overlay';
-import type {TestIdBuilder} from 'amis-core';
 
 export interface Offset {
   x: number;
@@ -186,6 +185,12 @@ export class PopOver extends React.PureComponent<PopOverProps, PopOverState> {
     });
   }
 
+  @autobind
+  handleOverlayClick(e: React.MouseEvent<HTMLDivElement>) {
+    e.preventDefault();
+    this.props.onHide?.();
+  }
+
   render() {
     const {
       placement,
@@ -224,7 +229,7 @@ export class PopOver extends React.PureComponent<PopOverProps, PopOverState> {
         className={cx(
           `PopOver`,
           className,
-          `PopOver--${camel(activePlacement)}`,
+          activePlacement ? `PopOver--${camel(activePlacement)}` : '',
           placements[3] ? `PopOver--v-${placements[3]}` : ''
         )}
         style={outerStyle}
@@ -234,7 +239,7 @@ export class PopOver extends React.PureComponent<PopOverProps, PopOverState> {
         {overlay ? (
           <div
             className={`${ns}PopOver-overlay`}
-            onClick={onHide}
+            onClick={this.handleOverlayClick}
             {...testIdBuilder?.getChild('overlay').getTestId()}
           />
         ) : null}

@@ -2,9 +2,15 @@ import {ClassNamesFn} from 'amis-core';
 import {observer} from 'mobx-react';
 import React from 'react';
 import {EditorStoreType} from '../../store/editor';
-import {JSONGetById, modalsToDefinitions, translateSchema} from '../../util';
+import {
+  JSONGetById,
+  modalsToDefinitions,
+  reGenerateID,
+  translateSchema
+} from '../../util';
 import {Button, Icon, ListMenu, PopOverContainer, confirm} from 'amis';
 import {EditorManager} from '../../manager';
+import cloneDeep from 'lodash/cloneDeep';
 
 export interface DialogListProps {
   classnames: ClassNamesFn;
@@ -35,8 +41,9 @@ export default observer(function DialogList({
     manager.openSubEditor({
       title: '编辑弹窗',
       value: modal,
-      onChange: ({definitions, ...modal}: any, diff: any) => {
+      onDefinitionsChange: (definitions, originDefinitions, modal) => {
         store.addModal(modal, definitions);
+        return false;
       }
     });
   }, []);
@@ -52,8 +59,9 @@ export default observer(function DialogList({
         ...(modal as any),
         definitions: modalsToDefinitions(store.modals, {}, modal)
       },
-      onChange: ({definitions, ...modal}: any, diff: any) => {
+      onDefinitionsChange: (definitions, originDefinitions, modal) => {
         store.updateModal(modalId, modal, definitions);
+        return false;
       }
     });
   }, []);
@@ -94,7 +102,9 @@ export default observer(function DialogList({
       event.currentTarget.closest('[data-index]')!.getAttribute('data-index')!,
       10
     );
-    const dialog = store.modals[index];
+    let dialog = cloneDeep(store.modals[index]);
+    dialog = reGenerateID(dialog);
+
     store.addModal({
       ...dialog,
       title: `${dialog.title} - 复制`,

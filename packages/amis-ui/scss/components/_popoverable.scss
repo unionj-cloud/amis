@@ -12,9 +12,46 @@
   }
 }
 
+.#{$ns}TableCell-ellipsis {
+  display: flex;
+  align-items: center;
+}
+
 .#{$ns}Field--popOverAble {
   outline: none;
   position: relative;
+
+  .#{$ns}Field-popOverWrap {
+    display: -webkit-inline-box;
+    vertical-align: middle;
+
+    &-ellipsis {
+      width: auto;
+      overflow: hidden;
+      display: -webkit-inline-box;
+      -webkit-box-orient: vertical;
+      line-clamp: 1;
+      -webkit-line-clamp: 1;
+      word-break: break-all;
+    }
+
+    &-noWrap {
+      white-space: nowrap;
+    }
+  }
+}
+
+.#{$ns}Field--copyable {
+  white-space: nowrap;
+
+  .#{$ns}Form-item {
+    display: inline-block;
+    margin-bottom: unset;
+    vertical-align: middle;
+  }
+  .#{$ns}Field-copyBtn {
+    vertical-align: middle;
+  }
 }
 
 .#{$ns}PopOverAble-popover {

@@ -204,7 +204,7 @@ export default class Grid<T> extends React.Component<GridProps & T, object> {
         )}
         style={styleVar}
       >
-        {this.renderChild(`column/${key}`, (column as any).body || '', length, {
+        {this.renderChild(`column/${key}`, (column as any).body || [], length, {
           disabled,
           formMode: column.mode || subFormMode || formMode,
           formHorizontal:
@@ -279,6 +279,7 @@ export default class Grid<T> extends React.Component<GridProps & T, object> {
         )}
         style={styleVar}
         data-id={id}
+        data-role="container"
       >
         {this.renderColumns(this.props.columns)}
         <Spinner loadingConfig={loadingConfig} overlay show={loading} />

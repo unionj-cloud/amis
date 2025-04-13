@@ -50,7 +50,7 @@ export function ColGroup({
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [columns.length]);
 
   // 解决 chrome 91 以下版本的设置 colgroup>col 的 width 属性无效的问题
   // 低版本同时设置 thead>th
@@ -107,6 +107,8 @@ export function ColGroup({
           style.width = column.width;
         } else if (column.pristine.width) {
           style.width = column.pristine.width;
+        } else {
+          style.width = `var(--Table-column-${column.index}-width)`;
         }
 
         if (store.tableLayout === 'auto' && style.width) {

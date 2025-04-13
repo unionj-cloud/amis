@@ -121,6 +121,38 @@ order: 2
 }
 ```
 
+### 单一选项禁用
+
+如果需要禁用某个单独选项，让用户不可选。可以给`options`中某一项配置`disabled`属性为`true`。
+
+```schema: scope="body"
+{
+    "type": "form",
+    "body": [
+        {
+            "label": "选项",
+            "type": "select",
+            "name": "select",
+            "options": [
+                {
+                    "label":"A",
+                    "value":"a",
+                    "disabled": true
+                },
+                {
+                    "label":"B",
+                    "value":"b"
+                },
+                {
+                    "label":"C",
+                    "value":"c"
+                }
+            ]
+        }
+    ]
+}
+```
+
 ## 静态选项组 options
 
 可以使用静态方式，配置一组选项组：
@@ -1609,3 +1641,4 @@ order: 2
 | itemHeight       | `number`                                                                          | `32`      | 每个选项的高度，用于虚拟渲染                                                 |
 | virtualThreshold | `number`                                                                          | `100`     | 在选项数量超过多少时开启虚拟渲染                                             |
 | valuesNoWrap     | `boolean`                                                                         | `false`   | 默认情况下多选所有选项都会显示，通过这个可以最多显示一行，超出的部分变成 ... |
+| clearValueOnSourceChange   | `boolean`              |                        | `source`从数据域取值时，数据域值变化后是否自动清空 |

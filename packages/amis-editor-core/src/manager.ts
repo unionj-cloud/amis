@@ -8,8 +8,15 @@ import { parse, stringify } from 'json-ast-comments';
 import debounce from 'lodash/debounce';
 import findIndex from 'lodash/findIndex';
 import omit from 'lodash/omit';
-import { openContextMenus, toast, alert, DataScope, DataSchema } from 'amis';
-import { getRenderers, RenderOptions, JSONTraverse } from 'amis-core';
+import {openContextMenus, toast, alert, DataScope, DataSchema} from 'amis';
+import {
+  getRenderers,
+  RenderOptions,
+  JSONTraverse,
+  wrapFetcher,
+  GlobalVariableItem,
+  setVariable
+} from 'amis-core';
 import {
   PluginInterface,
   BasicPanelItem,
@@ -37,7 +44,10 @@ import {
   RendererPluginEvent,
   PluginEvents,
   PluginActions,
-  BasePlugin
+  BasePlugin,
+  GlobalVariablesEventContext,
+  GlobalVariableEventContext,
+  InlineEditableElement
 } from './plugin';
 import {
   EditorStoreType,
@@ -58,7 +68,8 @@ import {
   scrollToActive,
   JSONPipeIn,
   generateNodeId,
-  JSONGetNodesById
+  JSONGetNodesById,
+  diff
 } from './util';
 import { hackIn, makeSchemaFormRender, makeWrapper } from './component/factory';
 import { env } from './env';
@@ -67,9 +78,11 @@ import { EditorProps } from './component/Editor';
 import { EditorDNDManager } from './dnd';
 import { VariableManager } from './variable';
 
-import type { IScopedContext } from 'amis';
-import type { SchemaObject, SchemaCollection } from 'amis';
-import type { RendererConfig } from 'amis-core';
+import type {IScopedContext} from 'amis';
+import type {SchemaObject, SchemaCollection} from 'amis';
+import type {Api, Payload, RendererConfig, RendererEnv} from 'amis-core';
+import {loadAsyncRenderer} from 'amis-core';
+import {startInlineEdit} from './inlineEdit';
 
 export interface EditorManagerConfig
   extends Omit<EditorProps, 'value' | 'onChange'> { }
@@ -214,6 +227,7 @@ export class EditorManager {
 
   /** 变量管理 */
   readonly variableManager;
+  fetch?: (api: Api, data?: any, options?: object) => Promise<Payload>;
 
   constructor(
     readonly config: EditorManagerConfig,
@@ -222,10 +236,17 @@ export class EditorManager {
   ) {
     // 传给 amis 渲染器的默认 env
     this.env = {
-      ...env, // 默认的 env 中带 jumpTo
+      ...(env as any), // 默认的 env 中带 jumpTo
       ...omit(config.amisEnv, 'replaceText'), // 用户也可以设置自定义环境配置，用于覆盖默认的 env
-      theme: config.theme
+      theme: config.theme!
     };
+
+    // 内部统一使用 wrapFetcher 包装 fetcher
+    if (this.env.fetcher) {
+      this.env.fetcher = wrapFetcher(this.env.fetcher as any, this.env.tracker);
+      this.fetch = this.env.fetcher as any;
+    }
+
     this.env.beforeDispatchEvent = this.beforeDispatchEvent.bind(
       this,
       this.env.beforeDispatchEvent
@@ -385,6 +406,39 @@ export class EditorManager {
               )
               ?.classList.remove('is-region-active');
           }
+        }
+      ),
+
+      // 同步全局变量数据结构，以便支持fx 可视化操作
+      reaction(
+        () => store.globalVariables,
+        variables => {
+          const id = 'global-variables-schema';
+          const scope = this.dataSchema.root;
+          const globalSchema: any = {
+            type: 'object',
+            title: '全局变量',
+            properties: {}
+          };
+
+          variables.forEach(variable => {
+            globalSchema.properties[variable.key] = {
+              type: 'string',
+              title: variable.label || variable.key,
+              description: variable.description,
+              ...variable.valueSchema
+            };
+          });
+
+          const jsonschema: any = {
+            $id: id,
+            type: 'object',
+            properties: {
+              global: globalSchema
+            }
+          };
+          scope.removeSchema(jsonschema.$id);
+          scope.addSchema(jsonschema);
         }
       )
     );
@@ -959,8 +1013,8 @@ export class EditorManager {
       // crud 和 table 等表格类容器
       regionNodeId = curActiveId;
       regionNodeRegion = 'columns';
-    } else if (node.schema.items && isLayoutPlugin(node.schema)) {
-      // 当前节点是布局类容器节点
+    } else if (node.schema.items && (isLayoutPlugin(node.schema) || node.type === 'combo')) {
+      // 当前节点是布局类容器节点或 combo 组件
       regionNodeId = curActiveId;
       regionNodeRegion = 'items';
     } else if (node.schema.body) {
@@ -1427,6 +1481,39 @@ export class EditorManager {
   closeContextMenu() { }
 
   /**
+   * 自由容器内元素置于顶层
+   */
+  moveTop() {
+    const store = this.store;
+    if (!store.activeId) {
+      return;
+    }
+
+    const node = store.getNodeById(store.activeId)!;
+    const regionNode = node.parent;
+    this.move(regionNode.id, regionNode.region, node.id);
+  }
+
+  /**
+   * 自由容器内元素置于底层
+   */
+  moveBottom() {
+    const store = this.store;
+    if (!store.activeId) {
+      return;
+    }
+    const node = store.getNodeById(store.activeId)!;
+    const regionNode = node.parent;
+
+    this.move(
+      regionNode.id,
+      regionNode.region,
+      node.id,
+      regionNode.children[0].id
+    );
+  }
+
+  /**
    * 将当前选中的节点上移
    */
   moveUp() {
@@ -1836,8 +1923,11 @@ export class EditorManager {
     this.dnd.startDrag(id, e.nativeEvent);
   }
 
-  async scaffold(form: any, value: any): Promise<SchemaObject> {
+  async scaffold(form: ScaffoldForm, value: any): Promise<SchemaObject> {
     const scaffoldFormData = form.pipeIn ? await form.pipeIn(value) : value;
+    if (form.getSchema) {
+      form = Object.assign({}, form, await form.getSchema(scaffoldFormData));
+    }
 
     return new Promise(resolve => {
       this.store.openScaffoldForm({
@@ -1856,7 +1946,7 @@ export class EditorManager {
   // 根据元素ID实时拿取上下文数据
   async reScaffoldV2(id: string) {
     const commonContext = this.buildEventContext(id);
-    const scaffoldForm = commonContext.info?.scaffoldForm;
+    const scaffoldForm = commonContext.info?.scaffoldForm!;
     const curSchema = commonContext.schema;
     const replaceWith = await this.scaffold(scaffoldForm, curSchema);
     this.replaceChild(id, replaceWith);
@@ -1877,7 +1967,8 @@ export class EditorManager {
     }
     this.patching = true;
     this.patchingInvalid = false;
-    const batch: Array<{ id: string; value: any }> = [];
+    const batch: Array<{id: string; value: any}> = [];
+    const ids = new Map();
     let patchList = (list: Array<EditorNodeType>) => {
       // 深度优先
       list.forEach((node: EditorNodeType) => {
@@ -1886,9 +1977,14 @@ export class EditorManager {
         }
 
         if (isAlive(node) && !node.isRegion) {
-          node.patch(this.store, force, (id, value) =>
-            batch.unshift({ id, value })
+          const schema = node.schema;
+          node.patch(
+            this.store,
+            force,
+            (id, value) => batch.unshift({id, value}),
+            ids
           );
+          node.schemaPath && ids.set(schema.id, node.schemaPath);
         }
       });
     };
@@ -1902,12 +1998,15 @@ export class EditorManager {
   /**
    * 把设置了特殊 region 的，hack 一下。
    */
-  hackRenderers(renderers = getRenderers()) {
+  async hackRenderers(renderers = getRenderers()) {
     const toHackList: Array<{
       renderer: RendererConfig;
       regions?: Array<RegionConfig>;
       overrides?: any;
     }> = [];
+
+    await Promise.all(renderers.map(renderer => loadAsyncRenderer(renderer)));
+
     renderers.forEach(renderer => {
       const plugins = this.plugins.filter(
         plugin =>
@@ -1950,6 +2049,8 @@ export class EditorManager {
     toHackList.forEach(({ regions, renderer, overrides }) =>
       this.hackIn(renderer, regions, overrides)
     );
+
+    this.store.markReady();
   }
 
   /**
@@ -2248,6 +2349,108 @@ export class EditorManager {
 
       scope = scope.parent;
     }
+  }
+
+  startInlineEdit(
+    node: EditorNodeType,
+    elem: HTMLElement,
+    config: InlineEditableElement,
+    event?: MouseEvent
+  ) {
+    const store = this.store;
+    store.setActiveId(node.id);
+    store.setActiveElement(config.match);
+
+    startInlineEdit({
+      node,
+      event,
+      elem,
+      config,
+      richTextToken: this.config.richTextToken,
+      richTextOptions: this.config.richTextOptions,
+      onCancel: () => {
+        store.setActiveElement('');
+      },
+      onConfirm: (value: string) => {
+        store.setActiveElement('');
+
+        if (config.key) {
+          const originValue = store.getValueOf(node.id);
+          const newValue = {...originValue};
+          setVariable(newValue, config.key, value);
+
+          const diffValue = diff(originValue, newValue);
+          // 没有变化时不触发onChange
+          if (!diffValue) {
+            return;
+          }
+          this.panelChangeValue(newValue, diffValue, undefined, node.id);
+        }
+      }
+    });
+  }
+
+  /**
+   * 初始化全局变量
+   */
+  async initGlobalVariables() {
+    let variables: Array<GlobalVariableItem & {id: string | number}> = [];
+    const context: GlobalVariablesEventContext = {
+      data: variables
+    };
+
+    // 从插件中获取全局变量
+    const event = this.trigger('global-variable-init', context);
+    if (event.pending) {
+      await event.pending;
+    }
+    this.store.setGlobalVariables(event.data);
+  }
+
+  /**
+   * 获取全局变量详情
+   */
+  async getGlobalVariableDetail(variable: Partial<GlobalVariableItem>) {
+    const context: GlobalVariableEventContext = {
+      data: variable!
+    };
+
+    const event = this.trigger('global-variable-detail', context);
+    if (event.pending) {
+      await event.pending;
+    }
+    return event.data;
+  }
+
+  /**
+   * 保存全局变量，包括新增保存和编辑保存
+   */
+  async saveGlobalVariable(variable: Partial<GlobalVariableItem>) {
+    const context: GlobalVariableEventContext = {
+      data: variable!
+    };
+
+    const event = this.trigger('global-variable-save', context);
+    if (event.pending) {
+      await event.pending;
+    }
+    return event.data;
+  }
+
+  /**
+   * 删除全局变量
+   */
+  async deleteGlobalVariable(variable: Partial<GlobalVariableItem>) {
+    const context: GlobalVariableEventContext = {
+      data: variable!
+    };
+
+    const event = this.trigger('global-variable-delete', context);
+    if (event.pending) {
+      await event.pending;
+    }
+
+    return event.data;
   }
 
   beforeDispatchEvent(

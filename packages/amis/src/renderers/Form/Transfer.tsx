@@ -238,10 +238,9 @@ export class BaseTransferRenderer<
 
   tranferRef?: any;
 
-  reload() {
-    const {reloadOptions} = this.props;
-
-    reloadOptions?.();
+  reload(subpath?: string, query?: any) {
+    const reload = this.props.reloadOptions;
+    reload && reload(subpath, query);
   }
 
   @autobind
@@ -261,6 +260,7 @@ export class BaseTransferRenderer<
     } = this.props;
     let newValue: any = value;
     let newOptions = options.concat();
+    let selectedItems = value;
 
     if (Array.isArray(value)) {
       newValue = value.map(item => {
@@ -347,7 +347,8 @@ export class BaseTransferRenderer<
       resolveEventData(this.props, {
         value: newValue,
         options,
-        items: options // 为了保持名字统一
+        items: options, // 为了保持名字统一
+        selectedItems
       })
     );
     if (rendererEvent?.prevented) {
@@ -360,6 +361,12 @@ export class BaseTransferRenderer<
   @autobind
   option2value(option: Option) {
     return option;
+  }
+
+  @autobind
+  getResult(payload: any) {
+    const result = payload.data.options || payload.data.items || payload.data;
+    return result;
   }
 
   @autobind
@@ -393,8 +400,7 @@ export class BaseTransferRenderer<
           throw new Error(__(payload.msg || 'networkError'));
         }
 
-        const result =
-          payload.data.options || payload.data.items || payload.data || [];
+        const result = this.getResult(payload);
         if (!Array.isArray(result)) {
           throw new Error(__('CRUD.invalidArray'));
         }

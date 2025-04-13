@@ -90,8 +90,8 @@ export interface ScopedComponentType extends React.Component<RendererProps> {
   ) => void;
   receive?: (values: RendererData, subPath?: string, replace?: boolean) => void;
   reload?: (
-    subPath?: string,
-    query?: RendererData | null,
+    subpath?: string,
+    query?: any,
     ctx?: RendererData,
     silent?: boolean,
     replace?: boolean,
@@ -115,7 +115,7 @@ export interface IScopedContext {
     ignoreScope?: IScopedContext
   ) => ScopedComponentType | undefined;
   getComponents: () => Array<ScopedComponentType>;
-  reload: (target: string, ctx: RendererData) => void;
+  reload: (target: string, ctx: RendererData) => void | Promise<void>;
   send: (target: string, ctx: RendererData) => void;
   close: (target: string) => void;
   closeById: (target: string) => void;

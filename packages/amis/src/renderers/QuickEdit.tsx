@@ -124,6 +124,8 @@ export const HocQuickEdit =
     > {
       target: HTMLElement;
       overlay: HTMLElement;
+      form?: any;
+      formItem?: any;
       static ComposedComponent = Component;
       constructor(props: QuickEditProps) {
         super(props);
@@ -163,24 +165,22 @@ export const HocQuickEdit =
       formRef(ref: any) {
         const {quickEditFormRef, rowIndex, colIndex} = this.props;
 
-        if (quickEditFormRef) {
-          while (ref && ref.getWrappedInstance) {
-            ref = ref.getWrappedInstance();
-          }
-
-          quickEditFormRef(ref, colIndex, rowIndex);
+        while (ref && ref.getWrappedInstance) {
+          ref = ref.getWrappedInstance();
         }
+
+        this.form = ref;
+        quickEditFormRef?.(ref, colIndex, rowIndex);
       }
       formItemRef(ref: any) {
         const {quickEditFormItemRef, rowIndex, colIndex} = this.props;
 
-        if (quickEditFormItemRef) {
-          while (ref && ref.getWrappedInstance) {
-            ref = ref.getWrappedInstance();
-          }
-
-          quickEditFormItemRef(ref, colIndex, rowIndex);
+        while (ref && ref.getWrappedInstance) {
+          ref = ref.getWrappedInstance();
         }
+
+        this.formItem = ref;
+        quickEditFormItemRef?.(ref, colIndex, rowIndex);
       }
 
       handleWindowKeyPress(e: Event) {
@@ -525,7 +525,14 @@ export const HocQuickEdit =
         ) {
           e.preventDefault();
           e.stopPropagation();
-          this.openQuickEdit();
+
+          if (this.formItem) {
+            this.formItem?.focus?.();
+          } else if (this.form) {
+            this.form?.focus?.();
+          } else {
+            this.openQuickEdit();
+          }
         }
       }
 
@@ -602,23 +609,21 @@ export const HocQuickEdit =
           schema.body.length === 1 &&
           !schema.body[0].unique && // 唯一模式还不支持
           !schema.body[0].value && // 不能有默认值表达式什么的情况
+          !schema.body[0]?.extraName &&
           schema.body[0].name &&
           schema.body[0].name === name &&
           schema.body[0].type &&
           getRendererByName(schema.body[0].type)?.isFormItem
         ) {
-          return render('inline-form-item', schema.body[0], {
-            mode: 'normal',
-            value: getPropValue(this.props) ?? '',
-            onChange: this.handleFormItemChange,
-            onBulkChange: this.handleBulkChange,
-            formItemRef: this.formItemRef,
-            defaultStatic: false,
-            // 不下发下面的属性，否则当使用表格类型的 Picker 时（或其他会用到 Table 的自定义组件），会导致一些异常行为
-            buildItemProps: null,
-            quickEditFormRef: null,
-            quickEditFormItemRef: null
-          });
+          return (
+            <InlineFormItem
+              {...this.props}
+              schema={schema.body[0]}
+              onChange={this.handleFormItemChange}
+              onBulkChange={this.handleBulkChange}
+              formItemRef={this.formItemRef}
+            />
+          );
         }
 
         return render('inline-form', schema, {
@@ -652,7 +657,8 @@ export const HocQuickEdit =
           render,
           noHoc,
           canAccessSuperData,
-          disabled
+          disabled,
+          static: isStatic
         } = this.props;
 
         // 静态渲染等情况也把 InputTable 相关的回调函数剔除，防止嵌套渲染表格时出问题
@@ -663,6 +669,7 @@ export const HocQuickEdit =
           ...restProps
         } = this.props;
         if (
+          isStatic ||
           !quickEdit ||
           !onQuickChange ||
           (!(typeof quickEdit === 'object' && quickEdit?.isQuickEditFormMode) &&
@@ -679,7 +686,18 @@ export const HocQuickEdit =
           (quickEdit as QuickEditConfig).isFormMode
         ) {
           return (
-            <Component {...restProps}>{this.renderInlineForm()}</Component>
+            <Component
+              {...restProps}
+              className={cx(`Field--quickEditable`, className)}
+              tabIndex={
+                (quickEdit as QuickEditConfig).focusable === false
+                  ? undefined
+                  : '0'
+              }
+              onKeyUp={disabled ? noop : this.handleKeyUp}
+            >
+              {this.renderInlineForm()}
+            </Component>
           );
         } else {
           return (
@@ -700,6 +718,7 @@ export const HocQuickEdit =
                 ? null
                 : render('quick-edit-button', {
                     type: 'button',
+                    tabIndex: '-1',
                     onClick: this.openQuickEdit,
                     className: 'Field-quickEditBtn',
                     icon: (quickEdit as QuickEditConfig).icon || 'edit',
@@ -718,3 +737,47 @@ export const HocQuickEdit =
   };
 
 export default HocQuickEdit;
+
+export function InlineFormItem(
+  props: RendererProps & {
+    schema: any;
+    onChange: Function;
+    onBulkChange: Function;
+    formItemRef: Function;
+  }
+) {
+  const {
+    render,
+    schema,
+    data,
+    onChange,
+    onBulkChange,
+    formItemRef,
+    canAccessSuperData
+  } = props;
+
+  canAccessSuperData &&
+    React.useEffect(() => {
+      const value = getPropValue(props);
+
+      if (
+        value &&
+        value !== getPropValue({...props, canAccessSuperData: false})
+      ) {
+        onChange(value);
+      }
+    }, []);
+
+  return render('inline-form-item', schema, {
+    mode: 'normal',
+    value: getPropValue(props) ?? '',
+    onChange: onChange,
+    onBulkChange: onBulkChange,
+    formItemRef: formItemRef,
+    defaultStatic: false,
+    // 不下发下面的属性，否则当使用表格类型的 Picker 时（或其他会用到 Table 的自定义组件），会导致一些异常行为
+    buildItemProps: null,
+    quickEditFormRef: null,
+    quickEditFormItemRef: null
+  });
+}
