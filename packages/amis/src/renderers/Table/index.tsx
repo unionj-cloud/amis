@@ -75,6 +75,7 @@ import ColumnToggler from './ColumnToggler';
 import {exportExcel} from './exportExcel';
 import AutoFilterForm from './AutoFilterForm';
 import Cell from './Cell';
+import VCell from './VCell';
 
 import type {IColumn, IRow} from 'amis-core';
 
@@ -660,7 +661,8 @@ export default class Table<
       tableLayout,
       resolveDefinitions,
       showIndex,
-      persistKey
+      persistKey,
+      useVirtualList
     } = props;
 
     let combineNum = props.combineNum;
@@ -729,7 +731,8 @@ export default class Table<
   static syncRows(
     store: ITableStore,
     props: TableProps,
-    prevProps?: TableProps
+    prevProps?: TableProps,
+    forceUpdateRows = false
   ) {
     const source = props.source;
     const value = getPropValue(props, (props: TableProps) => props.items);
@@ -739,6 +742,7 @@ export default class Table<
     // 要严格比较前后的value值，否则某些情况下会导致循环update无限渲染
     if (Array.isArray(value)) {
       if (
+        forceUpdateRows ||
         !prevProps ||
         !isEqual(
           getPropValue(prevProps, (props: TableProps) => props.items),
@@ -921,7 +925,8 @@ export default class Table<
           const rect1 = selfNode.getBoundingClientRect();
           const rect2 = nextSibling.getBoundingClientRect();
 
-          if (rect1.bottom <= rect2.top) {
+          // 浏览器缩放/扩大的时候会出现精度问题
+          if (rect1.bottom - rect2.top <= 0.5) {
             nextSiblingHeight +=
               nextSibling.offsetHeight +
               getStyleNumber(nextSibling, 'margin-bottom');
@@ -968,6 +973,7 @@ export default class Table<
   componentDidUpdate(prevProps: TableProps) {
     const props = this.props;
     const store = props.store;
+    let forceReSync = false;
 
     changedEffect(
       [
@@ -1009,6 +1015,13 @@ export default class Table<
             10
           );
         }
+        if (
+          !forceReSync &&
+          changes.hasOwnProperty('combineNum') &&
+          store.combineNum !== changes.combineNum
+        ) {
+          forceReSync = true;
+        }
         if (changes.orderBy && !props.onQuery) {
           delete changes.orderBy;
         }
@@ -1019,13 +1032,15 @@ export default class Table<
     );
 
     if (
+      forceReSync ||
       anyChanged(['source', 'value', 'items'], prevProps, props) ||
       (!props.value &&
         !props.items &&
         (props.data !== prevProps.data ||
           (typeof props.source === 'string' && isPureVariable(props.source))))
     ) {
-      Table.syncRows(store, props, prevProps) && this.syncSelected();
+      Table.syncRows(store, props, prevProps, forceReSync) &&
+        this.syncSelected();
     } else if (isArrayChildrenModified(prevProps.selected!, props.selected!)) {
       const prevSelectedRows = store.selectedRows
         .map(item => item.id)
@@ -2258,8 +2273,12 @@ export default class Table<
       filterItemIndex
     } = this.props;
 
+    // 如果列数大于20，并且列不是固定列，则使用按需渲染模式
+    const Comp =
+      store.filteredColumns.length > 20 && !column.fixed ? VCell : Cell;
+
     return (
-      <Cell
+      <Comp
         key={props.key}
         region={region}
         column={column}

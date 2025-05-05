@@ -9,6 +9,8 @@ import {createObject} from 'amis-core';
 import {LocaleProps} from 'amis-core';
 import {ActionSchema} from '../Action';
 import type {IColumn, IRow, ITableStore, TestIdBuilder} from 'amis-core';
+import flatten from 'lodash/flatten';
+import {VirtualTableBody} from './VirtualTableBody';
 
 export interface TableBodyProps extends LocaleProps {
   store: ITableStore;
@@ -282,15 +284,13 @@ export class TableBody<
       };
 
       for (let i = resultLen; i < store.filteredColumns.length; i++) {
-        const matchedColumns = [i]
-          .map(idx => store.filteredColumns.find(col => col.rawIndex === idx))
-          .filter(item => item);
+        const column = store.filteredColumns[i];
 
         result.push({
           ...item,
-          colSpan: matchedColumns.length,
-          firstColumn: matchedColumns[0]!,
-          lastColumn: matchedColumns[matchedColumns.length - 1]!
+          colSpan: 1,
+          firstColumn: column,
+          lastColumn: column
         });
       }
     }
@@ -364,6 +364,7 @@ export class TableBody<
       classnames: cx,
       className,
       render,
+      store,
       rows,
       columns,
       rowsProps,
@@ -372,16 +373,17 @@ export class TableBody<
       translate: __
     } = this.props;
 
-    return (
-      <tbody className={className}>
-        {rows.length ? (
-          <>
-            {this.renderSummary('prefix', prefixRow)}
-            {this.renderRows(rows, columns, rowsProps)}
-            {this.renderSummary('affix', affixRow)}
-          </>
-        ) : null}
-      </tbody>
+    const doms: React.ReactNode[] = flatten(
+      []
+        .concat(this.renderSummary('prefix', prefixRow) as any)
+        .concat(this.renderRows(rows, columns, rowsProps) as any)
+        .concat(this.renderSummary('affix', affixRow) as any)
+    ).filter(Boolean);
+
+    return rows.length > store.lazyRenderAfter ? (
+      <VirtualTableBody rows={doms} store={this.props.store} />
+    ) : (
+      <tbody className={className}>{doms}</tbody>
     );
   }
 }

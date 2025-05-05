@@ -128,7 +128,7 @@ export class LocationControlPlugin extends BasePlugin {
             {
               title: '基本',
               body: [
-                getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+                getSchemaTpl('layout:originPosition', {value: 'left-top'}),
                 getSchemaTpl(
                   'formItemName',
                   {
@@ -162,8 +162,8 @@ export class LocationControlPlugin extends BasePlugin {
                   label: '坐标格式',
                   value: 'bd09',
                   options: [
-                    { label: '百度坐标', value: 'bd09' },
-                    { label: '国测局坐标', value: 'gcj02' }
+                    {label: '百度坐标', value: 'bd09'},
+                    {label: '国测局坐标', value: 'gcj02'}
                   ]
                 },
                 getSchemaTpl('formulaControl', {
@@ -205,11 +205,11 @@ export class LocationControlPlugin extends BasePlugin {
                 getSchemaTpl('labelRemark'),
                 getSchemaTpl('remark'),
                 getSchemaTpl('placeholder', {
-                  visibleOn: '!onlySelectCurrentLoc'
+                  visibleOn: '${!onlySelectCurrentLoc}'
                 }),
                 getSchemaTpl('placeholder', {
                   name: 'getLocationPlaceholder',
-                  visibleOn: 'onlySelectCurrentLoc'
+                  visibleOn: '${onlySelectCurrentLoc}'
                 }),
                 getSchemaTpl('description')
               ]
@@ -218,7 +218,7 @@ export class LocationControlPlugin extends BasePlugin {
               isFormItem: true,
               readonly: false
             }),
-            getSchemaTpl('validation', { tag: ValidatorTag.File })
+            getSchemaTpl('validation', {tag: ValidatorTag.File})
           ])
         ]
       },
@@ -226,7 +226,7 @@ export class LocationControlPlugin extends BasePlugin {
         title: '外观',
         body: [
           getSchemaTpl('collapseGroup', [
-            getSchemaTpl('style:formItem', { renderer }),
+            getSchemaTpl('style:formItem', {renderer}),
             getSchemaTpl('theme:form-label'),
             getSchemaTpl('theme:classNames', {
               schema: [

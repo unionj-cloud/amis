@@ -9,6 +9,7 @@ import {
   tipedLabel,
   RendererPluginAction,
   RendererPluginEvent,
+  getI18nEnabled,
   undefinedPipeOut
 } from 'amis-editor-core';
 import type {Schema} from 'amis';
@@ -68,7 +69,7 @@ export class TransferPlugin extends BasePlugin {
       eventLabel: '值变化',
       description: '输入框失去焦点时触发',
       dataSchema: (manager: EditorManager) => {
-        const { value, items } = resolveOptionEventDataSchame(manager, true);
+        const {value, items} = resolveOptionEventDataSchame(manager, true);
 
         return [
           {
@@ -92,7 +93,7 @@ export class TransferPlugin extends BasePlugin {
       eventLabel: '全选',
       description: '选中所有选项',
       dataSchema: (manager: EditorManager) => {
-        const { items } = resolveOptionEventDataSchame(manager, true);
+        const {items} = resolveOptionEventDataSchame(manager, true);
 
         return [
           {
@@ -182,6 +183,7 @@ export class TransferPlugin extends BasePlugin {
 
   panelBodyCreator = (context: BaseEventContext) => {
     const renderer: any = context.info.renderer;
+    const i18nEnabled = getI18nEnabled();
 
     return getSchemaTpl('tabs', [
       {
@@ -190,7 +192,7 @@ export class TransferPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
               getSchemaTpl(
                 'formItemName',
                 {
@@ -262,7 +264,7 @@ export class TransferPlugin extends BasePlugin {
                 {
                   visibleOn: 'this.source || !this.options'
                 },
-                { context }
+                {context}
               ),
               getSchemaTpl('optionControl', {
                 visibleOn: 'this.selectMode === "list"',
@@ -318,14 +320,14 @@ export class TransferPlugin extends BasePlugin {
 
               getSchemaTpl('optionsMenuTpl', {
                 manager: this.manager,
-                onChange: (value: any) => { },
+                onChange: (value: any) => {},
                 visibleOn: 'this.selectMode !== "table"'
               }),
 
               {
                 label: '标题',
                 name: 'selectTitle',
-                type: 'input-text',
+                type: i18nEnabled ? 'input-text-i18n' : 'input-text',
                 inputClassName: 'is-inline '
               }
             ]
@@ -339,8 +341,8 @@ export class TransferPlugin extends BasePlugin {
                 name: 'resultListModeFollowSelect',
                 inputClassName: 'items-center',
                 options: [
-                  { label: '列表形式', value: false },
-                  { label: '跟随左侧', value: true }
+                  {label: '列表形式', value: false},
+                  {label: '跟随左侧', value: true}
                 ],
                 onChange: (value: any, origin: any, item: any, form: any) => {
                   form.setValueByName('sortable', !value ? true : undefined);
@@ -368,14 +370,14 @@ export class TransferPlugin extends BasePlugin {
               getSchemaTpl('optionsMenuTpl', {
                 name: 'valueTpl',
                 manager: this.manager,
-                onChange: (value: any) => { },
+                onChange: (value: any) => {},
                 visibleOn:
                   '!(this.selectMode === "table" && this.resultListModeFollowSelect)'
               }),
               {
                 label: '标题',
                 name: 'resultTitle',
-                type: 'input-text',
+                type: i18nEnabled ? 'input-text-i18n' : 'input-text',
                 inputClassName: 'is-inline '
               }
             ]
@@ -387,8 +389,8 @@ export class TransferPlugin extends BasePlugin {
               getSchemaTpl('virtualItemHeight')
             ]
           },
-          getSchemaTpl('status', { isFormItem: true }),
-          getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
+          getSchemaTpl('status', {isFormItem: true}),
+          getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
         ])
       },
       {
@@ -409,55 +411,55 @@ export class TransferPlugin extends BasePlugin {
           ]),
           ...(this.rendererName === 'transfer-picker'
             ? [
-              {
-                title: '边框',
-                key: 'borderMode',
-                body: [getSchemaTpl('borderMode')]
-              },
-              {
-                title: '弹窗',
-                key: 'picker',
-                body: [
-                  {
-                    name: 'pickerSize',
-                    type: 'select',
-                    pipeIn: defaultValue(''),
-                    pipeOut: undefinedPipeOut,
-                    label: '弹窗大小',
-                    options: [
-                      {
-                        label: '默认',
-                        value: ''
-                      },
-                      {
-                        value: 'sm',
-                        label: '小'
-                      },
+                {
+                  title: '边框',
+                  key: 'borderMode',
+                  body: [getSchemaTpl('borderMode')]
+                },
+                {
+                  title: '弹窗',
+                  key: 'picker',
+                  body: [
+                    {
+                      name: 'pickerSize',
+                      type: 'select',
+                      pipeIn: defaultValue(''),
+                      pipeOut: undefinedPipeOut,
+                      label: '弹窗大小',
+                      options: [
+                        {
+                          label: '默认',
+                          value: ''
+                        },
+                        {
+                          value: 'sm',
+                          label: '小'
+                        },
 
-                      {
-                        label: '中',
-                        value: 'md'
-                      },
+                        {
+                          label: '中',
+                          value: 'md'
+                        },
 
-                      {
-                        label: '大',
-                        value: 'lg'
-                      },
+                        {
+                          label: '大',
+                          value: 'lg'
+                        },
 
-                      {
-                        label: '特大',
-                        value: 'xl'
-                      },
+                        {
+                          label: '特大',
+                          value: 'xl'
+                        },
 
-                      {
-                        label: '全屏',
-                        value: 'full'
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
+                        {
+                          label: '全屏',
+                          value: 'full'
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             : [])
         ])
       },

@@ -54,6 +54,7 @@ class ServerError extends Error {
   readonly response: any;
   constructor(msg: string, response?: any) {
     super(msg);
+    Object.setPrototypeOf(this, ServerError.prototype);
     this.response = response;
   }
 }
@@ -387,7 +388,7 @@ export const CRUDStore = ServiceStore.named('CRUDStore')
             items = [];
           }
 
-          items = items || []
+          items = items || [];
           if (!Array.isArray(items)) {
             throw new Error(self.__('CRUD.invalidArray'));
           } else {

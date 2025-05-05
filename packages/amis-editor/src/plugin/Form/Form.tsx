@@ -4,7 +4,7 @@ import DeepDiff from 'deep-diff';
 import flatten from 'lodash/flatten';
 import cloneDeep from 'lodash/cloneDeep';
 import pick from 'lodash/pick';
-import { isObject, getRendererByName, setVariable } from 'amis-core';
+import {isObject, getRendererByName, setVariable} from 'amis-core';
 import {
   BasePlugin,
   tipedLabel,
@@ -20,6 +20,7 @@ import {
   EditorNodeType,
   ScaffoldForm,
   RegionConfig,
+  getI18nEnabled,
   registerEditorPlugin,
   JSONPipeOut
 } from 'amis-editor-core';
@@ -410,11 +411,11 @@ export class FormPlugin extends BasePlugin {
     value: DSFeatureType;
     disabled?: boolean;
   }> = [
-      { label: '新增', value: DSFeatureEnum.Insert },
-      { label: '编辑', value: DSFeatureEnum.Edit },
-      { label: '查看', value: DSFeatureEnum.View },
-      { label: '批量编辑', value: DSFeatureEnum.BulkEdit, disabled: true }
-    ];
+    {label: '新增', value: DSFeatureEnum.Insert},
+    {label: '编辑', value: DSFeatureEnum.Edit},
+    {label: '查看', value: DSFeatureEnum.View},
+    {label: '批量编辑', value: DSFeatureEnum.BulkEdit, disabled: true}
+  ];
 
   dsManager: DSBuilderManager;
 
@@ -469,7 +470,7 @@ export class FormPlugin extends BasePlugin {
                 dsType: this.dsManager.getDefaultBuilderKey(),
                 initApi:
                   DSFeatureEnum.Insert === value ||
-                    DSFeatureEnum.BulkEdit === value
+                  DSFeatureEnum.BulkEdit === value
                     ? undefined
                     : ''
               });
@@ -500,7 +501,7 @@ export class FormPlugin extends BasePlugin {
               form.setValues({
                 initApi:
                   DSFeatureEnum.Insert === value ||
-                    DSFeatureEnum.BulkEdit === value
+                  DSFeatureEnum.BulkEdit === value
                     ? undefined
                     : ''
               });
@@ -558,12 +559,12 @@ export class FormPlugin extends BasePlugin {
         const builder = this.dsManager.getBuilderByKey(dsType);
 
         if (!builder) {
-          return { dsType };
+          return {dsType};
         }
 
-        const config = await builder.guessFormScaffoldConfig({ schema });
+        const config = await builder.guessFormScaffoldConfig({schema});
 
-        return { ...config };
+        return {...config};
       },
       pipeOut: async (config: FormScaffoldConfig) => {
         const scaffold: any = cloneDeep(this.scaffold);
@@ -588,7 +589,7 @@ export class FormPlugin extends BasePlugin {
         return schema;
       },
       validate: (data: FormScaffoldConfig, form: IFormStore) => {
-        const { feat } = data;
+        const {feat} = data;
         const builder = this.dsManager.getBuilderByScaffoldSetting(data);
         const featValue = builder?.getFeatValueByKey(
           feat ?? DSFeatureEnum.Insert
@@ -631,7 +632,7 @@ export class FormPlugin extends BasePlugin {
       );
     }
 
-    this._dynamicControls = { ...this._dynamicControls, ...controls };
+    this._dynamicControls = {...this._dynamicControls, ...controls};
   }
 
   /** 获取可能的使用场景 */
@@ -642,19 +643,28 @@ export class FormPlugin extends BasePlugin {
       DSFeatureEnum.BulkEdit,
       DSFeatureEnum.View
     ];
-    if (schema.hasOwnProperty('feat')) {
-      return validFeat.includes(schema.feat)
-        ? schema.feat
-        : DSFeatureEnum.Insert;
-    }
 
-    if (schema.initApi != null && schema.api != null) {
+    // 判断表单功能类型
+    const {initApi, api, feat} = schema;
+
+    // 根据API配置判断基础功能类型
+    if (initApi && api) {
       return DSFeatureEnum.Edit;
-    } else if (schema.initApi != null && schema.api == null) {
+    }
+    if (initApi && !api) {
       return DSFeatureEnum.View;
-    } else {
+    }
+    if (!initApi && api) {
       return DSFeatureEnum.Insert;
     }
+
+    // 检查自定义功能类型
+    if (feat && validFeat.includes(feat)) {
+      return feat;
+    }
+
+    // 默认返回插入模式
+    return DSFeatureEnum.Insert;
   }
 
   panelBodyCreator = (context: BaseEventContext) => {
@@ -738,9 +748,11 @@ export class FormPlugin extends BasePlugin {
               return {
                 type: 'container',
                 className: 'form-item-gap',
-                visibleOn: `$\{feat === '${feat.value
-                  }' && (dsType == null ? '${builderKey}' === '${defaultDsType || ApiDSBuilderKey
-                  }' : dsType === '${builderKey}')}`,
+                visibleOn: `$\{feat === '${
+                  feat.value
+                }' && (dsType == null ? '${builderKey}' === '${
+                  defaultDsType || ApiDSBuilderKey
+                }' : dsType === '${builderKey}')}`,
                 body: flatten([
                   builder.makeSourceSettingForm({
                     feat: feat.value,
@@ -755,7 +767,7 @@ export class FormPlugin extends BasePlugin {
                        * 2. 配置面板中要读取Schema 配置，所以使用 initApi
                        */
                       ...(feat.value === DSFeatureEnum.View
-                        ? { name: 'initApi' }
+                        ? {name: 'initApi'}
                         : {})
                     }
                   })
@@ -860,15 +872,21 @@ export class FormPlugin extends BasePlugin {
                 form: IFormStore
               ) => {
                 if (value !== oldValue) {
-                  form.setValues({
-                    dsType: this.dsManager.getDefaultBuilderKey(),
-                    initApi:
-                      DSFeatureEnum.Insert === value ||
-                        DSFeatureEnum.BulkEdit === value
-                        ? undefined
-                        : '',
-                    api: undefined
-                  });
+                  const newSchema: any = {
+                    dsType: this.dsManager.getDefaultBuilderKey()
+                  };
+
+                  // 批量编辑和新增需要删除获取数据接口
+                  if (
+                    DSFeatureEnum.Insert === value ||
+                    DSFeatureEnum.BulkEdit === value
+                  ) {
+                    newSchema.initApi = undefined;
+                  } else if (DSFeatureEnum.View === value) {
+                    newSchema.api = undefined;
+                  }
+                  // 删除数据源无用配置
+                  form.setValues(newSchema);
                 }
               }
             },
@@ -877,6 +895,7 @@ export class FormPlugin extends BasePlugin {
         };
       }
     };
+    const i18nEnabled = getI18nEnabled();
 
     return [
       getSchemaTpl('tabs', [
@@ -889,12 +908,10 @@ export class FormPlugin extends BasePlugin {
               {
                 title: '基本',
                 body: [
-                  {
-                    name: 'title',
-                    type: 'input-text',
+                  getSchemaTpl('pageTitle', {
                     label: '标题',
                     visibleOn: isWrapped
-                  },
+                  }),
                   getSchemaTpl('modelCode'),
                   getSchemaTpl('switch', {
                     name: 'autoFocus',
@@ -945,7 +962,7 @@ export class FormPlugin extends BasePlugin {
 
                               return isFormItem &&
                                 typeof item?.name === 'string'
-                                ? { label: item.name, value: item.name }
+                                ? {label: item.name, value: item.name}
                                 : false;
                             })
                             .filter(Boolean)
@@ -970,7 +987,7 @@ export class FormPlugin extends BasePlugin {
                     ),
                     pipeIn: defaultValue(true)
                   }),
-                  getSchemaTpl('loadingConfig', { label: '加载设置' }, { context })
+                  getSchemaTpl('loadingConfig', {label: '加载设置'}, {context})
                 ]
               },
               {
@@ -1019,10 +1036,10 @@ export class FormPlugin extends BasePlugin {
                   //     }),
                   isInDialog
                     ? getSchemaTpl('switch', {
-                      label: '提交后关闭对话框',
-                      name: 'closeDialogOnSubmit',
-                      pipeIn: (value: any) => value !== false
-                    })
+                        label: '提交后关闭对话框',
+                        name: 'closeDialogOnSubmit',
+                        pipeIn: (value: any) => value !== false
+                      })
                     : null
                   // isCRUDFilter
                   //   ? null
@@ -1094,7 +1111,7 @@ export class FormPlugin extends BasePlugin {
                       {
                         name: 'message',
                         label: '报错提示',
-                        type: 'input-text',
+                        type: i18nEnabled ? 'input-text-i18n' : 'input-text',
                         ...justifyLayout(4)
                       }
                     ]
@@ -1496,7 +1513,7 @@ export class FormPlugin extends BasePlugin {
         );
         jsonschema.properties[schema.name] = {
           ...tmpSchema,
-          ...(tmpSchema?.$id ? {} : { $id: `${current.id}-${current.type}` })
+          ...(tmpSchema?.$id ? {} : {$id: `${current.id}-${current.type}`})
         };
       } else {
         pool.push(...current.children);
@@ -1525,7 +1542,7 @@ export class FormPlugin extends BasePlugin {
    */
   patchSchema(schema: Schema, info: RendererConfig, props: any) {
     let shouldUpdateSchema = false;
-    let patchedSchema: Schema = { ...schema };
+    let patchedSchema: Schema = {...schema};
 
     if (
       !(
@@ -1537,8 +1554,8 @@ export class FormPlugin extends BasePlugin {
               item &&
               !!~['submit', 'button', 'button-group', 'reset'].indexOf(
                 (item as any)?.body?.[0]?.type ||
-                (item as any)?.body?.type ||
-                (item as any).type
+                  (item as any)?.body?.type ||
+                  (item as any).type
               )
           ))
       )
@@ -1560,8 +1577,9 @@ export class FormPlugin extends BasePlugin {
     }
 
     if (!_isModelComp(schema)) {
-      /** 存量数据可能未设置过feat, 需要添加一下 */
-      if (!schema.feat) {
+      /** 每次需要纠正一下feat，有可能直接是编辑了代码的api */
+      const exactlyFeat = this.guessDSFeatFromSchema(schema);
+      if (exactlyFeat !== schema.feat) {
         shouldUpdateSchema = true;
         patchedSchema = {
           ...patchedSchema,
