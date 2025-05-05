@@ -174,6 +174,42 @@
       margin-left: var(--dialog-footer-margin-left);
     }
   }
+
+  &-fullscreen {
+    position: absolute;
+    right: var(--gap-xxl);
+    top: var(--gap-sm);
+    font-size: var(--Modal-close-fontSize);
+    color: var(--Modal-close-color);
+    line-height: inherit;
+    text-decoration: none;
+    vertical-align: middle;
+    z-index: calc(#{$zindex-spinner-overlay} + 1);
+
+    .Dialog-fullscreen {
+      content: var(--dialog-icon-icon);
+    }
+
+    svg {
+      width: var(--dialog-icon-size);
+      height: var(--dialog-icon-size);
+      fill: var(--Modal-close-color);
+      color: var(--dialog-icon-color);
+    }
+
+    &:not(.is-disabled) {
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: none;
+        color: var(--Model-close-onHover-color);
+
+        svg {
+          fill: var(--Model-close-onHover-color);
+        }
+      }
+    }
+  }
 }
 
 @for $i from (2) through 10 {
@@ -262,5 +298,19 @@
         }
       }
     }
+  }
+}
+
+.#{$ns}Modal--fullscreen {
+  .#{$ns}Modal-content {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    margin: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    border-radius: 0 !important;
+    position: fixed !important;
   }
 }

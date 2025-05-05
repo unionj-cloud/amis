@@ -34,6 +34,7 @@ interface InlineModalProps extends ModalProps {
   cancelBtnLevel?: string;
   confirmBtnLevel?: string;
   editorDialogMountNode?: HTMLDivElement;
+  showFullscreenButton?: boolean;
 }
 
 export class DialogPlugin extends BasePlugin {
@@ -297,6 +298,11 @@ export class DialogPlugin extends BasePlugin {
                 label: '展示关闭按钮',
                 name: 'showCloseButton',
                 value: true
+              }),
+              getSchemaTpl('switch', {
+                label: '展示全屏按钮',
+                name: 'showFullscreenButton',
+                value: false
               }),
               getSchemaTpl('switch', {
                 label: '点击遮罩关闭',
@@ -595,7 +601,7 @@ export class DialogPlugin extends BasePlugin {
       for (const key in data) {
         if (!['&'].includes(key)) {
           dataSchema[key] = {
-            type: typeof data[key] ?? 'string', // 默认文本，不好确定类型
+            type: typeof data[key] || 'string', // 默认文本，不好确定类型
             title: key
           };
         }
@@ -697,7 +703,8 @@ export class InlineModal extends React.Component<InlineModalProps, any> {
       confirmText,
       cancelBtnLevel,
       confirmBtnLevel,
-      editorDialogMountNode
+      editorDialogMountNode,
+      showFullscreenButton
     } = this.props;
     const Container = type === 'drawer' ? Drawer : Modal;
 
@@ -726,7 +733,11 @@ export class InlineModal extends React.Component<InlineModalProps, any> {
       );
     }
     return (
-      <Container {...this.props} container={editorDialogMountNode}>
+      <Container
+        {...this.props}
+        container={editorDialogMountNode}
+        showFullscreenButton={showFullscreenButton}
+      >
         {children}
       </Container>
     );

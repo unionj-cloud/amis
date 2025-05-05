@@ -24,6 +24,7 @@ import {
   type DraggableEvent
 } from 'react-draggable';
 import isNumber from 'lodash/isNumber';
+import {findDOMNode} from 'react-dom';
 
 export const getContainerWithFullscreen =
   (container?: () => HTMLElement | HTMLElement | null) => () => {
@@ -61,11 +62,13 @@ export interface ModalProps extends ThemeProps, LocaleProps {
   modalClassName?: string;
   modalMaskClassName?: string;
   draggable?: boolean;
+  showFullscreenButton?: boolean;
 }
 
 export interface ModalState {
   bounds?: DraggableBounds;
   dragPos?: {x: number; y: number};
+  isFullscreen?: boolean;
 }
 
 const fadeStyles: {
@@ -82,6 +85,19 @@ const contentFadeStyles: {
   [ENTERING]: 'in',
   [ENTERED]: '',
   [EXITING]: 'out'
+};
+
+// 添加全屏样式相关的CSS规则
+const fullscreenModalStyle: React.CSSProperties = {
+  width: '100vw',
+  height: '100vh',
+  maxWidth: '100vw',
+  maxHeight: '100vh',
+  margin: 0,
+  top: 0,
+  left: 0,
+  borderRadius: 0,
+  position: 'fixed'
 };
 
 export class Modal extends React.Component<ModalProps, ModalState> {
@@ -101,7 +117,10 @@ export class Modal extends React.Component<ModalProps, ModalState> {
         classnames: cx,
         className,
         showCloseButton,
+        showFullscreenButton,
+        isFullscreen,
         onClose,
+        onFullscreen,
         children,
         classPrefix,
         translate: __,
@@ -111,7 +130,10 @@ export class Modal extends React.Component<ModalProps, ModalState> {
         LocaleProps & {
           className?: string;
           showCloseButton?: boolean;
+          showFullscreenButton?: boolean;
+          isFullscreen?: boolean;
           onClose?: () => void;
+          onFullscreen?: () => void;
           children?: React.ReactNode;
           forwardedRef?: any;
         } & React.HTMLAttributes<HTMLDivElement>) => (
@@ -124,6 +146,19 @@ export class Modal extends React.Component<ModalProps, ModalState> {
               className={cx('Modal-close')}
             >
               <Icon icon="close" className="icon" />
+            </a>
+          ) : null}
+          {showFullscreenButton ? (
+            <a
+              data-tooltip={__('Dialog.fullscreen')}
+              data-position="left"
+              onClick={onFullscreen}
+              className={cx('Modal-fullscreen')}
+            >
+              <Icon
+                icon={isFullscreen ? 'compress' : 'expand-alt'}
+                className="icon"
+              />
             </a>
           ) : null}
           {children}
@@ -189,7 +224,10 @@ export class Modal extends React.Component<ModalProps, ModalState> {
     )
   );
 
-  state: Readonly<ModalState> = {dragPos: undefined};
+  state: Readonly<ModalState> = {
+    dragPos: undefined,
+    isFullscreen: false
+  };
 
   componentDidMount() {
     if (this.props.show) {
@@ -382,6 +420,98 @@ export class Modal extends React.Component<ModalProps, ModalState> {
 
   // #endregion
 
+  @autobind
+  handleToggleFullscreen(e?: React.MouseEvent<HTMLElement>) {
+    // 阻止事件冒泡
+    e && e.preventDefault();
+    e && e.stopPropagation();
+
+    // 获取当前Modal DOM节点
+    const modalElement = findDOMNode(this) as HTMLElement;
+    if (!modalElement) {
+      console.error('找不到Modal DOM元素');
+      return;
+    }
+
+    // 使用动态classPrefix，而不是硬编码的前缀
+    const {classPrefix} = this.props;
+    const modalContentClass = `.${classPrefix}Modal-content`;
+    const modalContent = modalElement.querySelector(
+      modalContentClass
+    ) as HTMLElement;
+    if (!modalContent) {
+      console.error(`找不到Modal内容元素 ${modalContentClass}`);
+      return;
+    }
+
+    try {
+      console.log(
+        'Modal: 当前全屏状态:',
+        !!document.fullscreenElement,
+        '尝试切换全屏'
+      );
+
+      // 通过检查document.fullscreenElement判断当前是否处于全屏状态
+      if (!document.fullscreenElement) {
+        // 如果不是全屏，则请求全屏
+        console.log('Modal: 请求进入全屏模式');
+
+        // 兼容不同浏览器的请求全屏方法
+        const requestMethod =
+          modalContent.requestFullscreen ||
+          (modalContent as any).webkitRequestFullscreen ||
+          (modalContent as any).mozRequestFullscreen ||
+          (modalContent as any).msRequestFullscreen;
+
+        if (requestMethod) {
+          requestMethod
+            .call(modalContent)
+            .then(() => {
+              console.log('Modal: 全屏请求成功');
+              this.setState({isFullscreen: true});
+
+              // 触发resize事件
+              window.dispatchEvent(new Event('resize'));
+            })
+            .catch((err: Error) => {
+              console.error('Modal: 全屏请求失败:', err);
+            });
+        } else {
+          console.error('Modal: 当前浏览器不支持Fullscreen API');
+        }
+      } else {
+        // 如果已经是全屏状态，则退出全屏
+        console.log('Modal: 请求退出全屏模式');
+
+        // 兼容不同浏览器的退出全屏方法
+        const exitMethod =
+          document.exitFullscreen ||
+          (document as any).webkitExitFullscreen ||
+          (document as any).mozCancelFullScreen ||
+          (document as any).msExitFullscreen;
+
+        if (exitMethod) {
+          exitMethod
+            .call(document)
+            .then(() => {
+              console.log('Modal: 退出全屏成功');
+              this.setState({isFullscreen: false});
+
+              // 触发resize事件
+              window.dispatchEvent(new Event('resize'));
+            })
+            .catch((err: Error) => {
+              console.error('Modal: 退出全屏失败:', err);
+            });
+        } else {
+          console.error('Modal: 当前浏览器不支持退出全屏');
+        }
+      }
+    } catch (err) {
+      console.error('Modal: 全屏切换发生错误:', err);
+    }
+  }
+
   render() {
     const {
       className,
@@ -399,13 +529,34 @@ export class Modal extends React.Component<ModalProps, ModalState> {
       classnames: cx,
       mobileUI,
       draggable,
-      classPrefix
+      classPrefix,
+      showFullscreenButton
     } = this.props;
+
+    const {isFullscreen} = this.state;
+
+    // 根据全屏状态决定使用的图标
+    const fullscreenIcon = isFullscreen ? 'compress' : 'expand';
 
     let _style = {
       width: style?.width ? style?.width : width,
       height: style?.height ? style?.height : height
     };
+
+    // 全屏样式
+    const fullscreenStyle: React.CSSProperties = isFullscreen
+      ? {
+          width: '100vw',
+          height: '100vh',
+          maxWidth: '100vw',
+          maxHeight: '100vh',
+          margin: 0,
+          top: 0,
+          left: 0,
+          position: 'fixed',
+          borderRadius: 0
+        }
+      : {};
 
     return (
       <Transition
@@ -426,7 +577,8 @@ export class Modal extends React.Component<ModalProps, ModalState> {
               className={cx(
                 `amis-dialog-widget Modal`,
                 {
-                  [`Modal--${size}`]: size
+                  [`Modal--${size}`]: size,
+                  'Modal--fullscreen': isFullscreen
                 },
                 className
               )}
@@ -441,7 +593,7 @@ export class Modal extends React.Component<ModalProps, ModalState> {
                 />
               ) : null}
               <DraggableCore
-                disabled={!draggable || mobileUI}
+                disabled={!draggable || mobileUI || isFullscreen}
                 onStart={this.handleDragStart}
                 onDrag={this.handleDrag}
                 onStop={this.handleDragStop}
@@ -450,13 +602,19 @@ export class Modal extends React.Component<ModalProps, ModalState> {
                 <div
                   className={cx(
                     `Modal-content`,
-                    draggable && !mobileUI ? 'Modal-draggable' : '',
+                    draggable && !mobileUI && !isFullscreen
+                      ? 'Modal-draggable'
+                      : '',
                     size === 'custom' ? 'Modal-content-custom' : '',
                     contentClassName,
                     modalClassName,
                     contentFadeStyles[status]
                   )}
-                  style={{..._style, ...this.getDragStyle()}}
+                  style={{
+                    ...(isFullscreen
+                      ? fullscreenStyle
+                      : {..._style, ...this.getDragStyle()})
+                  }}
                 >
                   {status === EXITED ? null : children}
                 </div>

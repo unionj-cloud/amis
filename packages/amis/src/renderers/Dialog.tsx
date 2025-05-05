@@ -112,6 +112,11 @@ export interface DialogSchema extends BaseSchema {
   showCloseButton?: boolean;
 
   /**
+   * 是否显示全屏按钮
+   */
+  showFullscreenButton?: boolean;
+
+  /**
    * 是否显示错误信息
    */
   showErrorMsg?: boolean;
@@ -201,6 +206,7 @@ export default class Dialog extends React.Component<DialogProps> {
   reaction: any;
   isDead = false;
   $$id: string = guid();
+  isFullscreen = false;
   constructor(props: DialogProps) {
     super(props);
 
@@ -226,22 +232,12 @@ export default class Dialog extends React.Component<DialogProps> {
     );
   }
 
-  // shouldComponentUpdate(nextProps:DialogProps, nextState:DialogState) {
-  //     const props = this.props;
-
-  //     if (this.state.entered !== nextState.entered) {
-  //         return true;
-  //     } else if (props.show === nextProps.show && !nextProps.show) {
-  //         return false;
-  //     }
-
-  //     return isObjectShallowModified(this.props, nextProps);
-  // }
-
   componentWillUnmount() {
     this.reaction && this.reaction();
     this.isDead = true;
   }
+
+  componentDidMount() {}
 
   buildActions(): Array<ActionSchema> {
     const {actions, confirm, translate: __, testIdBuilder} = this.props;
@@ -448,7 +444,159 @@ export default class Dialog extends React.Component<DialogProps> {
   }
 
   handleChildFinished(value: any, action: ActionObject) {
-    // 下面会覆盖
+    if ((action && action.from === this.$$id) || action.close === false) {
+      return;
+    }
+
+    const scoped = this.context as IScopedContext;
+    const components = scoped
+      .getComponents()
+      .filter(
+        (item: any) =>
+          !~['drawer', 'dialog', 'action', 'button', 'submit', 'reset'].indexOf(
+            item.props.type
+          )
+      );
+    const onConfirm = this.props.onConfirm;
+    const onClose = this.props.onClose;
+
+    if (
+      components.length === 1 &&
+      (components[0].props.type === 'form' ||
+        components[0].props.type === 'wizard') &&
+      (action.close === true ||
+        components[0].props.closeDialogOnSubmit !== false)
+    ) {
+      onConfirm && onConfirm([value], action, {}, components);
+    } else if (action.close === true) {
+      onClose();
+    }
+  }
+
+  @autobind
+  handleFullscreenToggle(e: React.MouseEvent<HTMLElement>) {
+    e && e.preventDefault();
+    e && e.stopPropagation();
+
+    this.testFullscreen();
+  }
+
+  @autobind
+  testFullscreen() {
+    try {
+      // 获取props中的classPrefix
+      const {classPrefix} = this.props;
+
+      // 使用更精确的选择器
+      const dialogElement = document.querySelector(
+        '.amis-dialog-widget'
+      ) as HTMLElement;
+      if (!dialogElement) {
+        console.error('找不到对话框元素 .amis-dialog-widget');
+        return;
+      }
+
+      // 使用动态classPrefix
+      const modalContentClass = `.${classPrefix}Modal-content`;
+      const modalContent = dialogElement.querySelector(
+        modalContentClass
+      ) as HTMLElement;
+      if (!modalContent) {
+        console.error(`找不到对话框内容元素 ${modalContentClass}`);
+        return;
+      }
+
+      console.log('测试全屏', modalContent);
+
+      // 检查当前全屏状态
+      const isCurrentlyFullscreen = !!document.fullscreenElement;
+      console.log('当前全屏状态:', isCurrentlyFullscreen);
+
+      if (!isCurrentlyFullscreen) {
+        // 进入全屏模式
+        if (modalContent.requestFullscreen) {
+          modalContent
+            .requestFullscreen()
+            .then(() => {
+              this.isFullscreen = true;
+              console.log('请求全屏成功');
+            })
+            .catch(err => {
+              console.error('请求全屏失败:', err);
+            });
+        } else if ((modalContent as any).webkitRequestFullscreen) {
+          (modalContent as any).webkitRequestFullscreen();
+          this.isFullscreen = true;
+        } else if ((modalContent as any).mozRequestFullscreen) {
+          (modalContent as any).mozRequestFullscreen();
+          this.isFullscreen = true;
+        } else if ((modalContent as any).msRequestFullscreen) {
+          (modalContent as any).msRequestFullscreen();
+          this.isFullscreen = true;
+        } else {
+          console.error('当前浏览器不支持全屏API');
+
+          // 使用CSS模拟全屏 - 回退方案
+          modalContent.style.position = 'fixed';
+          modalContent.style.top = '0';
+          modalContent.style.left = '0';
+          modalContent.style.width = '100vw';
+          modalContent.style.height = '100vh';
+          modalContent.style.zIndex = '9999';
+          modalContent.style.margin = '0';
+          modalContent.style.padding = '0';
+          modalContent.style.border = 'none';
+          modalContent.style.maxWidth = '100%';
+          modalContent.style.maxHeight = '100%';
+          this.isFullscreen = true;
+        }
+      } else {
+        // 退出全屏模式
+        if (document.exitFullscreen) {
+          document
+            .exitFullscreen()
+            .then(() => {
+              this.isFullscreen = false;
+              console.log('退出全屏成功');
+            })
+            .catch(err => {
+              console.error('退出全屏失败:', err);
+            });
+        } else if ((document as any).webkitExitFullscreen) {
+          (document as any).webkitExitFullscreen();
+          this.isFullscreen = false;
+        } else if ((document as any).mozCancelFullScreen) {
+          (document as any).mozCancelFullScreen();
+          this.isFullscreen = false;
+        } else if ((document as any).msExitFullscreen) {
+          (document as any).msExitFullscreen();
+          this.isFullscreen = false;
+        } else {
+          console.error('当前浏览器不支持退出全屏API');
+
+          // 恢复CSS样式 - 回退方案
+          modalContent.style.position = '';
+          modalContent.style.top = '';
+          modalContent.style.left = '';
+          modalContent.style.width = '';
+          modalContent.style.height = '';
+          modalContent.style.zIndex = '';
+          modalContent.style.margin = '';
+          modalContent.style.padding = '';
+          modalContent.style.border = '';
+          modalContent.style.maxWidth = '';
+          modalContent.style.maxHeight = '';
+          this.isFullscreen = false;
+        }
+      }
+
+      // 触发resize事件
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 100);
+    } catch (err) {
+      console.error('全屏测试失败:', err);
+    }
   }
 
   openFeedback(dialog: any, ctx: any) {
@@ -590,6 +738,7 @@ export default class Dialog extends React.Component<DialogProps> {
       lazySchema,
       wrapperComponent,
       showCloseButton,
+      showFullscreenButton,
       env,
       classnames: cx,
       classPrefix,
@@ -651,6 +800,7 @@ export default class Dialog extends React.Component<DialogProps> {
         confirmText={confirmText}
         confirmBtnLevel={confirmBtnLevel}
         cancelBtnLevel={cancelBtnLevel}
+        showFullscreenButton={showFullscreenButton}
       >
         {title && typeof title === 'string' ? (
           <div
@@ -676,6 +826,29 @@ export default class Dialog extends React.Component<DialogProps> {
                   icon="close"
                   className="icon"
                   iconContent="Dialog-close"
+                />
+              </a>
+            ) : null}
+            {showFullscreenButton ? (
+              <a
+                data-tooltip={__('Dialog.fullscreen')}
+                data-position="left"
+                onClick={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('点击了全屏按钮');
+                  try {
+                    this.handleFullscreenToggle(e);
+                  } catch (err) {
+                    console.error('切换全屏出错，尝试备用方法', err);
+                    this.testFullscreen();
+                  }
+                }}
+                className={cx('Modal-fullscreen')}
+              >
+                <Icon
+                  icon={this.isFullscreen ? 'un-fullscreen' : 'full-screen'}
+                  className="icon"
                 />
               </a>
             ) : null}
@@ -716,6 +889,29 @@ export default class Dialog extends React.Component<DialogProps> {
                   icon="close"
                   className="icon"
                   iconContent="Dialog-close"
+                />
+              </a>
+            ) : null}
+            {showFullscreenButton ? (
+              <a
+                data-tooltip={__('Dialog.fullscreen')}
+                data-position="left"
+                onClick={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('点击了全屏按钮');
+                  try {
+                    this.handleFullscreenToggle(e);
+                  } catch (err) {
+                    console.error('切换全屏出错，尝试备用方法', err);
+                    this.testFullscreen();
+                  }
+                }}
+                className={cx('Modal-fullscreen')}
+              >
+                <Icon
+                  icon={this.isFullscreen ? 'un-fullscreen' : 'full-screen'}
+                  className="icon"
                 />
               </a>
             ) : null}

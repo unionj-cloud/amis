@@ -122,6 +122,7 @@ register('zh-CN', {
   'desc': '降序',
   'Dialog.close': '关闭',
   'Dialog.title': '弹框',
+  'Dialog.fullscreen': '全屏',
   'Embed.invalidRoot': '选择器不对，页面上没有此元素',
   'Embed.downloading': '文件即将开始下载',
   'Excel.placeholder': '拖拽 Excel 到这，或点击上传',
