@@ -10,10 +10,10 @@ import {
   ValidateError,
   RendererEvent
 } from 'amis-core';
-import {Renderer, RendererProps} from 'amis-core';
-import {SchemaNode, Schema, ActionObject} from 'amis-core';
-import {filter} from 'amis-core';
-import {Modal, SpinnerExtraProps} from 'amis-ui';
+import { Renderer, RendererProps } from 'amis-core';
+import { SchemaNode, Schema, ActionObject } from 'amis-core';
+import { filter } from 'amis-core';
+import { Modal, SpinnerExtraProps } from 'amis-ui';
 import {
   guid,
   isVisible,
@@ -21,12 +21,12 @@ import {
   createObject,
   isObjectShallowModified
 } from 'amis-core';
-import {reaction} from 'mobx';
-import {Icon} from 'amis-ui';
-import {ModalStore, IModalStore} from 'amis-core';
-import {findDOMNode} from 'react-dom';
-import {Spinner} from 'amis-ui';
-import {IServiceStore, CustomStyle} from 'amis-core';
+import { reaction } from 'mobx';
+import { Icon } from 'amis-ui';
+import { ModalStore, IModalStore } from 'amis-core';
+import { findDOMNode } from 'react-dom';
+import { Spinner } from 'amis-ui';
+import { IServiceStore, CustomStyle } from 'amis-core';
 import {
   BaseSchema,
   SchemaClassName,
@@ -34,8 +34,8 @@ import {
   SchemaName,
   SchemaTpl
 } from '../Schema';
-import {ActionSchema} from './Action';
-import {isAlive} from 'mobx-state-tree';
+import { ActionSchema } from './Action';
+import { isAlive } from 'mobx-state-tree';
 
 /**
  * Dialog 弹框渲染器。
@@ -152,8 +152,8 @@ export type DialogSchemaBase = Omit<DialogSchema, 'type'>;
 
 export interface DialogProps
   extends RendererProps,
-    Omit<DialogSchema, 'className' | 'data'>,
-    SpinnerExtraProps {
+  Omit<DialogSchema, 'className' | 'data'>,
+  SpinnerExtraProps {
   onClose: (confirmed?: boolean) => void;
   onConfirm: (
     values: Array<object>,
@@ -245,10 +245,10 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
     this.isDead = true;
   }
 
-  componentDidMount() {}
+  componentDidMount() { }
 
   buildActions(): Array<ActionSchema> {
-    const {actions, confirm, translate: __, testIdBuilder} = this.props;
+    const { actions, confirm, translate: __, testIdBuilder } = this.props;
 
     if (typeof actions !== 'undefined') {
       return actions;
@@ -276,7 +276,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
   }
 
   async handleSelfClose(e?: any, confirmed?: boolean) {
-    const {onClose, store, dispatchEvent} = this.props;
+    const { onClose, store, dispatchEvent } = this.props;
 
     const rendererEvent = await dispatchEvent('cancel', this.props.data);
     if (rendererEvent?.prevented) {
@@ -289,7 +289,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
 
     // 重置全屏状态
     if (this.state.isFullscreen) {
-      this.setState({isFullscreen: false});
+      this.setState({ isFullscreen: false });
       // 主动清除可能残留的全屏样式
       try {
         const modalContent = findDOMNode(this) as HTMLElement;
@@ -322,7 +322,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
   }
 
   handleActionSensor(p: Promise<any>) {
-    const {store} = this.props;
+    const { store } = this.props;
 
     const origin = store.busying;
     store.markBusying(true);
@@ -341,7 +341,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
   }
 
   handleAction(e: React.UIEvent<any>, action: ActionObject, data: object) {
-    const {store, onAction} = this.props;
+    const { store, onAction } = this.props;
 
     if (action.type === 'reset') {
       store.reset();
@@ -357,7 +357,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
     action: ActionObject,
     ...args: Array<any>
   ) {
-    const {store} = this.props;
+    const { store } = this.props;
 
     if (action.mergeData && values.length === 1 && values[0]) {
       store.updateData(values[0]);
@@ -377,7 +377,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
   }
 
   handleDialogClose(...args: Array<any>) {
-    const {store} = this.props;
+    const { store } = this.props;
 
     const action = store.action as ActionObject;
     const dialog = action.dialog as any;
@@ -394,7 +394,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
     action: ActionObject,
     ...args: Array<any>
   ) {
-    const {store} = this.props;
+    const { store } = this.props;
 
     if (action.mergeData && values.length === 1 && values[0]) {
       store.updateData(values[0]);
@@ -414,7 +414,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
   }
 
   handleDrawerClose(...args: Array<any>) {
-    const {store} = this.props;
+    const { store } = this.props;
 
     const action = store.action as ActionObject;
     const drawer = action.drawer as any;
@@ -427,7 +427,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
   }
 
   handleEntered() {
-    const {lazySchema, store} = this.props;
+    const { lazySchema, store } = this.props;
 
     store.setEntered(true);
     if (typeof lazySchema === 'function') {
@@ -442,12 +442,12 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
   }
 
   handleExited() {
-    const {lazySchema, store, statusStore} = this.props;
+    const { lazySchema, store, statusStore } = this.props;
     statusStore && isAlive(statusStore) && statusStore.resetAll();
 
     // 重置全屏状态
     if (this.state.isFullscreen) {
-      this.setState({isFullscreen: false});
+      this.setState({ isFullscreen: false });
     }
 
     if (isAlive(store)) {
@@ -461,13 +461,13 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
   }
 
   handleFormInit(data: any) {
-    const {store} = this.props;
+    const { store } = this.props;
 
     store.setFormData(data);
   }
 
   handleFormChange(data: any, name?: string) {
-    const {store} = this.props;
+    const { store } = this.props;
 
     // 如果 dialog 里面不放 form，而是直接放表单项就会进到这里来。
     if (typeof name === 'string') {
@@ -479,7 +479,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
   }
 
   handleFormSaved(data: any, response: any) {
-    const {store} = this.props;
+    const { store } = this.props;
 
     store.setFormData({
       ...data,
@@ -526,7 +526,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
 
     // 切换全屏状态
     this.setState(
-      prevState => ({isFullscreen: !prevState.isFullscreen}),
+      prevState => ({ isFullscreen: !prevState.isFullscreen }),
       () => {
         console.log('全屏状态已切换为:', this.state.isFullscreen);
         // 应用全屏样式
@@ -602,7 +602,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
 
   openFeedback(dialog: any, ctx: any) {
     return new Promise(resolve => {
-      const {store} = this.props;
+      const { store } = this.props;
       store.setCurrentAction(
         {
           type: 'button',
@@ -630,7 +630,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
   }
 
   renderBody(body: SchemaNode, key?: any): React.ReactNode {
-    let {render, store} = this.props;
+    let { render, store } = this.props;
 
     if (Array.isArray(body)) {
       return body.map((body, key) => this.renderBody(body, key));
@@ -670,7 +670,7 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
 
   renderFooter() {
     const actions = this.buildActions();
-    let {hideActions} = this.props;
+    let { hideActions } = this.props;
     if (!actions || !actions.length || hideActions) {
       return null;
     }
@@ -689,14 +689,14 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
     return (
       <div className={cx('Modal-footer', dialogFooterClassName)}>
         {(showLoading !== false && store.loading) ||
-        (showErrorMsg !== false && store.error) ? (
+          (showErrorMsg !== false && store.error) ? (
           <div className={cx('Dialog-info')} key="info">
             {showLoading !== false ? (
               <Spinner size="sm" key="info" show={store.loading} />
             ) : null}
             {!env.forceSilenceInsideError &&
-            store.error &&
-            showErrorMsg !== false ? (
+              store.error &&
+              showErrorMsg !== false ? (
               <span className={cx('Dialog-error')}>{store.msg}</span>
             ) : null}
           </div>
@@ -927,11 +927,11 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
 
         {header
           ? render('header', header, {
-              data: store.formData,
-              onAction: this.handleAction,
-              onActionSensor: undefined,
-              btnDisabled: store.loading
-            })
+            data: store.formData,
+            onAction: this.handleAction,
+            onActionSensor: undefined,
+            btnDisabled: store.loading
+          })
           : null}
 
         {(!store.entered && lazyRender) || (lazySchema && !body) ? (
@@ -1001,42 +1001,42 @@ export default class Dialog extends React.Component<DialogProps, DialogState> {
 
         {body
           ? render(
-              'drawer',
-              {
-                // 支持嵌套
-                ...((store.action as ActionObject) &&
-                  ((store.action as ActionObject).drawer as object)),
-                type: 'drawer'
-              },
-              {
-                key: 'drawer',
-                data: store.drawerData,
-                onConfirm: this.handleDrawerConfirm,
-                onClose: this.handleDrawerClose,
-                show: store.drawerOpen,
-                onAction: this.handleAction
-              }
-            )
+            'drawer',
+            {
+              // 支持嵌套
+              ...((store.action as ActionObject) &&
+                ((store.action as ActionObject).drawer as object)),
+              type: 'drawer'
+            },
+            {
+              key: 'drawer',
+              data: store.drawerData,
+              onConfirm: this.handleDrawerConfirm,
+              onClose: this.handleDrawerClose,
+              show: store.drawerOpen,
+              onAction: this.handleAction
+            }
+          )
           : null}
 
         {body
           ? render(
-              'dialog',
-              {
-                // 支持嵌套
-                ...((store.action as ActionObject) &&
-                  ((store.action as ActionObject).dialog as object)),
-                type: 'dialog'
-              },
-              {
-                key: 'dialog',
-                data: store.dialogData,
-                onConfirm: this.handleDialogConfirm,
-                onClose: this.handleDialogClose,
-                show: store.dialogOpen,
-                onAction: this.handleAction
-              }
-            )
+            'dialog',
+            {
+              // 支持嵌套
+              ...((store.action as ActionObject) &&
+                ((store.action as ActionObject).dialog as object)),
+              type: 'dialog'
+            },
+            {
+              key: 'dialog',
+              data: store.dialogData,
+              onConfirm: this.handleDialogConfirm,
+              onClose: this.handleDialogClose,
+              show: store.dialogOpen,
+              onAction: this.handleAction
+            }
+          )
           : null}
       </Wrapper>
     );
@@ -1092,7 +1092,7 @@ export class DialogRenderer extends Dialog {
   ) {
     const scoped = this.context as IScopedContext;
     const targets: Array<any> = [];
-    const {onConfirm, store} = this.props;
+    const { onConfirm, store } = this.props;
 
     if (action.target) {
       targets.push(
@@ -1194,7 +1194,7 @@ export class DialogRenderer extends Dialog {
     delegate?: IScopedContext,
     rendererEvent?: RendererEvent<any>
   ) {
-    const {onAction, store, onConfirm, env, dispatchEvent, onClose} =
+    const { onAction, store, onConfirm, env, dispatchEvent, onClose } =
       this.props;
     if (action.from === this.$$id) {
       // 如果是从 children 里面委托过来的，那就直接向上冒泡。
@@ -1228,6 +1228,46 @@ export class DialogRenderer extends Dialog {
         await rendererEvent.allDone();
       }
 
+      // 重置全屏状态，保持与关闭按钮点击效果一致
+      if (this.state.isFullscreen) {
+        this.setState({ isFullscreen: false });
+        // 主动清除可能残留的全屏样式
+        try {
+          const modalContent = findDOMNode(this) as HTMLElement;
+          if (modalContent) {
+            const modalContentElem = modalContent.querySelector(
+              `.${this.props.classPrefix}Modal-content`
+            ) as HTMLElement;
+            if (modalContentElem) {
+              modalContentElem.style.position = '';
+              modalContentElem.style.top = '';
+              modalContentElem.style.left = '';
+              modalContentElem.style.width = '';
+              modalContentElem.style.height = '';
+              modalContentElem.style.zIndex = '';
+              modalContentElem.style.maxWidth = '';
+              modalContentElem.style.maxHeight = '';
+              modalContentElem.style.margin = '';
+              modalContentElem.style.borderRadius = '';
+              modalContentElem.classList.remove('is-fullscreen');
+
+              store.setCurrentAction(action, this.props.resolveDefinitions);
+              // clear error
+              store.updateMessage();
+              onClose();
+              if (action.close) {
+                action.close === true
+                  ? this.handleSelfClose()
+                  : this.closeTarget(action.close);
+              }
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('清除全屏样式失败:', err);
+        }
+      }
+
       store.setCurrentAction(action, this.props.resolveDefinitions);
       // clear error
       store.updateMessage();
@@ -1249,6 +1289,52 @@ export class DialogRenderer extends Dialog {
 
       if (rendererEvent?.pendingPromise.length) {
         await rendererEvent.allDone();
+      }
+
+      // 重置全屏状态，保持与关闭按钮点击效果一致
+      if (this.state.isFullscreen) {
+        this.setState({ isFullscreen: false });
+        // 主动清除可能残留的全屏样式
+        try {
+          const modalContent = findDOMNode(this) as HTMLElement;
+          if (modalContent) {
+            const modalContentElem = modalContent.querySelector(
+              `.${this.props.classPrefix}Modal-content`
+            ) as HTMLElement;
+            if (modalContentElem) {
+              modalContentElem.style.position = '';
+              modalContentElem.style.top = '';
+              modalContentElem.style.left = '';
+              modalContentElem.style.width = '';
+              modalContentElem.style.height = '';
+              modalContentElem.style.zIndex = '';
+              modalContentElem.style.maxWidth = '';
+              modalContentElem.style.maxHeight = '';
+              modalContentElem.style.margin = '';
+              modalContentElem.style.borderRadius = '';
+              modalContentElem.classList.remove('is-fullscreen');
+
+              store.setCurrentAction(action, this.props.resolveDefinitions);
+              const handleResult = this.tryChildrenToHandle(
+                {
+                  ...action,
+                  actionType: 'submit'
+                },
+                data,
+                action
+              );
+
+              if (!handleResult) {
+                // clear error
+                store.updateMessage();
+                onClose(true);
+              }
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('清除全屏样式失败:', err);
+        }
       }
 
       store.setCurrentAction(action, this.props.resolveDefinitions);
@@ -1467,7 +1553,7 @@ export class DialogRenderer extends Dialog {
   }
 
   getData() {
-    const {store} = this.props;
+    const { store } = this.props;
     return store.data;
   }
 }
