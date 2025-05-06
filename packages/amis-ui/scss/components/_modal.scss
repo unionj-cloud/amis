@@ -176,15 +176,8 @@
   }
 
   &-fullscreen {
-    position: absolute;
-    right: var(--gap-xxl);
-    top: var(--gap-sm);
-    font-size: var(--Modal-close-fontSize);
-    color: var(--Modal-close-color);
-    line-height: inherit;
-    text-decoration: none;
-    vertical-align: middle;
-    z-index: calc(#{$zindex-spinner-overlay} + 1);
+    float: right;
+    margin-right: 10px;
 
     .Dialog-fullscreen {
       content: var(--dialog-icon-icon);
