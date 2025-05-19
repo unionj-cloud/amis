@@ -12,9 +12,9 @@ import {
   SearchBox,
   InputBox
 } from 'amis';
-import {eachTree} from 'amis-core';
+import { eachTree } from 'amis-core';
 import 'amis-ui/lib/locale/en-US';
-import {withRouter} from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 // @ts-ignore
 import DocSearch from './DocSearch';
 import Doc from './Doc';
@@ -134,7 +134,7 @@ class BackTop extends React.PureComponent {
     return (
       <div
         className={`Backtop ${this.state.show ? 'visible' : ''}`}
-        onClick={() => scrollTo({top: 0})}
+        onClick={() => scrollTo({ top: 0 })}
       >
         <i className="fa fa-rocket"></i>
       </div>
@@ -193,7 +193,7 @@ export class App extends React.PureComponent<{
         () => window.scrollTo(0, 0)
       );
 
-      _hmt && _hmt.push(['_trackPageview', props.location.pathname]);
+      typeof _hmt !== 'undefined' && _hmt.push(['_trackPageview', props.location.pathname]);
     }
   }
 
@@ -219,24 +219,21 @@ export class App extends React.PureComponent<{
     return (
       <>
         <div
-          className={`${theme.ns}Layout-brandBar ${
-            docPage ? 'DocLayout-brandBar' : ''
-          }`}
+          className={`${theme.ns}Layout-brandBar ${docPage ? 'DocLayout-brandBar' : ''
+            }`}
         >
           <div
-            onClick={() => this.setState({offScreen: !this.state.offScreen})}
-            className={`${theme.ns}Layout-offScreen-btn ${
-              docPage ? 'DocLayout-offScreen-btn' : ''
-            } pull-right visible-xs`}
+            onClick={() => this.setState({ offScreen: !this.state.offScreen })}
+            className={`${theme.ns}Layout-offScreen-btn ${docPage ? 'DocLayout-offScreen-btn' : ''
+              } pull-right visible-xs`}
           >
             <i className="bui-icon iconfont icon-collapse"></i>
           </div>
 
           {docPage ? (
             <div
-              className={`${theme.ns}Layout-brand  ${
-                docPage ? 'DocLayout-brand' : ''
-              }`}
+              className={`${theme.ns}Layout-brand  ${docPage ? 'DocLayout-brand' : ''
+                }`}
             >
               <Link to={`${ContextPath}/docs`}>
                 <div className="logo"></div>
@@ -251,21 +248,19 @@ export class App extends React.PureComponent<{
         </div>
 
         <div
-          className={`${theme.ns}Layout-headerBar ${
-            docPage ? 'DocLayout-headerBar pc:inline-flex' : 'pc:flex'
-          } items-center`}
+          className={`${theme.ns}Layout-headerBar ${docPage ? 'DocLayout-headerBar pc:inline-flex' : 'pc:flex'
+            } items-center`}
         >
           {docPage ? null : (
             <Button
-              onClick={() => this.setState({folded: !this.state.folded})}
+              onClick={() => this.setState({ folded: !this.state.folded })}
               type="button"
               level="link"
               className="navbar-btn"
             >
               <i
-                className={`fa fa-${
-                  this.state.folded ? 'indent' : 'dedent'
-                } fa-fw`}
+                className={`fa fa-${this.state.folded ? 'indent' : 'dedent'
+                  } fa-fw`}
               ></i>
             </Button>
           )}
@@ -324,7 +319,7 @@ export class App extends React.PureComponent<{
               value={this.state.locale || 'zh-CN'}
               options={locales}
               onChange={locale => {
-                this.setState({locale: (locale as any).value});
+                this.setState({ locale: (locale as any).value });
                 localStorage.setItem('amis-locale', (locale as any).value);
                 window.location.reload();
               }}
@@ -339,13 +334,13 @@ export class App extends React.PureComponent<{
               value={this.state.theme}
               options={this.state.themes}
               onChange={theme => {
-                this.setState({theme});
+                this.setState({ theme });
                 localStorage.setItem('amis-theme', `${(theme as any).value}`);
                 document
                   .querySelector('body')
                   ?.classList[
-                    (theme as any).value === 'dark' ? 'add' : 'remove'
-                  ]('dark');
+                  (theme as any).value === 'dark' ? 'add' : 'remove'
+                ]('dark');
               }}
             />
           </div>
@@ -358,7 +353,7 @@ export class App extends React.PureComponent<{
               value={this.state.viewMode || 'pc'}
               options={viewModes}
               onChange={viewMode => {
-                this.setState({viewMode: (viewMode as any).value});
+                this.setState({ viewMode: (viewMode as any).value });
                 localStorage.setItem('amis-viewMode', (viewMode as any).value);
                 window.location.reload();
               }}
@@ -388,9 +383,8 @@ export class App extends React.PureComponent<{
         {docPage ? (
           <>
             <div
-              className={`${theme.ns}Layout-searchBar ${
-                docPage ? 'DocLayout-searchBar' : ''
-              } hidden-xs hidden-sm`}
+              className={`${theme.ns}Layout-searchBar ${docPage ? 'DocLayout-searchBar' : ''
+                } hidden-xs hidden-sm`}
             >
               <DocSearch theme={theme} />
             </div>
@@ -424,7 +418,7 @@ export class App extends React.PureComponent<{
           onChange={this.setNavigationFilter}
           clearable={true}
           mini={false}
-          history={{enable: true}}
+          history={{ enable: true }}
         />
 
         {this.renderAsideNav()}
@@ -444,16 +438,16 @@ export class App extends React.PureComponent<{
           ...item,
           children: item.children
             ? item.children
-                .filter((item: any) => {
-                  if (item.label) {
-                    return filterReg.exec(item.label);
-                  }
-                  return true;
-                })
-                .map((item: any) => ({
-                  ...item,
-                  className: 'is-top'
-                }))
+              .filter((item: any) => {
+                if (item.label) {
+                  return filterReg.exec(item.label);
+                }
+                return true;
+              })
+              .map((item: any) => ({
+                ...item,
+                className: 'is-top'
+              }))
             : []
         }))}
         renderLink={({
@@ -568,7 +562,7 @@ export class App extends React.PureComponent<{
 
   renderContent() {
     const locale = 'zh-CN'; // 暂时不支持切换，因为目前只有中文文档
-    const {theme} = this.state;
+    const { theme } = this.state;
 
     return (
       <React.Suspense
@@ -769,7 +763,7 @@ export class App extends React.PureComponent<{
             className="Doc-navDrawer"
             overlay
             closeOnOutside
-            onHide={() => this.setState({offScreen: false})}
+            onHide={() => this.setState({ offScreen: false })}
             show={this.state.offScreen}
             position="left"
           >
