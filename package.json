@@ -1,8 +1,7 @@
 {
   "name": "aisuda",
   "workspaces": [
-    "packages/amis",
-    "packages/amis-editor"
+    "packages/amis"
   ],
   "scripts": {
     "fis3-serve": "fis3 server start --www ./public --port 8888 --no-daemon --no-browse",
