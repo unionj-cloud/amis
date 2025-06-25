@@ -856,6 +856,7 @@ export class FormPlugin extends BasePlugin {
                     visibleOn: isWrapped
                   },
                   getSchemaTpl('modelCode'),
+                  getSchemaTpl('includeInherited'),
                   getSchemaTpl('switch', {
                     name: 'autoFocus',
                     label: tipedLabel(
