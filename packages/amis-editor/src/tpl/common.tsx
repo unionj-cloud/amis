@@ -6,18 +6,18 @@ import {
   tipedLabel,
   EditorManager
 } from 'amis-editor-core';
-import type { SchemaObject } from 'amis';
+import type {SchemaObject} from 'amis';
 import flatten from 'lodash/flatten';
-import { InputComponentName } from '../component/InputComponentName';
-import { FormulaDateType } from '../renderer/FormulaControl';
-import type { VariableItem } from 'amis-ui/src/components/formula/CodeEditor';
+import {InputComponentName} from '../component/InputComponentName';
+import {FormulaDateType} from '../renderer/FormulaControl';
+import type {VariableItem} from 'amis-ui/src/components/formula/CodeEditor';
 import reduce from 'lodash/reduce';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import keys from 'lodash/keys';
-import type { Schema } from 'amis';
+import type {Schema} from 'amis';
 
-import type { DSField } from '../builder';
+import type {DSField} from '../builder';
 
 /**
  * @deprecated 兼容当前组件的switch
@@ -45,7 +45,7 @@ setSchemaTpl('divider', {
  */
 setSchemaTpl(
   'withUnit',
-  (config: { name: string; label: string; control: any; unit: string }) => {
+  (config: {name: string; label: string; control: any; unit: string}) => {
     return {
       type: 'input-group',
       name: config.name,
@@ -86,15 +86,15 @@ setSchemaTpl(
  */
 setSchemaTpl('formItemName', (schema: object = {}, options: any) => {
   if (options) {
-    const { manager, context } = options
+    const {manager, context} = options;
     if (manager) {
-      const result = manager.getSimpleContextSchemas(context.node)
-      const scopeId = result.scope.id
-      const nodeId = scopeId.split('-')[0]
-      const nodeType = scopeId.split('-')[1]
+      const result = manager.getSimpleContextSchemas(context.node);
+      const scopeId = result.scope.id;
+      const nodeId = scopeId.split('-')[0];
+      const nodeType = scopeId.split('-')[1];
       if (nodeType == 'form') {
-        const formSchema = manager.store.getSchema(nodeId)
-        const modelCode = formSchema.modelCode
+        const formSchema = manager.store.getSchema(nodeId);
+        const modelCode = formSchema.modelCode;
         if (modelCode) {
           return {
             ...schema,
@@ -198,32 +198,35 @@ setSchemaTpl('formItemName', (schema: object = {}, options: any) => {
               filterDefaultVisible: false,
               keepItemSelectionOnPageChange: true,
               checkOnItemClick: true,
-              "headerToolbar": [
+              headerToolbar: [
                 {
-                  "type": "filter-toggler",
-                  "tpl": "内容",
-                  "wrapperComponent": "",
-                  "id": "u:9f8f9195ed56"
+                  type: 'filter-toggler',
+                  tpl: '内容',
+                  wrapperComponent: '',
+                  id: 'u:9f8f9195ed56'
                 },
                 {
-                  "type": "columns-toggler",
-                  "align": "right",
-                  "draggable": true,
-                  "icon": "fas fa-cog",
-                  "overlay": true,
-                  "footerBtnSize": "md"
+                  type: 'columns-toggler',
+                  align: 'right',
+                  draggable: true,
+                  icon: 'fas fa-cog',
+                  overlay: true,
+                  footerBtnSize: 'md'
                 }
               ],
               messages: {},
               id: 'u:c269aa88b7b1',
               labelField: 'column_name',
-              valueField: 'column_name',
+              valueField: 'column_name'
             },
             source: {
-              "url": "${window:location.origin}/${ls:extention_module_config.api_prefix}/sys/columns?parameter[page]=0&parameter[size]=9999&parameter[table_name]=" + modelCode,
+              url:
+                '${window:location.origin}/${ls:extention_module_config.api_prefix}/sys/columns?parameter[page]=0&parameter[size]=9999&parameter[table_name]=' +
+                modelCode,
               // url: 'http://localhost:6060/ecodwork/lowcode/sys/columns?parameter[page]=0&parameter[size]=999&parameter[table_name]=' + modelCode,
               method: 'get',
-              "requestAdaptor": "const query = JSON.parse(JSON.stringify(api.query))\nquery.parameter.page = query.page\nquery.parameter.size = query.perPage\nif (query.orderBy && query.orderDir) {\n  query.parameter.sort = query.orderDir != 'asc' ? '-' + query.orderBy : query.orderBy\n}\nif (query['column_name'] !== '' && query['column_name'] !== undefined && query['column_name'] !== null) {\n  query.parameter['column_name'] = query['column_name']\n}\ndelete query['column_name']\nif (query['column_comment'] !== '' && query['column_comment'] !== undefined && query['column_comment'] !== null) {\n  query.parameter['column_comment'] = query['column_comment']\n}\ndelete query['column_comment']\ndelete query.page\ndelete query.perPage\napi.query = query\nvar url = new URL(api.url)\nurl.search = '?' + Qs.stringify(api.query, { encode: false })\napi.url = url.toString()\nreturn api",
+              requestAdaptor:
+                "const query = JSON.parse(JSON.stringify(api.query))\nquery.parameter.page = query.page\nquery.parameter.size = query.perPage\nif (query.orderBy && query.orderDir) {\n  query.parameter.sort = query.orderDir != 'asc' ? '-' + query.orderBy : query.orderBy\n}\nif (query['column_name'] !== '' && query['column_name'] !== undefined && query['column_name'] !== null) {\n  query.parameter['column_name'] = query['column_name']\n}\ndelete query['column_name']\nif (query['column_comment'] !== '' && query['column_comment'] !== undefined && query['column_comment'] !== null) {\n  query.parameter['column_comment'] = query['column_comment']\n}\ndelete query['column_comment']\ndelete query.page\ndelete query.perPage\napi.query = query\nvar url = new URL(api.url)\nurl.search = '?' + Qs.stringify(api.query, { encode: false })\napi.url = url.toString()\nreturn api",
               adaptor: '',
               messages: {},
               forceAppendDataToQuery: true
@@ -257,33 +260,33 @@ setSchemaTpl('formItemName', (schema: object = {}, options: any) => {
     ...schema,
     label: '字段名',
     name: 'name',
-    type: 'input-text',
-  }
+    type: 'input-text'
+  };
 });
 
 setSchemaTpl('modelCode', (schema: object = {}, options: object = {}) => {
   return {
-    "type": "select",
-    "label": "选择实体",
-    "name": "modelCode",
-    "multiple": false,
-    "source": {
-      "url": "${window:location.origin}/${ls:extention_module_config.api_prefix}/sys/model/select?parameter[page]=0&parameter[size]=9999&parameter[value_field]=table_name&parameter[product_code]=${ls:extention_module_config.product_code}",
+    type: 'select',
+    label: '选择实体',
+    name: 'modelCode',
+    multiple: false,
+    source: {
+      url: '${window:location.origin}/${ls:extention_module_config.api_prefix}/sys/model/select?parameter[page]=0&parameter[size]=9999&parameter[value_field]=table_name&parameter[product_code]=${ls:extention_module_config.product_code}',
       // "url": "http://localhost:6060/ecodwork/lowcode/sys/model/select?parameter[page]=0&parameter[size]=999&parameter[value_field]=table_name&parameter[product_code]=sjs_xn",
-      "method": "get",
-      "requestAdaptor": "",
-      "adaptor": "",
-      "messages": {}
+      method: 'get',
+      requestAdaptor: '',
+      adaptor: '',
+      messages: {}
     },
-    "labelField": "label",
-    "valueField": "value",
-    "id": "u:9fbab41e008f",
-    "searchable": true,
-    "clearable": true,
-    "required": false,
-    "value": null,
-    "onEvent": {}
-  }
+    labelField: 'label',
+    valueField: 'value',
+    id: 'u:9fbab41e008f',
+    searchable: true,
+    clearable: true,
+    required: false,
+    value: null,
+    onEvent: {}
+  };
 });
 
 setSchemaTpl(
@@ -326,9 +329,9 @@ setSchemaTpl(
       config?.isForm
         ? null
         : {
-          label: '继承',
-          value: ''
-        }
+            label: '继承',
+            value: ''
+          }
     ].filter(i => i),
     pipeOut: (v: string) => (v ? v : undefined)
   })
@@ -360,6 +363,20 @@ setSchemaTpl('textareaFormulaControl', (schema: object = {}) => {
   return {
     type: 'ae-textareaFormulaControl',
     variableMode: 'tree',
+    ...schema
+  };
+});
+
+setSchemaTpl('labelUrlField', (schema: object = {}) => {
+  return {
+    label: tipedLabel(
+      'label链接属性名',
+      '指定选项数据中用于链接地址的字段名，当该字段有值时会自动渲染为链接'
+    ),
+    name: 'labelUrlField',
+    placeholder: 'label_url',
+    type: 'input-text',
+    mode: 'vertical',
     ...schema
   };
 });
@@ -802,8 +819,8 @@ setSchemaTpl('selectDateRangeType', {
 
 setSchemaTpl(
   'optionsMenuTpl',
-  (config: { manager: EditorManager;[key: string]: any }) => {
-    const { manager, ...rest } = config;
+  (config: {manager: EditorManager; [key: string]: any}) => {
+    const {manager, ...rest} = config;
     // 设置 options 中变量集合
     function getOptionVars(that: any) {
       let schema = manager.store.valueWithoutHiddenProps;
@@ -826,7 +843,7 @@ setSchemaTpl(
         let optionItem = reduce(
           schema.options,
           function (result, item) {
-            return { ...result, ...item };
+            return {...result, ...item};
           },
           {}
         );
@@ -966,7 +983,7 @@ setSchemaTpl('onlyClassNameTab', (label = '外层') => {
     body: getSchemaTpl('collapseGroup', [
       {
         title: 'CSS类名',
-        body: [getSchemaTpl('className', { label })]
+        body: [getSchemaTpl('className', {label})]
       }
     ])
   };
@@ -986,8 +1003,8 @@ setSchemaTpl('combo-container', (config: SchemaObject) => {
     }
     return {
       ...(config as any),
-      ...(itemsWrapperClassName ? { itemsWrapperClassName } : {}),
-      ...(itemClassName ? { itemClassName } : {})
+      ...(itemsWrapperClassName ? {itemsWrapperClassName} : {}),
+      ...(itemClassName ? {itemClassName} : {})
     };
   }
   return config;
@@ -1233,9 +1250,9 @@ setSchemaTpl('borderMode', {
     justify: true
   },
   options: [
-    { label: '全边框', value: 'full' },
-    { label: '半边框', value: 'half' },
-    { label: '无边框', value: 'none' }
+    {label: '全边框', value: 'full'},
+    {label: '半边框', value: 'half'},
+    {label: '无边框', value: 'none'}
   ],
   pipeIn: defaultValue('full')
 });
@@ -1271,7 +1288,7 @@ setSchemaTpl('onlyLeaf', {
 setSchemaTpl('clearValueOnHidden', () =>
   getSchemaTpl('switch', {
     type: 'switch',
-    horizontal: { left: 8, justify: true },
+    horizontal: {left: 8, justify: true},
     label: tipedLabel(
       '隐藏时删除字段',
       '当前表单项隐藏时，表单提交数据中会删除该表单项的值'
@@ -1490,7 +1507,7 @@ setSchemaTpl(
     visibleOn: boolean;
     label?: string;
   }) => {
-    const { name, visibleOn, label } = schema;
+    const {name, visibleOn, label} = schema;
     return getSchemaTpl('icon', {
       name: name,
       visibleOn,
@@ -1969,7 +1986,7 @@ setSchemaTpl('deferField', {
 
 setSchemaTpl(
   'signBtn',
-  (options: { label: string; name: string; icon: string }) => {
+  (options: {label: string; name: string; icon: string}) => {
     return {
       type: 'flex',
       justify: 'space-between',

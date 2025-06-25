@@ -101,6 +101,16 @@ export interface PickerControlSchema extends FormOptionsSchema {
      */
     overflowTagPopoverInCRUD?: TooltipWrapperSchema;
   };
+
+  /**
+   * 指定选项数据中用于链接地址的字段名，当该字段有值时会自动渲染为链接
+   */
+  labelUrlField?: string;
+
+  /**
+   * 设置自动生成链接的CSS样式
+   */
+  labelLinkStyle?: string;
 }
 
 export interface PickerProps extends OptionsControlProps {
@@ -132,7 +142,9 @@ export default class PickerControl extends React.PureComponent<
     'embed',
     'resetValue',
     'placeholder',
-    'onQuery' // 防止 Form 的 onQuery 事件透传下去，不然会导致 table 先后触发 Form 和 Crud 的 onQuery
+    'onQuery', // 防止 Form 的 onQuery 事件透传下去，不然会导致 table 先后触发 Form 和 Crud 的 onQuery
+    'labelUrlField',
+    'labelLinkStyle'
   ];
   static defaultProps: Partial<PickerProps> = {
     modalMode: 'dialog',
@@ -160,7 +172,9 @@ export default class PickerControl extends React.PureComponent<
         showArrow: false,
         offset: [0, 10]
       }
-    }
+    },
+    labelUrlField: 'label_url',
+    labelLinkStyle: 'font-size: 12px'
   };
 
   state: PickerState = {
@@ -486,7 +500,7 @@ export default class PickerControl extends React.PureComponent<
   @autobind
   handleSelect(selectedItems: Array<any>, unSelectedItems: Array<any>) {
     const {selectedOptions, valueField} = this.props;
-    // 选择行后，crud 会给出连续多次事件，且selectedItems会变化，会导致初始化和点击无效
+    // 选择行后，crud 会给out连续多次事件，且selectedItems会变化，会导致初始化和点击无效
     // 过滤掉一些无用事件，否则会导致 value 错误
     if (
       !Array.isArray(selectedItems) ||
@@ -519,6 +533,41 @@ export default class PickerControl extends React.PureComponent<
     }
 
     this.handleChange(selectedItems);
+  }
+
+  /**
+   * 生成标签内容，支持自动链接功能
+   */
+  renderLabelContent(item: Option) {
+    const {labelField, labelTpl, env, labelUrlField, labelLinkStyle} =
+      this.props;
+
+    // 如果有 labelTpl，优先使用模板
+    if (labelTpl) {
+      return <Html html={filter(labelTpl, item)} filterHtml={env.filterHtml} />;
+    }
+
+    // 检查是否有链接地址属性且不为空
+    const urlFieldName = labelUrlField || 'label_url';
+    const labelUrl = getVariable(item, urlFieldName);
+    if (labelUrl && typeof labelUrl === 'string' && labelUrl.trim()) {
+      // 获取显示的文本内容
+      const labelText =
+        getVariable(item, labelField || 'label') ||
+        getVariable(item, 'id') ||
+        '';
+
+      // 生成链接HTML，使用配置的样式
+      const style = labelLinkStyle || 'font-size: 12px';
+      const linkHtml = `<a style="${style}" href="${labelUrl}" target="_blank">${labelText}</a>`;
+
+      return <Html html={linkHtml} filterHtml={env.filterHtml} />;
+    }
+
+    // 默认显示文本
+    return `${
+      getVariable(item, labelField || 'label') || getVariable(item, 'id')
+    }`;
   }
 
   renderTag(item: Option, index: number) {
@@ -583,14 +632,7 @@ export default class PickerControl extends React.PureComponent<
             this.handleItemClick(item);
           }}
         >
-          {labelTpl ? (
-            <Html html={filter(labelTpl, item)} filterHtml={env.filterHtml} />
-          ) : (
-            `${
-              getVariable(item, labelField || 'label') ||
-              getVariable(item, 'id')
-            }`
-          )}
+          {this.renderLabelContent(item)}
         </span>
       </div>
     );
@@ -676,7 +718,7 @@ export default class PickerControl extends React.PureComponent<
                       themeCss: themeCss || css
                     })}`}
                   >
-                    {item.label}
+                    {this.renderLabelContent(item)}
                   </span>
                 </div>
               </TooltipWrapper>
