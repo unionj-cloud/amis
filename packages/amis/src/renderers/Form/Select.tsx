@@ -416,9 +416,13 @@ export default class SelectControl extends React.Component<SelectProps, any> {
   renderMenu(option: Option, state: any) {
     const {menuTpl, render, data, optionClassName, testIdBuilder} = this.props;
 
+    // 支持选项的 color 属性
+    const style = option.color ? {color: option.color} : undefined;
+
     return render(`menu/${state.index}`, menuTpl, {
       showNativeTitle: true,
       className: cx('Select-option-content', optionClassName),
+      style,
       data: createObject(createObject(data, state), option),
       testIdBuilder: testIdBuilder?.getChild(
         'option-' + option.value || state.index
@@ -559,11 +563,21 @@ class TransferDropdownRenderer extends BaseTransferRenderer<TransferDropDownProp
   renderItem(item: Option): any {
     const {labelField, menuTpl, data, render} = this.props;
 
-    return menuTpl
-      ? render(`option/${item.value}`, menuTpl, {
-          data: createObject(data, item)
-        })
-      : `${item.scopeLabel || ''}${item[labelField || 'label']}`;
+    if (menuTpl) {
+      return render(`option/${item.value}`, menuTpl, {
+        data: createObject(data, item),
+        style: item.color ? {color: item.color} : undefined
+      });
+    }
+
+    const label = `${item.scopeLabel || ''}${item[labelField || 'label']}`;
+
+    // 如果有 color 属性，包装成带样式的元素
+    if (item.color) {
+      return React.createElement('span', {style: {color: item.color}}, label);
+    }
+
+    return label;
   }
 
   render() {
