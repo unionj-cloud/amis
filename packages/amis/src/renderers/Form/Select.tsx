@@ -18,13 +18,13 @@ import {
   TestIdBuilder,
   getVariable
 } from 'amis-core';
-import {TransferDropDown, Spinner, Select, SpinnerExtraProps} from 'amis-ui';
-import {FormOptionsSchema, SchemaApi} from '../../Schema';
-import {BaseTransferRenderer, TransferControlSchema} from './Transfer';
-import {supportStatic} from './StaticHoc';
+import { TransferDropDown, Spinner, Select, SpinnerExtraProps } from 'amis-ui';
+import { FormOptionsSchema, SchemaApi } from '../../Schema';
+import { BaseTransferRenderer, TransferControlSchema } from './Transfer';
+import { supportStatic } from './StaticHoc';
 
-import type {SchemaClassName} from '../../Schema';
-import type {TooltipObject} from 'amis-ui/lib/components/TooltipWrapper';
+import type { SchemaClassName } from '../../Schema';
+import type { TooltipObject } from 'amis-ui/lib/components/TooltipWrapper';
 
 /**
  * Select 下拉选择框。
@@ -32,7 +32,7 @@ import type {TooltipObject} from 'amis-ui/lib/components/TooltipWrapper';
  */
 export interface SelectControlSchema
   extends FormOptionsSchema,
-    SpinnerExtraProps {
+  SpinnerExtraProps {
   type: 'select' | 'multi-select';
 
   /**
@@ -234,7 +234,7 @@ export default class SelectControl extends React.Component<SelectProps, any> {
     value: Option | Array<Option> | string | void,
     additonalOptions: Array<any> = []
   ) {
-    const {joinValues, extractValue, delimiter, multiple, valueField, options} =
+    const { joinValues, extractValue, delimiter, multiple, valueField, options } =
       this.props;
     let newValue: string | Option | Array<Option> | void = value;
 
@@ -253,11 +253,11 @@ export default class SelectControl extends React.Component<SelectProps, any> {
       if (multiple) {
         newValue = Array.isArray(value)
           ? (value
-              .map(item => item[valueField || 'value'])
-              .join(delimiter) as string)
+            .map(item => item[valueField || 'value'])
+            .join(delimiter) as string)
           : value
-          ? (value as Option)[valueField || 'value']
-          : '';
+            ? (value as Option)[valueField || 'value']
+            : '';
       } else {
         newValue = newValue ? (newValue as Option)[valueField || 'value'] : '';
       }
@@ -266,8 +266,8 @@ export default class SelectControl extends React.Component<SelectProps, any> {
         newValue = Array.isArray(value)
           ? value.map(item => item[valueField || 'value'])
           : value
-          ? [(value as Option)[valueField || 'value']]
-          : [];
+            ? [(value as Option)[valueField || 'value']]
+            : [];
       } else {
         newValue = newValue ? (newValue as Option)[valueField || 'value'] : '';
       }
@@ -278,7 +278,7 @@ export default class SelectControl extends React.Component<SelectProps, any> {
 
   async dispatchEvent(eventName: SelectRendererEvent, eventData: any = {}) {
     const event = 'on' + eventName.charAt(0).toUpperCase() + eventName.slice(1);
-    const {dispatchEvent, options, value, multiple, selectedOptions} =
+    const { dispatchEvent, options, value, multiple, selectedOptions } =
       this.props;
     // 触发渲染器事件
     const rendererEvent = await dispatchEvent(
@@ -298,7 +298,7 @@ export default class SelectControl extends React.Component<SelectProps, any> {
   }
 
   async changeValue(value: Option | Array<Option> | string | void) {
-    const {onChange, setOptions, options, data, dispatchEvent} = this.props;
+    const { onChange, setOptions, options, data, dispatchEvent } = this.props;
 
     let additonalOptions: Array<any> = [];
 
@@ -387,7 +387,7 @@ export default class SelectControl extends React.Component<SelectProps, any> {
   }
 
   mergeOptions(options: Array<object>) {
-    const {selectedOptions, valueField = 'value'} = this.props;
+    const { selectedOptions, valueField = 'value' } = this.props;
     let combinedOptions = normalizeOptions(
       options,
       undefined,
@@ -414,20 +414,33 @@ export default class SelectControl extends React.Component<SelectProps, any> {
 
   @autobind
   renderMenu(option: Option, state: any) {
-    const {menuTpl, render, data, optionClassName, testIdBuilder} = this.props;
+    const { menuTpl, render, data, optionClassName, testIdBuilder, labelField } = this.props;
 
     // 支持选项的 color 属性
-    const style = option.color ? {color: option.color} : undefined;
+    const style = option.color ? { color: option.color } : undefined;
 
-    return render(`menu/${state.index}`, menuTpl, {
-      showNativeTitle: true,
-      className: cx('Select-option-content', optionClassName),
-      style,
-      data: createObject(createObject(data, state), option),
-      testIdBuilder: testIdBuilder?.getChild(
-        'option-' + option.value || state.index
-      )
-    });
+    // 如果有自定义模板，使用模板渲染
+    if (menuTpl) {
+      return render(`menu/${state.index}`, menuTpl, {
+        showNativeTitle: true,
+        className: cx('Select-option-content', optionClassName),
+        style,
+        data: createObject(createObject(data, state), option),
+        testIdBuilder: testIdBuilder?.getChild(
+          'option-' + option.value || state.index
+        )
+      });
+    }
+
+    // 没有模板时，直接返回带样式的选项标签
+    const label = option[labelField || 'label'] || option.label;
+    return React.createElement('span', { style }, label);
+  }
+
+  // 检查选项中是否有颜色属性
+  hasColorOptions() {
+    const { options } = this.props;
+    return Array.isArray(options) && options.some((option: Option) => option.color);
   }
 
   reload() {
@@ -435,10 +448,10 @@ export default class SelectControl extends React.Component<SelectProps, any> {
     reload && reload();
   }
 
-  option2value() {}
+  option2value() { }
 
   renderOtherMode() {
-    const {selectMode, ...rest} = this.props;
+    const { selectMode, ...rest } = this.props;
     return (
       <TransferDropdownRenderer
         {...rest}
@@ -448,7 +461,7 @@ export default class SelectControl extends React.Component<SelectProps, any> {
   }
 
   doAction(action: ActionObject, data: object, throwErrors: boolean): any {
-    const {resetValue, onChange, formStore, store, name, valueField} =
+    const { resetValue, onChange, formStore, store, name, valueField } =
       this.props;
     const actionType = action?.actionType as string;
 
@@ -457,7 +470,7 @@ export default class SelectControl extends React.Component<SelectProps, any> {
     } else if (actionType === 'reset') {
       const pristineVal =
         getVariable(formStore?.pristine ?? store?.pristine, name) ?? resetValue;
-      const value = this.getValue({[valueField]: pristineVal ?? ''});
+      const value = this.getValue({ [valueField]: pristineVal ?? '' });
       onChange?.(value);
     }
   }
@@ -535,7 +548,7 @@ export default class SelectControl extends React.Component<SelectProps, any> {
             onFocus={(e: any) => this.dispatchEvent('focus', e)}
             loading={loading}
             noResultsText={noResultsText}
-            renderMenu={menuTpl ? this.renderMenu : undefined}
+            renderMenu={menuTpl || this.hasColorOptions() ? this.renderMenu : undefined}
             overlay={overlay}
           />
         )}
@@ -545,15 +558,15 @@ export default class SelectControl extends React.Component<SelectProps, any> {
 }
 export interface TransferDropDownProps
   extends OptionsControlProps,
-    Omit<
-      TransferControlSchema,
-      | 'type'
-      | 'options'
-      | 'inputClassName'
-      | 'className'
-      | 'descriptionClassName'
-    >,
-    SpinnerExtraProps {
+  Omit<
+    TransferControlSchema,
+    | 'type'
+    | 'options'
+    | 'inputClassName'
+    | 'className'
+    | 'descriptionClassName'
+  >,
+  SpinnerExtraProps {
   borderMode?: 'full' | 'half' | 'none';
   mobileUI?: boolean;
 }
@@ -561,12 +574,12 @@ export interface TransferDropDownProps
 class TransferDropdownRenderer extends BaseTransferRenderer<TransferDropDownProps> {
   @autobind
   renderItem(item: Option): any {
-    const {labelField, menuTpl, data, render} = this.props;
+    const { labelField, menuTpl, data, render } = this.props;
 
     if (menuTpl) {
       return render(`option/${item.value}`, menuTpl, {
         data: createObject(data, item),
-        style: item.color ? {color: item.color} : undefined
+        style: item.color ? { color: item.color } : undefined
       });
     }
 
@@ -574,7 +587,7 @@ class TransferDropdownRenderer extends BaseTransferRenderer<TransferDropDownProp
 
     // 如果有 color 属性，包装成带样式的元素
     if (item.color) {
-      return React.createElement('span', {style: {color: item.color}}, label);
+      return React.createElement('span', { style: { color: item.color } }, label);
     }
 
     return label;
@@ -619,7 +632,7 @@ class TransferDropdownRenderer extends BaseTransferRenderer<TransferDropDownProp
     // 目前 LeftOptions 没有接口可以动态加载
     // 为了方便可以快速实现动态化，让选项的第一个成员携带
     // LeftOptions 信息
-    let {options, leftOptions, leftDefaultValue} = this.props;
+    let { options, leftOptions, leftDefaultValue } = this.props;
     if (
       selectMode === 'associated' &&
       options &&
@@ -686,7 +699,7 @@ class TransferDropdownRenderer extends BaseTransferRenderer<TransferDropDownProp
 @OptionsControl({
   type: 'select'
 })
-export class SelectControlRenderer extends SelectControl {}
+export class SelectControlRenderer extends SelectControl { }
 
 @OptionsControl({
   type: 'multi-select'

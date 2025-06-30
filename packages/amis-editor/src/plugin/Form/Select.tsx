@@ -276,11 +276,59 @@ export class SelectControlPlugin extends BasePlugin {
               }),
               /** 新增选项 */
               getSchemaTpl('optionAddControl', {
-                manager: this.manager
+                manager: this.manager,
+                collections: [
+                  {
+                    type: 'input-text',
+                    name: 'label',
+                    label: '选项文本',
+                    required: true,
+                    placeholder: '请输入选项文本'
+                  },
+                  {
+                    type: 'input-text',
+                    name: 'value',
+                    label: '选项值',
+                    required: true,
+                    placeholder: '请输入选项值'
+                  },
+                  {
+                    type: 'input-color',
+                    name: 'color',
+                    label: '选项颜色',
+                    placeholder: '请选择选项颜色',
+                    clearable: true
+                  }
+                ],
+                replace: true
               }),
               /** 编辑选项 */
               getSchemaTpl('optionEditControl', {
-                manager: this.manager
+                manager: this.manager,
+                collections: [
+                  {
+                    type: 'input-text',
+                    name: 'label',
+                    label: '选项文本',
+                    required: true,
+                    placeholder: '请输入选项文本'
+                  },
+                  {
+                    type: 'input-text',
+                    name: 'value',
+                    label: '选项值',
+                    required: true,
+                    placeholder: '请输入选项值'
+                  },
+                  {
+                    type: 'input-color',
+                    name: 'color',
+                    label: '选项颜色',
+                    placeholder: '请选择选项颜色',
+                    clearable: true
+                  }
+                ],
+                replace: true
               }),
               /** 删除选项 */
               getSchemaTpl('optionDeleteControl')
