@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button} from 'amis';
+import { Button } from 'amis';
 import omit from 'lodash/omit';
 import uniq from 'lodash/uniq';
 import get from 'lodash/get';
@@ -11,7 +11,7 @@ import {
   RendererPluginAction,
   RendererPluginEvent
 } from 'amis-editor-core';
-import {registerEditorPlugin} from 'amis-editor-core';
+import { registerEditorPlugin } from 'amis-editor-core';
 import {
   BaseEventContext,
   BasePlugin,
@@ -21,12 +21,12 @@ import {
   defaultValue,
   tipedLabel
 } from 'amis-editor-core';
-import {diff} from 'amis-editor-core';
-import {isPureVariable} from 'amis-core';
-import type {Schema} from 'amis';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
-import {resolveOptionEventDataSchame, resolveOptionType} from '../../util';
-import {ValidatorTag} from '../../validator';
+import { diff } from 'amis-editor-core';
+import { isPureVariable } from 'amis-core';
+import type { Schema } from 'amis';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
+import { resolveOptionEventDataSchame, resolveOptionType } from '../../util';
+import { ValidatorTag } from '../../validator';
 
 export class PickerControlPlugin extends BasePlugin {
   static id = 'PickerControlPlugin';
@@ -85,7 +85,7 @@ export class PickerControlPlugin extends BasePlugin {
       eventLabel: '值变化',
       description: '选中状态变化时触发',
       dataSchema: (manager: EditorManager) => {
-        const {value, selectedItems} = resolveOptionEventDataSchame(manager);
+        const { value, selectedItems } = resolveOptionEventDataSchame(manager);
 
         return [
           {
@@ -109,7 +109,7 @@ export class PickerControlPlugin extends BasePlugin {
       eventLabel: '点击选项',
       description: '选项被点击时触发',
       dataSchema: (manager: EditorManager) => {
-        const {itemSchema} = resolveOptionEventDataSchame(manager);
+        const { itemSchema } = resolveOptionEventDataSchame(manager);
 
         return [
           {
@@ -190,7 +190,7 @@ export class PickerControlPlugin extends BasePlugin {
       ];
     };
     const getOverflowTagPopoverTpl = (schema: any = {}) => {
-      const {namePre, title, key} = schema;
+      const { namePre, title, key } = schema;
       delete schema.namePre;
       return {
         type: 'container',
@@ -324,7 +324,7 @@ export class PickerControlPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
               getSchemaTpl(
                 'formItemName',
                 {
@@ -431,8 +431,8 @@ export class PickerControlPlugin extends BasePlugin {
                   选项值为
                   <pre>${JSON.stringify(
                     [
-                      {label: '选项A', value: 'A'},
-                      {label: '选项B', value: 'B'}
+                      { label: '选项A', value: 'A' },
+                      { label: '选项B', value: 'B' }
                     ],
                     null,
                     2
@@ -533,6 +533,16 @@ export class PickerControlPlugin extends BasePlugin {
                 }
               },
               {
+                type: 'switch',
+                label: tipedLabel(
+                  '显示标签提示',
+                  '是否在标签文字过长时显示完整内容的提示'
+                ),
+                name: 'showLabelTooltip',
+                inputClassName: 'is-inline',
+                pipeIn: defaultValue(true)
+              },
+              {
                 type: 'button',
                 label: '配置选框详情',
                 block: true,
@@ -550,8 +560,8 @@ export class PickerControlPlugin extends BasePlugin {
               }
             ]
           },
-          getSchemaTpl('status', {isFormItem: true}),
-          getSchemaTpl('validation', {tag: ValidatorTag.MultiSelect})
+          getSchemaTpl('status', { isFormItem: true }),
+          getSchemaTpl('validation', { tag: ValidatorTag.MultiSelect })
         ])
       },
       {
@@ -671,7 +681,7 @@ export class PickerControlPlugin extends BasePlugin {
               themeClass: [],
               isFormItem: true
             }),
-            {...context?.schema, configTitle: 'style'}
+            { ...context?.schema, configTitle: 'style' }
           ])
         ]
       },
@@ -689,7 +699,7 @@ export class PickerControlPlugin extends BasePlugin {
   };
 
   buildEditorToolbar(
-    {id, info}: BaseEventContext,
+    { id, info }: BaseEventContext,
     toolbars: Array<BasicToolbarItem>
   ) {
     if (info.renderer.name === this.rendererName) {
@@ -703,7 +713,7 @@ export class PickerControlPlugin extends BasePlugin {
   }
 
   buildEditorContextMenu(
-    {id, schema, region, info}: ContextMenuEventContext,
+    { id, schema, region, info }: ContextMenuEventContext,
     menus: Array<ContextMenuItem>
   ) {
     if (info.renderer.name === this.rendererName) {
@@ -747,11 +757,11 @@ export class PickerControlPlugin extends BasePlugin {
     this.manager.openSubEditor({
       title: '配置选框详情',
       value: schema,
-      data: {options: component.props.options},
+      data: { options: component.props.options },
       onChange: newValue => {
         newValue = {
           ...value,
-          pickerSchema: {...newValue},
+          pickerSchema: { ...newValue },
           source: newValue.api
         };
 

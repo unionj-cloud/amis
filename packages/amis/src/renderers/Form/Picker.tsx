@@ -111,6 +111,11 @@ export interface PickerControlSchema extends FormOptionsSchema {
    * 设置自动生成链接的CSS样式
    */
   labelLinkStyle?: string;
+
+  /**
+   * 是否在标签文字过长时显示完整内容的提示，默认为 true
+   */
+  showLabelTooltip?: boolean;
 }
 
 export interface PickerProps extends OptionsControlProps {
@@ -144,7 +149,8 @@ export default class PickerControl extends React.PureComponent<
     'placeholder',
     'onQuery', // 防止 Form 的 onQuery 事件透传下去，不然会导致 table 先后触发 Form 和 Crud 的 onQuery
     'labelUrlField',
-    'labelLinkStyle'
+    'labelLinkStyle',
+    'showLabelTooltip'
   ];
   static defaultProps: Partial<PickerProps> = {
     modalMode: 'dialog',
@@ -174,7 +180,8 @@ export default class PickerControl extends React.PureComponent<
       }
     },
     labelUrlField: 'label_url',
-    labelLinkStyle: 'font-size: 12px'
+    labelLinkStyle: 'font-size: 12px',
+    showLabelTooltip: true
   };
 
   state: PickerState = {
@@ -549,6 +556,27 @@ export default class PickerControl extends React.PureComponent<
   }
 
   /**
+   * 获取标签的纯文本内容，用于 tooltip 显示
+   */
+  getLabelText(item: Option): string {
+    const { labelField, labelTpl } = this.props;
+
+    // 如果有 labelTpl，需要处理模板
+    if (labelTpl) {
+      // 简单处理模板，去掉 HTML 标签
+      const processed = filter(labelTpl, item);
+      return processed.replace(/<[^>]*>/g, '').trim();
+    }
+
+    // 默认返回纯文本，确保返回值不为undefined
+    const labelValue = getVariable(item, labelField || 'label');
+    const idValue = getVariable(item, 'id');
+    const result = labelValue || idValue || item.label || item.id || '';
+
+    return String(result).trim();
+  }
+
+  /**
    * 生成标签内容，支持自动链接功能
    */
   renderLabelContent(item: Option) {
@@ -578,8 +606,7 @@ export default class PickerControl extends React.PureComponent<
     }
 
     // 默认显示文本
-    return `${getVariable(item, labelField || 'label') || getVariable(item, 'id')
-      }`;
+    return `${getVariable(item, labelField || 'label') || getVariable(item, 'id')}`;
   }
 
   renderTag(item: Option, index: number) {
@@ -593,10 +620,15 @@ export default class PickerControl extends React.PureComponent<
       env,
       id,
       themeCss,
-      css
+      css,
+      popOverContainer,
+      showLabelTooltip
     } = this.props;
 
-    return (
+    // 获取标签的纯文本内容用于 tooltip
+    const labelText = this.getLabelText(item);
+
+    const tagContent = (
       <div
         key={index}
         className={cx(
@@ -660,6 +692,29 @@ export default class PickerControl extends React.PureComponent<
         </span>
       </div>
     );
+
+    // 如果启用了标签提示功能且有文字内容，使用 TooltipWrapper 包装以显示完整内容
+    if (showLabelTooltip && labelText && labelText.trim()) {
+      return (
+        <TooltipWrapper
+          key={index}
+          container={popOverContainer}
+          tooltip={{
+            content: labelText,
+            placement: 'top',
+            trigger: 'hover',
+            showArrow: true,
+            offset: [0, -5],
+            tooltipClassName: cx('Picker-label-tooltip'),
+            disabled: false // 确保tooltip不会被禁用
+          }}
+        >
+          {tagContent}
+        </TooltipWrapper>
+      );
+    }
+
+    return tagContent;
   }
 
   renderValues() {
@@ -672,7 +727,8 @@ export default class PickerControl extends React.PureComponent<
       popOverContainer,
       id,
       themeCss,
-      css
+      css,
+      showLabelTooltip
     } = this.props;
     const { maxTagCount, overflowTagPopover } = this.getOverflowConfig();
     const totalCount = selectedOptions.length;
@@ -713,6 +769,7 @@ export default class PickerControl extends React.PureComponent<
                     'content',
                     'tooltipClassName'
                   ]),
+                  disabled: false, // 确保overflow tooltip不会被禁用
                   children: () => {
                     return (
                       <div className={cx(`${ns}Picker-overflow-wrapper`)}>
@@ -728,36 +785,82 @@ export default class PickerControl extends React.PureComponent<
                   }
                 }}
               >
-                <div
-                  key={index}
-                  className={cx(`${ns}Picker-value`, {
-                    'is-disabled': disabled
-                  })}
-                >
-                  <span
-                    className={`${ns}Picker-valueLabel ${setThemeClassName({
-                      ...this.props,
-                      name: 'pickFontClassName',
-                      id,
-                      themeCss: themeCss || css
-                    })}`}
-                    onClick={e => {
-                      // 检查点击的目标是否是链接，如果是链接则允许默认行为
-                      const target = e.target as HTMLElement;
-                      if (target.tagName === 'A' || target.closest('a')) {
-                        // 对于链接，不阻止默认行为，让链接正常跳转
-                        return;
-                      }
-                      e.stopPropagation();
-                      // 如果组件被禁用，不执行项目点击操作
-                      if (!disabled) {
-                        this.handleItemClick(item);
-                      }
+                {showLabelTooltip ? (
+                  <TooltipWrapper
+                    container={popOverContainer}
+                    tooltip={{
+                      content: this.getLabelText(item),
+                      placement: 'top',
+                      trigger: 'hover',
+                      showArrow: true,
+                      offset: [0, -5],
+                      tooltipClassName: cx('Picker-label-tooltip'),
+                      disabled: false // 确保tooltip不会被禁用
                     }}
                   >
-                    {this.renderLabelContent(item)}
-                  </span>
-                </div>
+                    <div
+                      key={index}
+                      className={cx(`${ns}Picker-value`, {
+                        'is-disabled': disabled
+                      })}
+                    >
+                      <span
+                        className={`${ns}Picker-valueLabel ${setThemeClassName({
+                          ...this.props,
+                          name: 'pickFontClassName',
+                          id,
+                          themeCss: themeCss || css
+                        })}`}
+                        onClick={e => {
+                          // 检查点击的目标是否是链接，如果是链接则允许默认行为
+                          const target = e.target as HTMLElement;
+                          if (target.tagName === 'A' || target.closest('a')) {
+                            // 对于链接，不阻止默认行为，让链接正常跳转
+                            return;
+                          }
+                          e.stopPropagation();
+                          // 如果组件被禁用，不执行项目点击操作
+                          if (!disabled) {
+                            this.handleItemClick(item);
+                          }
+                        }}
+                      >
+                        {this.renderLabelContent(item)}
+                      </span>
+                    </div>
+                  </TooltipWrapper>
+                ) : (
+                  <div
+                    key={index}
+                    className={cx(`${ns}Picker-value`, {
+                      'is-disabled': disabled
+                    })}
+                  >
+                    <span
+                      className={`${ns}Picker-valueLabel ${setThemeClassName({
+                        ...this.props,
+                        name: 'pickFontClassName',
+                        id,
+                        themeCss: themeCss || css
+                      })}`}
+                      onClick={e => {
+                        // 检查点击的目标是否是链接，如果是链接则允许默认行为
+                        const target = e.target as HTMLElement;
+                        if (target.tagName === 'A' || target.closest('a')) {
+                          // 对于链接，不阻止默认行为，让链接正常跳转
+                          return;
+                        }
+                        e.stopPropagation();
+                        // 如果组件被禁用，不执行项目点击操作
+                        if (!disabled) {
+                          this.handleItemClick(item);
+                        }
+                      }}
+                    >
+                      {this.renderLabelContent(item)}
+                    </span>
+                  </div>
+                )}
               </TooltipWrapper>
             );
           }

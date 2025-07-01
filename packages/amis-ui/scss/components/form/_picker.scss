@@ -185,6 +185,50 @@
       @include tag-item(Picker);
     }
   }
+
+  &-label-tooltip {
+    max-width: px2rem(300px);
+    word-break: break-all;
+    word-wrap: break-word;
+  }
+
+  // 专门为tooltip在禁用状态下的样式设置
+  &.is-disabled {
+    // 确保标签元素在禁用状态下仍能接收hover事件以触发tooltip
+    // tooltip通过Portal渲染到DOM底部，需要确保触发hover的元素能接收鼠标事件
+    .#{$ns}Picker-value {
+      // 恢复标签区域的鼠标事件，以便触发tooltip
+      pointer-events: auto !important;
+
+      // 删除按钮保持禁用状态
+      .#{$ns}Picker-valueIcon {
+        pointer-events: none !important;
+      }
+
+      // 标签文本区域需要接收hover事件
+      .#{$ns}Picker-valueLabel {
+        pointer-events: auto !important;
+
+        // 链接保持可点击
+        a {
+          pointer-events: auto !important;
+        }
+      }
+    }
+
+    // 针对overflow标签的特殊处理
+    .#{$ns}Picker-overflow-wrapper .#{$ns}Picker-value {
+      pointer-events: auto !important;
+
+      .#{$ns}Picker-valueLabel {
+        pointer-events: auto !important;
+
+        a {
+          pointer-events: auto !important;
+        }
+      }
+    }
+  }
 }
 
 .#{$ns}PickerControl.is-inline,
