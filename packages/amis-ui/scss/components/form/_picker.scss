@@ -38,8 +38,20 @@
   }
 
   &.is-disabled {
-    pointer-events: none;
     opacity: var(--Button-onDisabled-opacity);
+
+    // 禁用大部分元素的鼠标事件，但保留链接的可点击性
+    > * {
+      pointer-events: none;
+    }
+
+    // 允许链接在禁用状态下仍然可以点击
+    a,
+    .#{$ns}Picker-valueLabel a,
+    .#{$ns}Picker-value a,
+    .#{$ns}Picker-overflow-wrapper a {
+      pointer-events: auto;
+    }
 
     .#{$ns}Picker-placeholder {
       color: var(--Pick-status-disabled-color);

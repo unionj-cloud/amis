@@ -26,13 +26,13 @@ import {
   isIntegerInRange,
   setThemeClassName
 } from 'amis-core';
-import {Html, Icon, TooltipWrapper} from 'amis-ui';
-import {FormOptionsSchema, SchemaTpl} from '../../Schema';
+import { Html, Icon, TooltipWrapper } from 'amis-ui';
+import { FormOptionsSchema, SchemaTpl } from '../../Schema';
 import intersectionWith from 'lodash/intersectionWith';
-import type {TooltipWrapperSchema} from '../TooltipWrapper';
-import type {Option} from 'amis-core';
-import {supportStatic} from './StaticHoc';
-import {reaction} from 'mobx';
+import type { TooltipWrapperSchema } from '../TooltipWrapper';
+import type { Option } from 'amis-core';
+import { supportStatic } from './StaticHoc';
+import { reaction } from 'mobx';
 
 /**
  * Picker
@@ -190,7 +190,7 @@ export default class PickerControl extends React.PureComponent<
   constructor(props: PickerProps) {
     super(props);
 
-    const {formInited, addHook, formItem} = props;
+    const { formInited, addHook, formItem } = props;
 
     const onIninted = async () => {
       await this.fetchOptions();
@@ -239,7 +239,7 @@ export default class PickerControl extends React.PureComponent<
 
   @autobind
   fetchOptions(): any {
-    const {value, formItem, valueField, labelField, source, data} = this.props;
+    const { value, formItem, valueField, labelField, source, data } = this.props;
     let selectedOptions: any;
 
     if (
@@ -248,7 +248,7 @@ export default class PickerControl extends React.PureComponent<
       ((selectedOptions = formItem.getSelectedOptions(value)) &&
         (!selectedOptions.length ||
           selectedOptions[0][valueField || 'value'] !==
-            selectedOptions[0][labelField || 'label']))
+          selectedOptions[0][labelField || 'label']))
     ) {
       return;
     }
@@ -389,7 +389,7 @@ export default class PickerControl extends React.PureComponent<
     const option = multiple ? items : items[0];
     const rendererEvent = await dispatchEvent(
       'change',
-      resolveEventData(this.props, {value, option, selectedItems: option})
+      resolveEventData(this.props, { value, option, selectedItems: option })
     );
     if (rendererEvent?.prevented) {
       return;
@@ -400,11 +400,11 @@ export default class PickerControl extends React.PureComponent<
 
   @autobind
   async handleItemClick(item: any) {
-    const {data, dispatchEvent} = this.props;
+    const { data, dispatchEvent } = this.props;
 
     const rendererEvent = await dispatchEvent(
       'itemClick',
-      createObject(data, {item})
+      createObject(data, { item })
     );
 
     if (rendererEvent?.prevented) {
@@ -442,7 +442,7 @@ export default class PickerControl extends React.PureComponent<
 
     const rendererEvent = await dispatchEvent(
       'change',
-      resolveEventData(this.props, {value, option, selectedItems: option})
+      resolveEventData(this.props, { value, option, selectedItems: option })
     );
     if (rendererEvent?.prevented) {
       return;
@@ -478,27 +478,41 @@ export default class PickerControl extends React.PureComponent<
   }
 
   @autobind
-  handleClick() {
+  handleClick(e?: React.MouseEvent) {
+    if (e) {
+      // 检查点击的目标是否是链接，如果是链接则允许默认行为
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'A' || target.closest('a')) {
+        // 对于链接，不拦截，让链接正常跳转
+        return;
+      }
+    }
+
+    // 如果组件被禁用，不执行打开操作
+    if (this.props.disabled) {
+      return;
+    }
+
     this.input.current && this.input.current.focus();
     this.open();
   }
 
   @autobind
   clearValue() {
-    const {onChange, resetValue} = this.props;
+    const { onChange, resetValue } = this.props;
 
     onChange(resetValue !== void 0 ? resetValue : '');
   }
 
   getOverflowConfig() {
-    const {overflowConfig} = this.props;
+    const { overflowConfig } = this.props;
 
     return merge(PickerControl.defaultProps.overflowConfig, overflowConfig);
   }
 
   @autobind
   handleSelect(selectedItems: Array<any>, unSelectedItems: Array<any>) {
-    const {selectedOptions, valueField} = this.props;
+    const { selectedOptions, valueField } = this.props;
     // 选择行后，crud 会给out连续多次事件，且selectedItems会变化，会导致初始化和点击无效
     // 过滤掉一些无用事件，否则会导致 value 错误
     if (
@@ -520,7 +534,7 @@ export default class PickerControl extends React.PureComponent<
         return aValue || bValue
           ? aValue === bValue
           : // selectedOptions 中有 Options 自动添加的 value 字段，所以去掉后才能比较
-            isEqual(omit(a, 'value'), omit(b, 'value'));
+          isEqual(omit(a, 'value'), omit(b, 'value'));
       }
     );
     if (
@@ -538,7 +552,7 @@ export default class PickerControl extends React.PureComponent<
    * 生成标签内容，支持自动链接功能
    */
   renderLabelContent(item: Option) {
-    const {labelField, labelTpl, env, labelUrlField, labelLinkStyle} =
+    const { labelField, labelTpl, env, labelUrlField, labelLinkStyle } =
       this.props;
 
     // 如果有 labelTpl，优先使用模板
@@ -564,9 +578,8 @@ export default class PickerControl extends React.PureComponent<
     }
 
     // 默认显示文本
-    return `${
-      getVariable(item, labelField || 'label') || getVariable(item, 'id')
-    }`;
+    return `${getVariable(item, labelField || 'label') || getVariable(item, 'id')
+      }`;
   }
 
   renderTag(item: Option, index: number) {
@@ -611,7 +624,10 @@ export default class PickerControl extends React.PureComponent<
           )}
           onClick={e => {
             e.stopPropagation();
-            this.removeItem(index);
+            // 如果组件被禁用，不执行删除操作
+            if (!disabled) {
+              this.removeItem(index);
+            }
           }}
         >
           ×
@@ -627,8 +643,17 @@ export default class PickerControl extends React.PureComponent<
             })
           )}
           onClick={e => {
+            // 检查点击的目标是否是链接，如果是链接则允许默认行为
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'A' || target.closest('a')) {
+              // 对于链接，不阻止默认行为，让链接正常跳转
+              return;
+            }
             e.stopPropagation();
-            this.handleItemClick(item);
+            // 如果组件被禁用，不执行项目点击操作
+            if (!disabled) {
+              this.handleItemClick(item);
+            }
           }}
         >
           {this.renderLabelContent(item)}
@@ -649,7 +674,7 @@ export default class PickerControl extends React.PureComponent<
       themeCss,
       css
     } = this.props;
-    const {maxTagCount, overflowTagPopover} = this.getOverflowConfig();
+    const { maxTagCount, overflowTagPopover } = this.getOverflowConfig();
     const totalCount = selectedOptions.length;
     let tags = selectedOptions;
     const enableOverflow =
@@ -665,7 +690,7 @@ export default class PickerControl extends React.PureComponent<
     if (enableOverflow) {
       tags = [
         ...selectedOptions.slice(0, maxTagCount),
-        {label: `+ ${totalCount - maxTagCount} ...`, value: '__overflow_tag__'}
+        { label: `+ ${totalCount - maxTagCount} ...`, value: '__overflow_tag__' }
       ];
     }
 
@@ -716,6 +741,19 @@ export default class PickerControl extends React.PureComponent<
                       id,
                       themeCss: themeCss || css
                     })}`}
+                    onClick={e => {
+                      // 检查点击的目标是否是链接，如果是链接则允许默认行为
+                      const target = e.target as HTMLElement;
+                      if (target.tagName === 'A' || target.closest('a')) {
+                        // 对于链接，不阻止默认行为，让链接正常跳转
+                        return;
+                      }
+                      e.stopPropagation();
+                      // 如果组件被禁用，不执行项目点击操作
+                      if (!disabled) {
+                        this.handleItemClick(item);
+                      }
+                    }}
                   >
                     {this.renderLabelContent(item)}
                   </span>
@@ -731,7 +769,7 @@ export default class PickerControl extends React.PureComponent<
   }
 
   @autobind
-  renderBody({popOverContainer}: any = {}) {
+  renderBody({ popOverContainer }: any = {}) {
     const {
       render,
       selectedOptions,
@@ -743,7 +781,7 @@ export default class PickerControl extends React.PureComponent<
       strictMode,
       testIdBuilder
     } = this.props;
-    const {maxTagCount, overflowTagPopoverInCRUD, displayPosition} =
+    const { maxTagCount, overflowTagPopoverInCRUD, displayPosition } =
       this.getOverflowConfig();
 
     return render('modal-body', this.state.schema, {
@@ -758,8 +796,8 @@ export default class PickerControl extends React.PureComponent<
       ref: this.crudRef,
       popOverContainer,
       ...(embed ||
-      (Array.isArray(displayPosition) && displayPosition.includes('crud'))
-        ? {maxTagCount, overflowTagPopover: overflowTagPopoverInCRUD}
+        (Array.isArray(displayPosition) && displayPosition.includes('crud'))
+        ? { maxTagCount, overflowTagPopover: overflowTagPopoverInCRUD }
         : {})
     }) as JSX.Element;
   }
@@ -793,10 +831,10 @@ export default class PickerControl extends React.PureComponent<
       testIdBuilder
     } = this.props;
     return (
-      <div className={cx(`PickerControl`, {'is-mobile': mobileUI}, className)}>
+      <div className={cx(`PickerControl`, { 'is-mobile': mobileUI }, className)}>
         {embed ? (
           <div className={cx('Picker')}>
-            {this.renderBody({popOverContainer})}
+            {this.renderBody({ popOverContainer })}
           </div>
         ) : (
           <div
@@ -980,4 +1018,4 @@ export default class PickerControl extends React.PureComponent<
   autoLoadOptionsFromSource: false,
   sizeMutable: false
 })
-export class PickerControlRenderer extends PickerControl {}
+export class PickerControlRenderer extends PickerControl { }
