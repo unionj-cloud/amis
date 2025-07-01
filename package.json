@@ -1,6 +1,7 @@
 {
   "name": "aisuda",
   "workspaces": [
+    "packages/amis-ui",
     "packages/amis",
     "packages/amis-editor"
   ],
