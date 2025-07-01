@@ -247,22 +247,28 @@ export default class PickerControl extends React.PureComponent<
   @autobind
   fetchOptions(): any {
     const { value, formItem, valueField, labelField, source, data } = this.props;
+
+    if (!source || !formItem) {
+      return;
+    }
+
+    // 使用 formItem.tmpValue 或 formItem.value 获取最新值，避免 React 异步更新导致的旧值问题
+    const currentValue = formItem.tmpValue !== undefined ? formItem.tmpValue : (formItem.value !== undefined ? formItem.value : value);
     let selectedOptions: any;
 
-    if (
-      !source ||
-      !formItem ||
-      ((selectedOptions = formItem.getSelectedOptions(value)) &&
-        (!selectedOptions.length ||
-          selectedOptions[0][valueField || 'value'] !==
-          selectedOptions[0][labelField || 'label']))
-    ) {
+    selectedOptions = formItem.getSelectedOptions(currentValue);
+    // 如果有选中项且选中项已有完整数据（value !== label 表示有完整的选项数据），则不需要重新加载
+    // 或者没有选中项，也不需要加载
+    if (selectedOptions &&
+      (!selectedOptions.length ||
+        selectedOptions[0][valueField || 'value'] !==
+        selectedOptions[0][labelField || 'label'])) {
       return;
     }
 
     const ctx = createObject(data, {
-      value: value,
-      [valueField || 'value']: value,
+      value: currentValue,
+      [valueField || 'value']: currentValue,
       op: 'loadOptions'
     });
 
