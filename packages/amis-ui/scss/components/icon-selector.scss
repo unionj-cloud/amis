@@ -127,13 +127,19 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    min-height: 400px;
+    min-height: 300px;
   }
 
   &-search-area {
-    padding: var(--gap-md);
-    border-bottom: 1px solid var(--borderColor);
-    background: var(--body-bg);
+    margin-top: -6px;
+    float: right;
+    margin-right: 8px;
+  }
+
+  &-pagination {
+    margin-top: 29px;
+    float: right;
+    margin-right: 4px;
   }
 
   &-body {
@@ -152,7 +158,9 @@
   &-main {
     flex: 1;
     overflow-y: auto;
-    padding: var(--gap-md);
+    padding: var(--gap-sm);
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
   &-loading {
@@ -214,7 +222,7 @@
   &-icon-grid {
     display: grid;
     gap: var(--gap-xs);
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(20, 1fr);
 
     @media (max-width: 768px) {
       grid-template-columns: repeat(6, 1fr);

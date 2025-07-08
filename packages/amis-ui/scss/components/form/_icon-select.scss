@@ -45,7 +45,38 @@
         min-height: 0;
         flex: 1;
         overflow: auto;
+        display: flex;
+        flex-direction: column;
       }
+    }
+  }
+
+  &-icon-list-wrapper {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-icon-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--IconSelect-sm-padding);
+  }
+
+  &-icon-grid {
+    display: grid;
+    grid-gap: 8px;
+  }
+
+  &-pagination {
+    flex-shrink: 0;
+    padding: 8px;
+    text-align: center;
+    border-top: 1px solid #eee;
+
+    &-info {
+      margin: 0 12px;
     }
   }
 
@@ -145,11 +176,12 @@
     padding: 0;
     margin: 0;
     display: flex;
-    overflow: hidden;
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-start;
     padding: var(--IconSelect-sm-padding);
+    overflow-y: auto;
+    max-height: 400px;
 
     &-empty {
       text-align: center;

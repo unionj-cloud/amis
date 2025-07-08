@@ -27,7 +27,7 @@ export class IconLoader {
     iconList?: string[];
   } = {}): Promise<IconItem[]> {
     const {
-      version = '5',
+      version = '4',
       cssUrl,
       category = 'FontAwesome',
       iconList
