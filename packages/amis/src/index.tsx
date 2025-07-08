@@ -87,6 +87,7 @@ import './renderers/Form/InputTable';
 import './renderers/Form/Picker';
 import './renderers/Form/IconPicker';
 import './renderers/Form/IconSelect';
+import './renderers/Form/IconSelector';
 import './renderers/Form/Formula';
 import './renderers/Form/FieldSet';
 import './renderers/Form/TabsTransfer';
@@ -168,13 +169,13 @@ import type {
   SchemaExpression,
   SchemaObject
 } from './Schema';
-import type {TableViewSchema, TrObject} from './renderers/TableView';
-import type {ActionSchema, ButtonSchema} from './renderers/Action';
-import type {CRUDCommonSchema} from './renderers/CRUD';
-import type {CRUD2Schema} from './renderers/CRUD2';
-import type {TabsSchema} from './renderers/Tabs';
-import {availableLanguages as EditorAvailableLanguages} from './renderers/Form/Editor';
-import type {Action} from './types';
+import type { TableViewSchema, TrObject } from './renderers/TableView';
+import type { ActionSchema, ButtonSchema } from './renderers/Action';
+import type { CRUDCommonSchema } from './renderers/CRUD';
+import type { CRUD2Schema } from './renderers/CRUD2';
+import type { TabsSchema } from './renderers/Tabs';
+import { availableLanguages as EditorAvailableLanguages } from './renderers/Form/Editor';
+import type { Action } from './types';
 export * from './renderers/Form/IconPickerIcons';
 export * from './renderers/Form/IconSelectStore';
 

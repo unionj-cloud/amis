@@ -1,0 +1,428 @@
+/**
+ * 图标选择器组件样式
+ */
+
+.#{$ns}IconSelectorControl {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+
+  &-input {
+    border: 1px solid var(--Form-input-borderColor);
+    border-radius: var(--Form-input-borderRadius);
+    padding: var(--Form-input-paddingY) var(--Form-input-paddingX);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--Form-input-height);
+    background: var(--Form-input-bg);
+    transition: all 0.2s ease;
+
+    &:hover:not(.disabled) {
+      border-color: var(--Form-input-onHover-borderColor);
+    }
+
+    &:focus-within {
+      border-color: var(--Form-input-onFocused-borderColor);
+      box-shadow: var(--Form-input-boxShadow);
+    }
+
+    &.disabled {
+      background: var(--Form-input-onDisabled-bg);
+      cursor: not-allowed;
+      color: var(--Form-input-onDisabled-color);
+      border-color: var(--Form-input-onDisabled-borderColor);
+    }
+  }
+
+  &-input-area {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+    flex: 1;
+    min-width: 0;
+  }
+
+  &-input-icon-show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+
+    i,
+    svg {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &-input-icon-name {
+    font-size: var(--Form-input-fontSize);
+    color: var(--Form-input-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  &-input-placeholder {
+    color: var(--Form-input-placeholderColor);
+    font-size: var(--Form-input-fontSize);
+    flex: 1;
+  }
+
+  &-clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    color: var(--Form-input-placeholderColor);
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--Form-input-color);
+    }
+
+    .icon {
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &-caret {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    color: var(--Form-input-placeholderColor);
+    font-size: 12px;
+    transition: transform 0.2s ease;
+
+    .#{$ns}IconSelectorControl-input:hover & {
+      color: var(--Form-input-color);
+    }
+  }
+
+  &-modal {
+    .#{$ns}Modal-dialog {
+      max-width: 800px;
+      width: 90vw;
+    }
+
+    .#{$ns}Modal-body {
+      padding: 0;
+      overflow: hidden;
+    }
+  }
+
+  &-modal-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 400px;
+  }
+
+  &-search-area {
+    padding: var(--gap-md);
+    border-bottom: 1px solid var(--borderColor);
+    background: var(--body-bg);
+  }
+
+  &-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  &-sidebar {
+    width: 200px;
+    border-right: 1px solid var(--borderColor);
+    overflow-y: auto;
+    background: var(--body-bg);
+  }
+
+  &-main {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--gap-md);
+  }
+
+  &-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    gap: var(--gap-md);
+    color: var(--text-muted);
+  }
+
+  &-no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--text-muted);
+    font-size: var(--fontSizeMd);
+  }
+
+  &-category-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-category-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--gap-sm) var(--gap-md);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid var(--borderColor);
+
+    &:hover {
+      background: var(--light);
+    }
+
+    &.active {
+      background: var(--primary);
+      color: var(--white);
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &-category-count {
+    font-size: var(--fontSizeSm);
+    opacity: 0.7;
+  }
+
+  &-icon-list {
+    width: 100%;
+  }
+
+  &-icon-grid {
+    display: grid;
+    gap: var(--gap-xs);
+    grid-template-columns: repeat(8, 1fr);
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(6, 1fr);
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  &-icon-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--borderColor);
+    border-radius: var(--borderRadius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--white);
+
+    &:hover {
+      background: var(--light);
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: var(--boxShadow);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    i,
+    svg {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: var(--text);
+    }
+  }
+
+  // 图标大小变体
+  &--size-sm {
+    .#{$ns}IconSelectorControl-input-icon-show {
+      width: 16px;
+      height: 16px;
+
+      i,
+      svg {
+        font-size: 12px;
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .#{$ns}IconSelectorControl-icon-item {
+      width: 32px;
+      height: 32px;
+
+      i,
+      svg {
+        font-size: 12px;
+        width: 12px;
+        height: 12px;
+      }
+    }
+  }
+
+  &--size-lg {
+    .#{$ns}IconSelectorControl-input-icon-show {
+      width: 24px;
+      height: 24px;
+
+      i,
+      svg {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .#{$ns}IconSelectorControl-icon-item {
+      width: 48px;
+      height: 48px;
+
+      i,
+      svg {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  // 响应式设计
+  @media (max-width: 768px) {
+    &-modal {
+      .#{$ns}Modal-dialog {
+        width: 95vw;
+        max-width: none;
+      }
+    }
+
+    &-body {
+      flex-direction: column;
+    }
+
+    &-sidebar {
+      width: 100%;
+      max-height: 120px;
+      border-right: none;
+      border-bottom: 1px solid var(--borderColor);
+    }
+
+    &-category-list {
+      flex-direction: row;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    &-category-item {
+      flex-shrink: 0;
+      border-bottom: none;
+      border-right: 1px solid var(--borderColor);
+
+      &:last-child {
+        border-right: none;
+      }
+    }
+  }
+}
+
+// 暗色主题适配
+@media (prefers-color-scheme: dark) {
+  .#{$ns}IconSelectorControl {
+    &-input {
+      background: var(--Form-input-bg);
+      color: var(--Form-input-color);
+    }
+
+    &-icon-item {
+      background: var(--Form-input-bg);
+      border-color: var(--Form-input-borderColor);
+
+      &:hover {
+        background: var(--Form-input-onHover-bg);
+      }
+
+      i,
+      svg {
+        color: var(--Form-input-color);
+      }
+    }
+
+    &-sidebar,
+    &-search-area {
+      background: var(--Form-input-bg);
+    }
+  }
+}
+
+// 高对比度主题适配
+@media (prefers-contrast: high) {
+  .#{$ns}IconSelectorControl {
+    &-input {
+      border-width: 2px;
+    }
+
+    &-icon-item {
+      border-width: 2px;
+
+      &:hover {
+        border-width: 3px;
+      }
+    }
+  }
+}
+
+// 动画效果
+@keyframes iconSelectorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.#{$ns}IconSelectorControl-modal-content {
+  animation: iconSelectorFadeIn 0.3s ease;
+}
+
+.#{$ns}IconSelectorControl-icon-item {
+  animation: iconSelectorFadeIn 0.3s ease;
+}
+
+// 打印样式
+@media print {
+  .#{$ns}IconSelectorControl {
+    &-modal {
+      display: none !important;
+    }
+
+    &-caret {
+      display: none;
+    }
+  }
+}

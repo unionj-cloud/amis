@@ -23,6 +23,9 @@ export * from './handleAction';
 export * from './helper';
 export * from './highlight';
 export * from './icon';
+export * from './IconRegistry';
+export * from './IconLoader';
+export * from './IconRegistryAPI';
 export * from './image';
 export * from './isPureVariable';
 export * from './json-schema-2-amis-schema';
@@ -62,4 +65,4 @@ export * from './math';
 
 import animation from './Animation';
 
-export {animation};
+export { animation };
