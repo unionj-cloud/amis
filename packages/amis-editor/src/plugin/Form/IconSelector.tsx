@@ -5,8 +5,8 @@ import {
   tipedLabel,
   undefinedPipeOut
 } from 'amis-editor-core';
-import { ValidatorTag } from '../../validator';
-import { getEventControlConfig } from '../../renderer/event-control/helper';
+import {ValidatorTag} from '../../validator';
+import {getEventControlConfig} from '../../renderer/event-control/helper';
 
 import type {
   EditorNodeType,
@@ -27,8 +27,8 @@ export class IconSelectorPlugin extends BasePlugin {
   // 组件名称
   name = '图标选择器';
   isBaseComponent = true;
-  icon = 'fa fa-star';
-  panelIcon = 'fa fa-star';
+  icon = 'fa fa-icons';
+  panelIcon = 'fa fa-icons';
   pluginIcon = 'icon-selector-plugin';
 
   panelTitle = '图标选择器';
@@ -38,7 +38,7 @@ export class IconSelectorPlugin extends BasePlugin {
   description = '图标选择器，支持FontAwesome、Iconify、自定义图标等多种图标库';
   docLink = '/amis/zh-CN/components/form/icon-selector';
   tags = ['表单项'];
-  searchKeywords = '图标选择器、图标、icon';
+  searchKeywords = '图标选择器、图标、icon、IconSelector';
 
   scaffold = {
     type: 'icon-selector',
@@ -48,16 +48,8 @@ export class IconSelectorPlugin extends BasePlugin {
   };
 
   previewSchema: any = {
-    type: 'form',
-    className: 'text-left',
-    mode: 'horizontal',
-    wrapWithPanel: false,
-    body: [
-      {
-        ...this.scaffold,
-        value: 'fa fa-star'
-      }
-    ]
+    ...this.scaffold,
+    value: 'fa fa-star'
   };
 
   // 事件定义
@@ -157,7 +149,7 @@ export class IconSelectorPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
+              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
               getSchemaTpl('formItemName', {
                 required: true
               }),
@@ -228,9 +220,9 @@ export class IconSelectorPlugin extends BasePlugin {
                 label: tipedLabel('图标大小', '设置图标显示大小'),
                 value: 'md',
                 options: [
-                  { label: '小', value: 'sm' },
-                  { label: '中', value: 'md' },
-                  { label: '大', value: 'lg' }
+                  {label: '小', value: 'sm'},
+                  {label: '中', value: 'md'},
+                  {label: '大', value: 'lg'}
                 ],
                 pipeOut: undefinedPipeOut
               },
@@ -276,11 +268,11 @@ export class IconSelectorPlugin extends BasePlugin {
                 joinValues: false,
                 extractValue: true,
                 options: [
-                  { label: 'FontAwesome', value: 'fontawesome' },
-                  { label: 'Iconify', value: 'iconify' },
-                  { label: '自定义图标', value: 'custom' },
-                  { label: 'Amis图标', value: 'amis' },
-                  { label: 'SVG图标', value: 'svg' }
+                  {label: 'FontAwesome', value: 'fontawesome'},
+                  {label: 'Iconify', value: 'iconify'},
+                  {label: '自定义图标', value: 'custom'},
+                  {label: 'Amis图标', value: 'amis'},
+                  {label: 'SVG图标', value: 'svg'}
                 ],
                 pipeOut: undefinedPipeOut
               }
@@ -406,7 +398,9 @@ export class IconSelectorPlugin extends BasePlugin {
   transformSchema(schema: any) {
     return {
       ...schema,
-      type: 'icon-selector'
+      type: 'icon-selector',
+      name: schema.name || 'icon',
+      label: schema.label || '图标'
     };
   }
 
@@ -525,4 +519,4 @@ export class IconSelectorPlugin extends BasePlugin {
   }
 }
 
-registerEditorPlugin(IconSelectorPlugin); 
+registerEditorPlugin(IconSelectorPlugin);

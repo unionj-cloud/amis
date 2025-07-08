@@ -6,18 +6,18 @@ import {
   tipedLabel,
   EditorManager
 } from 'amis-editor-core';
-import type { SchemaObject } from 'amis';
+import type {SchemaObject} from 'amis';
 import flatten from 'lodash/flatten';
-import { InputComponentName } from '../component/InputComponentName';
-import { FormulaDateType } from '../renderer/FormulaControl';
-import type { VariableItem } from 'amis-ui/src/components/formula/CodeEditor';
+import {InputComponentName} from '../component/InputComponentName';
+import {FormulaDateType} from '../renderer/FormulaControl';
+import type {VariableItem} from 'amis-ui/src/components/formula/CodeEditor';
 import reduce from 'lodash/reduce';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import keys from 'lodash/keys';
-import type { Schema } from 'amis';
+import type {Schema} from 'amis';
 
-import type { DSField } from '../builder';
+import type {DSField} from '../builder';
 
 /**
  * @deprecated 兼容当前组件的switch
@@ -45,7 +45,7 @@ setSchemaTpl('divider', {
  */
 setSchemaTpl(
   'withUnit',
-  (config: { name: string; label: string; control: any; unit: string }) => {
+  (config: {name: string; label: string; control: any; unit: string}) => {
     return {
       type: 'input-group',
       name: config.name,
@@ -94,7 +94,7 @@ setSchemaTpl('includeInherited', {
 
 setSchemaTpl('formItemName', (schema: object = {}, options: any) => {
   if (options) {
-    const { manager, context } = options;
+    const {manager, context} = options;
     if (manager) {
       const result = manager.getSimpleContextSchemas(context.node);
       const scopeId = result.scope.id;
@@ -229,7 +229,10 @@ setSchemaTpl('formItemName', (schema: object = {}, options: any) => {
               valueField: 'column_name'
             },
             source: {
-              url: '${window:location.origin}/${ls:extention_module_config.api_prefix}/v2/sys/columns?table_name=' + modelCode + `${includeInherited ? "&include_inherited=true" : ""}`,
+              url:
+                '${window:location.origin}/${ls:extention_module_config.api_prefix}/v2/sys/columns?table_name=' +
+                modelCode +
+                `${includeInherited ? '&include_inherited=true' : ''}`,
               // url: 'http://localhost:6060/ecodwork/lowcode/v2/sys/columns?table_name=' + modelCode + `${includeInherited ? "&include_inherited=true" : ""}`,
               method: 'get',
               requestAdaptor: '',
@@ -335,9 +338,9 @@ setSchemaTpl(
       config?.isForm
         ? null
         : {
-          label: '继承',
-          value: ''
-        }
+            label: '继承',
+            value: ''
+          }
     ].filter(i => i),
     pipeOut: (v: string) => (v ? v : undefined)
   })
@@ -642,7 +645,7 @@ setSchemaTpl('hint', {
 
 setSchemaTpl('icon', {
   label: '图标',
-  type: 'icon-picker',
+  type: 'icon-selector',
   name: 'icon',
   placeholder: '点击选择图标',
   clearable: true,
@@ -825,8 +828,8 @@ setSchemaTpl('selectDateRangeType', {
 
 setSchemaTpl(
   'optionsMenuTpl',
-  (config: { manager: EditorManager;[key: string]: any }) => {
-    const { manager, ...rest } = config;
+  (config: {manager: EditorManager; [key: string]: any}) => {
+    const {manager, ...rest} = config;
     // 设置 options 中变量集合
     function getOptionVars(that: any) {
       let schema = manager.store.valueWithoutHiddenProps;
@@ -849,7 +852,7 @@ setSchemaTpl(
         let optionItem = reduce(
           schema.options,
           function (result, item) {
-            return { ...result, ...item };
+            return {...result, ...item};
           },
           {}
         );
@@ -989,7 +992,7 @@ setSchemaTpl('onlyClassNameTab', (label = '外层') => {
     body: getSchemaTpl('collapseGroup', [
       {
         title: 'CSS类名',
-        body: [getSchemaTpl('className', { label })]
+        body: [getSchemaTpl('className', {label})]
       }
     ])
   };
@@ -1009,8 +1012,8 @@ setSchemaTpl('combo-container', (config: SchemaObject) => {
     }
     return {
       ...(config as any),
-      ...(itemsWrapperClassName ? { itemsWrapperClassName } : {}),
-      ...(itemClassName ? { itemClassName } : {})
+      ...(itemsWrapperClassName ? {itemsWrapperClassName} : {}),
+      ...(itemClassName ? {itemClassName} : {})
     };
   }
   return config;
@@ -1256,9 +1259,9 @@ setSchemaTpl('borderMode', {
     justify: true
   },
   options: [
-    { label: '全边框', value: 'full' },
-    { label: '半边框', value: 'half' },
-    { label: '无边框', value: 'none' }
+    {label: '全边框', value: 'full'},
+    {label: '半边框', value: 'half'},
+    {label: '无边框', value: 'none'}
   ],
   pipeIn: defaultValue('full')
 });
@@ -1294,7 +1297,7 @@ setSchemaTpl('onlyLeaf', {
 setSchemaTpl('clearValueOnHidden', () =>
   getSchemaTpl('switch', {
     type: 'switch',
-    horizontal: { left: 8, justify: true },
+    horizontal: {left: 8, justify: true},
     label: tipedLabel(
       '隐藏时删除字段',
       '当前表单项隐藏时，表单提交数据中会删除该表单项的值'
@@ -1513,7 +1516,7 @@ setSchemaTpl(
     visibleOn: boolean;
     label?: string;
   }) => {
-    const { name, visibleOn, label } = schema;
+    const {name, visibleOn, label} = schema;
     return getSchemaTpl('icon', {
       name: name,
       visibleOn,
@@ -1992,7 +1995,7 @@ setSchemaTpl('deferField', {
 
 setSchemaTpl(
   'signBtn',
-  (options: { label: string; name: string; icon: string }) => {
+  (options: {label: string; name: string; icon: string}) => {
     return {
       type: 'flex',
       justify: 'space-between',

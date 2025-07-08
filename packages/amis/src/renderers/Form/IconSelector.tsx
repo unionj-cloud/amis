@@ -1,7 +1,12 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { FormItem, FormControlProps, autobind } from 'amis-core';
-import { iconRegistryAPI, IconItem } from 'amis-core/src/utils/IconRegistryAPI';
-import { IconCategory } from 'amis-core/src/utils/IconRegistry';
+import React, {useState, useEffect, useMemo, useCallback} from 'react';
+import {
+  FormItem,
+  FormControlProps,
+  autobind,
+  iconRegistryAPI,
+  IconItem,
+  IconCategory
+} from 'amis-core';
 import {
   Modal,
   Button,
@@ -10,9 +15,8 @@ import {
   Icon,
   SpinnerExtraProps
 } from 'amis-ui';
-import { Icon as IconifyIcon } from '@iconify/react';
 import debounce from 'lodash/debounce';
-import { FormBaseControlSchema } from '../../Schema';
+import {FormBaseControlSchema} from '../../Schema';
 
 /**
  * 图标选择器控件
@@ -116,19 +120,26 @@ export default class IconSelectorControl extends React.PureComponent<
   private debouncedSearch: (value: string) => void;
   private changeListener: () => void;
 
-  static defaultProps: Pick<IconSelectorProps,
-    'noDataTip' | 'clearable' | 'maxHeight' | 'searchPlaceholder' |
-    'showPreview' | 'showIconName' | 'iconsPerRow' | 'iconSize'
+  static defaultProps: Pick<
+    IconSelectorProps,
+    | 'noDataTip'
+    | 'clearable'
+    | 'maxHeight'
+    | 'searchPlaceholder'
+    | 'showPreview'
+    | 'showIconName'
+    | 'iconsPerRow'
+    | 'iconSize'
   > = {
-      noDataTip: '暂无图标数据',
-      clearable: true,
-      maxHeight: 400,
-      searchPlaceholder: '搜索图标...',
-      showPreview: true,
-      showIconName: true,
-      iconsPerRow: 8,
-      iconSize: 'md'
-    };
+    noDataTip: '暂无图标数据',
+    clearable: true,
+    maxHeight: 400,
+    searchPlaceholder: '搜索图标...',
+    showPreview: true,
+    showIconName: true,
+    iconsPerRow: 8,
+    iconSize: 'md'
+  };
 
   state: IconSelectorState = {
     showModal: false,
@@ -145,7 +156,7 @@ export default class IconSelectorControl extends React.PureComponent<
 
     // 创建防抖搜索函数
     this.debouncedSearch = debounce((value: string) => {
-      this.setState({ searchValue: value });
+      this.setState({searchValue: value});
     }, 300);
 
     // 创建变化监听器
@@ -177,18 +188,16 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   async loadIcons() {
-    this.setState({ isLoading: true });
+    this.setState({isLoading: true});
 
     try {
       // 确保图标注册系统已初始化
       if (!iconRegistryAPI.isInitialized()) {
         // 如果没有初始化，使用默认配置初始化
         await iconRegistryAPI.initialize({
-          fontAwesome: { enabled: true },
-          iconify: [
-            { iconSet: 'ep', category: 'Element Plus' }
-          ],
-          amis: { enabled: true }
+          fontAwesome: {enabled: true},
+          iconify: [{iconSet: 'ep', category: 'Element Plus'}],
+          amis: {enabled: true}
         });
       }
 
@@ -221,7 +230,7 @@ export default class IconSelectorControl extends React.PureComponent<
     } catch (error) {
       console.error('Failed to load icons:', error);
     } finally {
-      this.setState({ isLoading: false });
+      this.setState({isLoading: false});
     }
   }
 
@@ -230,14 +239,14 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   updateSelectedIcon() {
-    const { value } = this.props;
-    const { allIcons } = this.state;
+    const {value} = this.props;
+    const {allIcons} = this.state;
 
     if (value && allIcons.length > 0) {
       const selectedIcon = allIcons.find(icon => icon.name === value);
-      this.setState({ selectedIcon });
+      this.setState({selectedIcon: selectedIcon || null});
     } else {
-      this.setState({ selectedIcon: null });
+      this.setState({selectedIcon: null});
     }
   }
 
@@ -249,7 +258,7 @@ export default class IconSelectorControl extends React.PureComponent<
     if (this.props.disabled) {
       return;
     }
-    this.setState({ showModal: true });
+    this.setState({showModal: true});
   }
 
   /**
@@ -260,7 +269,7 @@ export default class IconSelectorControl extends React.PureComponent<
     e.preventDefault();
     e.stopPropagation();
     this.props.onChange && this.props.onChange('');
-    this.setState({ selectedIcon: null });
+    this.setState({selectedIcon: null});
   }
 
   /**
@@ -302,7 +311,7 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   handleCategoryChange(categoryId: string) {
-    this.setState({ activeCategory: categoryId });
+    this.setState({activeCategory: categoryId});
   }
 
   /**
@@ -310,23 +319,21 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   renderIcon(icon: IconItem, size: string = '16px') {
-    const style = { fontSize: size };
+    const style = {fontSize: size};
 
     switch (icon.type) {
       case 'fontawesome':
         return <i className={icon.name} style={style} />;
       case 'iconify':
-        return <IconifyIcon icon={icon.name.replace(':', '/')} style={style} />;
+        // For iconify icons, we'll use a generic icon class for now
+        return <i className={`icon ${icon.name}`} style={style} />;
       case 'custom':
         return <i className={icon.name} style={style} />;
       case 'amis':
         return <i className={icon.name} style={style} />;
       case 'svg':
         return icon.svg ? (
-          <span
-            style={style}
-            dangerouslySetInnerHTML={{ __html: icon.svg }}
-          />
+          <span style={style} dangerouslySetInnerHTML={{__html: icon.svg}} />
         ) : (
           <i className={icon.name} style={style} />
         );
@@ -350,7 +357,7 @@ export default class IconSelectorControl extends React.PureComponent<
       iconSize
     } = this.props;
 
-    const { selectedIcon } = this.state;
+    const {selectedIcon} = this.state;
 
     const iconSizes = {
       sm: '14px',
@@ -387,7 +394,10 @@ export default class IconSelectorControl extends React.PureComponent<
           </span>
         )}
 
-        <Icon icon="chevron-down" className={`${ns}IconSelectorControl-caret`} />
+        <Icon
+          icon="chevron-down"
+          className={`${ns}IconSelectorControl-caret`}
+        />
       </div>
     );
   }
@@ -397,16 +407,17 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   renderCategoryList() {
-    const { classPrefix: ns } = this.props;
-    const { categories, activeCategory } = this.state;
+    const {classPrefix: ns} = this.props;
+    const {categories, activeCategory} = this.state;
 
     return (
       <div className={`${ns}IconSelectorControl-category-list`}>
         {categories.map(category => (
           <div
             key={category.id}
-            className={`${ns}IconSelectorControl-category-item ${activeCategory === category.id ? 'active' : ''
-              }`}
+            className={`${ns}IconSelectorControl-category-item ${
+              activeCategory === category.id ? 'active' : ''
+            }`}
             onClick={() => this.handleCategoryChange(category.id)}
           >
             {category.name}
@@ -424,8 +435,8 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   renderIconList() {
-    const { classPrefix: ns, iconsPerRow, iconSize } = this.props;
-    const { searchValue, activeCategory, categories, allIcons } = this.state;
+    const {classPrefix: ns, iconsPerRow, iconSize} = this.props;
+    const {searchValue, activeCategory, categories, allIcons} = this.state;
 
     // 获取要显示的图标
     let displayIcons: IconItem[] = [];
@@ -459,10 +470,7 @@ export default class IconSelectorControl extends React.PureComponent<
 
     return (
       <div className={`${ns}IconSelectorControl-icon-list`}>
-        <div
-          className={`${ns}IconSelectorControl-icon-grid`}
-          style={gridStyle}
-        >
+        <div className={`${ns}IconSelectorControl-icon-grid`} style={gridStyle}>
           {displayIcons.map((icon, index) => (
             <div
               key={`${icon.name}-${index}`}
@@ -483,8 +491,8 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   renderModalContent() {
-    const { classPrefix: ns, searchPlaceholder } = this.props;
-    const { isLoading, searchValue } = this.state;
+    const {classPrefix: ns, searchPlaceholder} = this.props;
+    const {isLoading, searchValue} = this.state;
 
     if (isLoading) {
       return (
@@ -502,7 +510,6 @@ export default class IconSelectorControl extends React.PureComponent<
             placeholder={searchPlaceholder}
             value={searchValue}
             onChange={this.handleSearchChange}
-            onClear={() => this.setState({ searchValue: '' })}
           />
         </div>
 
@@ -522,13 +529,15 @@ export default class IconSelectorControl extends React.PureComponent<
   }
 
   render() {
-    const { classPrefix: ns, disabled, maxHeight } = this.props;
-    const { showModal } = this.state;
+    const {classPrefix: ns, disabled, maxHeight} = this.props;
+    const {showModal} = this.state;
 
     return (
       <div className={`${ns}IconSelectorControl`}>
         <div
-          className={`${ns}IconSelectorControl-input ${disabled ? 'disabled' : ''}`}
+          className={`${ns}IconSelectorControl-input ${
+            disabled ? 'disabled' : ''
+          }`}
           onClick={this.handleClick}
         >
           {this.renderInputArea()}
@@ -543,7 +552,7 @@ export default class IconSelectorControl extends React.PureComponent<
           <Modal.Header>
             <Modal.Title>选择图标</Modal.Title>
           </Modal.Header>
-          <Modal.Body style={{ maxHeight }}>
+          <Modal.Body style={{maxHeight}}>
             {this.renderModalContent()}
           </Modal.Body>
           <Modal.Footer>
@@ -556,7 +565,6 @@ export default class IconSelectorControl extends React.PureComponent<
 }
 
 @FormItem({
-  type: 'icon-selector',
-  storeType: 'FormItemStore'
+  type: 'icon-selector'
 })
-export class IconSelectorControlRenderer extends IconSelectorControl { } 
+export class IconSelectorControlRenderer extends IconSelectorControl {}

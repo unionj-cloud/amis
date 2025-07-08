@@ -310,6 +310,7 @@ export type SchemaType =
   | 'hidden'
   | 'icon-picker'
   | 'icon-select'
+  | 'icon-selector'
   | 'input-image'
   | 'input-group'
   | 'list-select'
