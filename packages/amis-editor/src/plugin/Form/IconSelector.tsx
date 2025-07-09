@@ -5,8 +5,8 @@ import {
   tipedLabel,
   undefinedPipeOut
 } from 'amis-editor-core';
-import {ValidatorTag} from '../../validator';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
+import { ValidatorTag } from '../../validator';
+import { getEventControlConfig } from '../../renderer/event-control/helper';
 
 import type {
   EditorNodeType,
@@ -149,7 +149,7 @@ export class IconSelectorPlugin extends BasePlugin {
           {
             title: '基本',
             body: [
-              getSchemaTpl('layout:originPosition', {value: 'left-top'}),
+              getSchemaTpl('layout:originPosition', { value: 'left-top' }),
               getSchemaTpl('formItemName', {
                 required: true
               }),
@@ -199,15 +199,6 @@ export class IconSelectorPlugin extends BasePlugin {
                 label: tipedLabel('无数据提示', '没有图标数据时显示的提示'),
                 placeholder: '暂无图标数据',
                 pipeOut: undefinedPipeOut
-              },
-              {
-                type: 'input-number',
-                name: 'maxHeight',
-                label: tipedLabel('最大高度', '选择器弹窗的最大高度'),
-                placeholder: '400',
-                min: 200,
-                max: 800,
-                pipeOut: undefinedPipeOut
               }
             ]
           },
@@ -220,19 +211,10 @@ export class IconSelectorPlugin extends BasePlugin {
                 label: tipedLabel('图标大小', '设置图标显示大小'),
                 value: 'md',
                 options: [
-                  {label: '小', value: 'sm'},
-                  {label: '中', value: 'md'},
-                  {label: '大', value: 'lg'}
+                  { label: '小', value: 'sm' },
+                  { label: '中', value: 'md' },
+                  { label: '大', value: 'lg' }
                 ],
-                pipeOut: undefinedPipeOut
-              },
-              {
-                type: 'input-number',
-                name: 'iconsPerRow',
-                label: tipedLabel('每行图标数', '每行显示的图标数量'),
-                placeholder: '8',
-                min: 4,
-                max: 16,
                 pipeOut: undefinedPipeOut
               },
               {
@@ -254,26 +236,6 @@ export class IconSelectorPlugin extends BasePlugin {
                 name: 'defaultCategory',
                 label: tipedLabel('默认分类', '默认选中的图标分类'),
                 placeholder: 'all',
-                pipeOut: undefinedPipeOut
-              }
-            ]
-          },
-          {
-            title: '过滤',
-            body: [
-              {
-                type: 'checkboxes',
-                name: 'filterTypes',
-                label: tipedLabel('图标类型', '过滤显示的图标类型'),
-                joinValues: false,
-                extractValue: true,
-                options: [
-                  {label: 'FontAwesome', value: 'fontawesome'},
-                  {label: 'Iconify', value: 'iconify'},
-                  {label: '自定义图标', value: 'custom'},
-                  {label: 'Amis图标', value: 'amis'},
-                  {label: 'SVG图标', value: 'svg'}
-                ],
                 pipeOut: undefinedPipeOut
               }
             ]
@@ -466,13 +428,6 @@ export class IconSelectorPlugin extends BasePlugin {
           enum: ['sm', 'md', 'lg'],
           default: 'md'
         },
-        iconsPerRow: {
-          type: 'number',
-          title: '每行图标数',
-          minimum: 4,
-          maximum: 16,
-          default: 8
-        },
         showPreview: {
           type: 'boolean',
           title: '显示预览',
@@ -483,25 +438,10 @@ export class IconSelectorPlugin extends BasePlugin {
           title: '显示图标名',
           default: true
         },
-        filterTypes: {
-          type: 'array',
-          title: '过滤类型',
-          items: {
-            type: 'string',
-            enum: ['fontawesome', 'iconify', 'custom', 'amis', 'svg']
-          }
-        },
         defaultCategory: {
           type: 'string',
           title: '默认分类',
           default: 'all'
-        },
-        maxHeight: {
-          type: 'number',
-          title: '最大高度',
-          minimum: 200,
-          maximum: 800,
-          default: 400
         },
         searchPlaceholder: {
           type: 'string',

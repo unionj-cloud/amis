@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo, useCallback} from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   FormItem,
   FormControlProps,
@@ -16,8 +16,8 @@ import {
   SpinnerExtraProps
 } from 'amis-ui';
 import debounce from 'lodash/debounce';
-import {FormBaseControlSchema} from '../../Schema';
-import {Icon as Iconify} from '@iconify/react';
+import { FormBaseControlSchema } from '../../Schema';
+import { Icon as Iconify } from '@iconify/react';
 
 /**
  * 图标选择器控件
@@ -46,11 +46,6 @@ export interface IconSelectorControlSchema extends FormBaseControlSchema {
   clearable?: boolean;
 
   /**
-   * 下拉框最大高度
-   */
-  maxHeight?: number;
-
-  /**
    * 搜索框占位符
    */
   searchPlaceholder?: string;
@@ -66,19 +61,9 @@ export interface IconSelectorControlSchema extends FormBaseControlSchema {
   showIconName?: boolean;
 
   /**
-   * 每行显示的图标数量
-   */
-  iconsPerRow?: number;
-
-  /**
    * 图标大小
    */
   iconSize?: 'sm' | 'md' | 'lg';
-
-  /**
-   * 过滤图标类型
-   */
-  filterTypes?: Array<'fontawesome' | 'iconify' | 'custom' | 'amis' | 'svg'>;
 
   /**
    * 默认分类
@@ -102,7 +87,6 @@ export interface IconSelectorProps extends FormControlProps, SpinnerExtraProps {
   showIconName?: boolean;
   iconsPerRow?: number;
   iconSize?: 'sm' | 'md' | 'lg';
-  filterTypes?: Array<'fontawesome' | 'iconify' | 'custom' | 'amis' | 'svg'>;
   defaultCategory?: string;
   pageSize?: number;
 }
@@ -140,16 +124,16 @@ export default class IconSelectorControl extends React.PureComponent<
     | 'iconSize'
     | 'pageSize'
   > = {
-    noDataTip: '暂无图标数据',
-    clearable: true,
-    maxHeight: 400,
-    searchPlaceholder: '搜索图标...',
-    showPreview: true,
-    showIconName: true,
-    iconsPerRow: 12,
-    iconSize: 'md',
-    pageSize: 84
-  };
+      noDataTip: '暂无图标数据',
+      clearable: true,
+      maxHeight: 400,
+      searchPlaceholder: '搜索图标...',
+      showPreview: true,
+      showIconName: true,
+      iconsPerRow: 12,
+      iconSize: 'md',
+      pageSize: 84
+    };
 
   state: IconSelectorState = {
     showModal: false,
@@ -167,7 +151,7 @@ export default class IconSelectorControl extends React.PureComponent<
 
     // 创建防抖搜索函数
     this.debouncedSearch = debounce((value: string) => {
-      this.setState({searchValue: value, currentPage: 1});
+      this.setState({ searchValue: value, currentPage: 1 });
     }, 300);
 
     // 创建变化监听器
@@ -199,16 +183,16 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   async loadIcons() {
-    this.setState({isLoading: true});
+    this.setState({ isLoading: true });
 
     try {
       // 确保图标注册系统已初始化
       if (!iconRegistryAPI.isInitialized()) {
         // 如果没有初始化，使用默认配置初始化
         await iconRegistryAPI.initialize({
-          fontAwesome: {enabled: true},
-          iconify: [{iconSet: 'ep', category: 'Element Plus'}],
-          amis: {enabled: true}
+          fontAwesome: { enabled: true },
+          iconify: [{ iconSet: 'ep', category: 'Element Plus' }],
+          amis: { enabled: true }
         });
       }
 
@@ -216,24 +200,19 @@ export default class IconSelectorControl extends React.PureComponent<
       console.log('allIcons', allIcons);
       const categories = iconRegistryAPI.getCategories();
 
-      // 应用类型过滤
-      const filteredIcons = this.props.filterTypes
-        ? allIcons.filter(icon => this.props.filterTypes!.includes(icon.type))
-        : allIcons;
-
       // 添加"全部"分类
       const allCategories = [
         {
           name: '全部',
           id: 'all',
-          icons: filteredIcons
+          icons: allIcons
         },
         ...categories
       ];
 
       this.setState(
         {
-          allIcons: filteredIcons,
+          allIcons: allIcons,
           categories: allCategories,
           activeCategory: this.props.defaultCategory || 'all'
         },
@@ -242,7 +221,7 @@ export default class IconSelectorControl extends React.PureComponent<
     } catch (error) {
       console.error('Failed to load icons:', error);
     } finally {
-      this.setState({isLoading: false});
+      this.setState({ isLoading: false });
     }
   }
 
@@ -251,14 +230,14 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   updateSelectedIcon() {
-    const {value} = this.props;
-    const {allIcons} = this.state;
+    const { value } = this.props;
+    const { allIcons } = this.state;
 
     if (value && allIcons.length > 0) {
       const selectedIcon = allIcons.find(icon => icon.name === value);
-      this.setState({selectedIcon: selectedIcon || null});
+      this.setState({ selectedIcon: selectedIcon || null });
     } else {
-      this.setState({selectedIcon: null});
+      this.setState({ selectedIcon: null });
     }
   }
 
@@ -270,7 +249,7 @@ export default class IconSelectorControl extends React.PureComponent<
     if (this.props.disabled) {
       return;
     }
-    this.setState({showModal: true});
+    this.setState({ showModal: true });
   }
 
   /**
@@ -281,7 +260,7 @@ export default class IconSelectorControl extends React.PureComponent<
     e.preventDefault();
     e.stopPropagation();
     this.props.onChange && this.props.onChange('');
-    this.setState({selectedIcon: null});
+    this.setState({ selectedIcon: null });
   }
 
   /**
@@ -323,7 +302,7 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   handleCategoryChange(categoryId: string) {
-    this.setState({activeCategory: categoryId, currentPage: 1});
+    this.setState({ activeCategory: categoryId, currentPage: 1 });
   }
 
   /**
@@ -331,7 +310,7 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   setPage(page: number) {
-    this.setState({currentPage: page});
+    this.setState({ currentPage: page });
   }
 
   /**
@@ -339,20 +318,32 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   renderIcon(icon: IconItem, size: string = '16px') {
-    const style = {fontSize: size};
+    const iconSizeMap = {
+      sm: 14,
+      md: 16,
+      lg: 20
+    };
+
+    // 对于iconify图标，使用数值型的width和height属性
+    const iconifySize = typeof size === 'string' && size.endsWith('px')
+      ? parseInt(size.replace('px', ''))
+      : iconSizeMap[size as keyof typeof iconSizeMap] || 16;
+
+    console.log('iconifySize', iconifySize);
+    const style = { fontSize: size };
 
     switch (icon.type) {
       case 'fontawesome':
         return <i className={icon.name} style={style} />;
       case 'iconify':
-        return <Iconify icon={icon.name} style={style} />;
+        return <Iconify icon={icon.name} width={iconifySize} height={iconifySize} />;
       case 'custom':
         return <i className={icon.name} style={style} />;
       case 'amis':
         return <i className={icon.name} style={style} />;
       case 'svg':
         return icon.svg ? (
-          <span style={style} dangerouslySetInnerHTML={{__html: icon.svg}} />
+          <span style={style} dangerouslySetInnerHTML={{ __html: icon.svg }} />
         ) : (
           <i className={icon.name} style={style} />
         );
@@ -376,7 +367,7 @@ export default class IconSelectorControl extends React.PureComponent<
       iconSize
     } = this.props;
 
-    const {selectedIcon} = this.state;
+    const { selectedIcon } = this.state;
 
     const iconSizes = {
       sm: '14px',
@@ -392,25 +383,17 @@ export default class IconSelectorControl extends React.PureComponent<
           </div>
         )}
 
-        {showIconName && selectedIcon && (
-          <span className={`${ns}IconSelectorControl-input-icon-name`}>
-            {selectedIcon.displayName || selectedIcon.name}
-          </span>
-        )}
+        <span className={`${ns}IconSelectorControl-input-icon-name`}>
+          {showIconName && selectedIcon && (selectedIcon.displayName || selectedIcon.name)}
+        </span>
 
         {clearable && !disabled && selectedIcon && (
           <a
             onClick={this.handleClear}
-            className={`${ns}IconSelectorControl-clear`}
+            className={`${ns}Select-clear`}
           >
             <Icon icon="input-clear" className="icon" />
           </a>
-        )}
-
-        {!selectedIcon && placeholder && (
-          <span className={`${ns}IconSelectorControl-input-placeholder`}>
-            {placeholder}
-          </span>
         )}
 
         <Icon
@@ -426,17 +409,16 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   renderCategoryList() {
-    const {classPrefix: ns} = this.props;
-    const {categories, activeCategory} = this.state;
+    const { classPrefix: ns } = this.props;
+    const { categories, activeCategory } = this.state;
 
     return (
       <div className={`${ns}IconSelectorControl-category-list`}>
         {categories.map(category => (
           <div
             key={category.id}
-            className={`${ns}IconSelectorControl-category-item ${
-              activeCategory === category.id ? 'active' : ''
-            }`}
+            className={`${ns}IconSelectorControl-category-item ${activeCategory === category.id ? 'active' : ''
+              }`}
             onClick={() => this.handleCategoryChange(category.id)}
           >
             {category.name}
@@ -454,8 +436,8 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   renderIconList() {
-    const {classPrefix: ns, iconsPerRow, iconSize, pageSize = 120} = this.props;
-    const {searchValue, activeCategory, categories, allIcons, currentPage} =
+    const { classPrefix: ns, iconsPerRow, iconSize, pageSize = 120 } = this.props;
+    const { searchValue, activeCategory, categories, allIcons, currentPage } =
       this.state;
 
     // 获取要显示的图标
@@ -545,8 +527,8 @@ export default class IconSelectorControl extends React.PureComponent<
    */
   @autobind
   renderModalContent() {
-    const {classPrefix: ns, searchPlaceholder} = this.props;
-    const {isLoading, searchValue} = this.state;
+    const { classPrefix: ns, searchPlaceholder } = this.props;
+    const { isLoading, searchValue } = this.state;
 
     if (isLoading) {
       return (
@@ -581,14 +563,13 @@ export default class IconSelectorControl extends React.PureComponent<
       maxHeight,
       searchPlaceholder
     } = this.props;
-    const {showModal, searchValue} = this.state;
+    const { showModal, searchValue } = this.state;
 
     return (
       <div className={`${ns}IconSelectorControl`}>
         <div
-          className={`${ns}IconSelectorControl-input ${
-            disabled ? 'disabled' : ''
-          }`}
+          className={`${ns}IconSelectorControl-input ${disabled ? 'disabled' : ''
+            }`}
           onClick={this.handleClick}
         >
           {this.renderInputArea()}
@@ -612,7 +593,7 @@ export default class IconSelectorControl extends React.PureComponent<
               </div>
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body style={{maxHeight}}>
+          <Modal.Body style={{ maxHeight }}>
             {this.renderModalContent()}
           </Modal.Body>
           <Modal.Footer>
@@ -627,4 +608,4 @@ export default class IconSelectorControl extends React.PureComponent<
 @FormItem({
   type: 'icon-selector'
 })
-export class IconSelectorControlRenderer extends IconSelectorControl {}
+export class IconSelectorControlRenderer extends IconSelectorControl { }
