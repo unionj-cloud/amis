@@ -251,43 +251,12 @@ export class IconSelectorPlugin extends BasePlugin {
       },
       {
         title: '外观',
-        body: getSchemaTpl('collapseGroup', [
-          getSchemaTpl('style:formItem', {
-            renderer: context.info.renderer,
-            schema: [
-              getSchemaTpl('style:classNames', {
-                schema: [
-                  getSchemaTpl('className', {
-                    label: '整体',
-                    name: 'className'
-                  }),
-                  getSchemaTpl('className', {
-                    label: '输入框',
-                    name: 'inputClassName'
-                  }),
-                  getSchemaTpl('className', {
-                    label: '标签',
-                    name: 'labelClassName'
-                  })
-                ]
-              })
-            ]
-          }),
-          getSchemaTpl('style:others', [
-            getSchemaTpl('style:font', {
-              label: '文字',
-              name: 'style'
-            }),
-            getSchemaTpl('style:padding', {
-              label: '内边距',
-              name: 'style'
-            }),
-            getSchemaTpl('style:margin', {
-              label: '外边距',
-              name: 'style'
-            })
+        body: [
+          getSchemaTpl('collapseGroup', [
+            getSchemaTpl('style:formItem', { renderer: context.info.renderer }),
+            getSchemaTpl('style:classNames')
           ])
-        ])
+        ]
       },
       {
         title: '事件',
