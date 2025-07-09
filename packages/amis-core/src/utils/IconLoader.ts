@@ -3,7 +3,10 @@
  * 支持从不同来源加载图标数据
  */
 
-import { iconRegistry, IconItem } from './IconRegistry';
+import {iconRegistry, IconItem} from './IconRegistry';
+import {amisIconfont} from './amisIconfont';
+import {elementPlusIcon} from './elementPlusIcon';
+import {fontawesome4} from './fontawesome4';
 
 export class IconLoader {
   private static instance: IconLoader;
@@ -20,20 +23,17 @@ export class IconLoader {
    * 加载 FontAwesome 图标
    * @param options 选项
    */
-  async loadFontAwesome(options: {
-    version?: '4' | '5' | '6';
-    cssUrl?: string;
-    category?: string;
-    iconList?: string[];
-  } = {}): Promise<IconItem[]> {
-    const {
-      version = '4',
-      cssUrl,
-      category = 'FontAwesome',
-      iconList
-    } = options;
+  async loadFontAwesome(
+    options: {
+      version?: '4' | '5' | '6';
+      cssUrl?: string;
+      category?: string;
+      iconList?: string[];
+    } = {}
+  ): Promise<IconItem[]> {
+    const {version = '4', category = 'FontAwesome'} = options;
 
-    const sourceKey = `fa-${version}-${cssUrl || 'default'}`;
+    const sourceKey = `fa-${version}`;
 
     if (this.loadedSources.has(sourceKey)) {
       return iconRegistry.getIconsByCategory(category);
@@ -42,23 +42,14 @@ export class IconLoader {
     try {
       let iconNames: string[] = [];
 
-      if (iconList) {
-        // 使用提供的图标列表
-        iconNames = iconList;
-      } else if (cssUrl) {
-        // 从CSS文件解析图标
-        const response = await fetch(cssUrl);
-        const cssText = await response.text();
+      // 从CSS文件解析图标
+      const cssText = fontawesome4;
 
-        const matches = cssText.match(/\.fa-([a-zA-Z0-9-]+):before/g);
-        if (matches) {
-          iconNames = matches
-            .map(match => match.replace('.fa-', '').replace(':before', ''))
-            .filter(name => name !== 'fa'); // 过滤掉基础类名
-        }
-      } else {
-        // 使用预定义的常用图标列表
-        iconNames = this.getCommonFontAwesomeIcons();
+      const matches = cssText.match(/\.fa-([a-zA-Z0-9-]+):before/g);
+      if (matches) {
+        iconNames = matches
+          .map(match => match.replace('.fa-', '').replace(':before', ''))
+          .filter(name => name !== 'fa'); // 过滤掉基础类名
       }
 
       // 注册图标
@@ -81,16 +72,15 @@ export class IconLoader {
    * @param iconSet 图标集名称
    * @param options 选项
    */
-  async loadIconify(iconSet: string, options: {
-    iconList?: string[];
-    category?: string;
-    apiUrl?: string;
-  } = {}): Promise<IconItem[]> {
-    const {
-      iconList,
-      category = `Iconify ${iconSet.toUpperCase()}`,
-      apiUrl = 'https://api.iconify.design'
-    } = options;
+  async loadIconify(
+    iconSet: string,
+    options: {
+      iconList?: string[];
+      category?: string;
+      apiUrl?: string;
+    } = {}
+  ): Promise<IconItem[]> {
+    const {iconList, category = `Iconify ${iconSet.toUpperCase()}`} = options;
 
     const sourceKey = `iconify-${iconSet}`;
 
@@ -101,22 +91,10 @@ export class IconLoader {
     try {
       let iconNames: string[] = [];
 
-      if (iconList) {
-        // 使用提供的图标列表
-        iconNames = iconList;
-      } else {
-        // 从 Iconify API 获取图标列表
-        try {
-          const response = await fetch(`${apiUrl}/collection?prefix=${iconSet}`);
-          const data = await response.json();
+      const data = JSON.parse(elementPlusIcon);
 
-          if (data && data.uncategorized) {
-            iconNames = data.uncategorized.slice(0, 100); // 限制数量
-          }
-        } catch (apiError) {
-          console.warn('Failed to fetch from Iconify API, using fallback icons');
-          iconNames = this.getCommonIconifyIcons(iconSet);
-        }
+      if (data && data.uncategorized) {
+        iconNames = data.uncategorized;
       }
 
       // 注册图标
@@ -137,9 +115,12 @@ export class IconLoader {
    * @param jsonUrl 图标JSON文件URL
    * @param options 选项
    */
-  async loadCustomIcons(jsonUrl: string, options: {
-    category?: string;
-  } = {}): Promise<IconItem[]> {
+  async loadCustomIcons(
+    jsonUrl: string,
+    options: {
+      category?: string;
+    } = {}
+  ): Promise<IconItem[]> {
     const sourceKey = `custom-${jsonUrl}`;
 
     if (this.loadedSources.has(sourceKey)) {
@@ -157,7 +138,9 @@ export class IconLoader {
         });
 
         this.loadedSources.add(sourceKey);
-        return iconRegistry.getIconsByCategory(options.category || iconData.name);
+        return iconRegistry.getIconsByCategory(
+          options.category || iconData.name
+        );
       }
 
       return [];
@@ -171,38 +154,36 @@ export class IconLoader {
    * 加载 Amis 内置图标
    * @param options 选项
    */
-  async loadAmisIcons(options: {
-    cssUrl?: string;
-    category?: string;
-  } = {}): Promise<IconItem[]> {
-    const {
-      cssUrl = '/node_modules/amis/sdk/iconfont.css',
-      category = 'Amis'
-    } = options;
+  async loadAmisIcons(
+    options: {
+      cssUrl?: string;
+      category?: string;
+    } = {}
+  ): Promise<IconItem[]> {
+    const {category = 'Amis'} = options;
 
-    const sourceKey = `amis-${cssUrl}`;
+    const sourceKey = `amis`;
 
     if (this.loadedSources.has(sourceKey)) {
       return iconRegistry.getIconsByCategory(category);
     }
 
     try {
-      const response = await fetch(cssUrl);
-      const cssText = await response.text();
+      const cssText = amisIconfont;
 
-      const matches = cssText.match(/\.iconfont-([a-zA-Z0-9-]+):before/g);
+      const matches = cssText.match(/\.icon-([a-zA-Z0-9-]+):before/g);
       let iconNames: string[] = [];
+      const invalidIcons = ['.icon-tm-m:before', '.icon-verify-m:before'];
 
       if (matches) {
-        iconNames = matches.map(match => match.replace('.iconfont-', '').replace(':before', ''));
-      } else {
-        // 使用预定义的Amis图标列表
-        iconNames = this.getCommonAmisIcons();
+        iconNames = matches
+          .filter(match => !invalidIcons.includes(match))
+          .map(match => match.replace('.icon-', '').replace(':before', ''));
       }
 
       // 手动注册Amis图标
       const icons: IconItem[] = iconNames.map(iconName => ({
-        name: `iconfont-${iconName}`,
+        name: `iconfont icon-${iconName}`,
         type: 'amis',
         category,
         displayName: iconName.replace(/-/g, ' '),
@@ -223,25 +204,27 @@ export class IconLoader {
    * 批量加载所有图标
    * @param sources 图标源配置
    */
-  async loadAllIcons(sources: {
-    fontAwesome?: {
-      version?: '4' | '5' | '6';
-      cssUrl?: string;
-      iconList?: string[];
-    };
-    iconify?: Array<{
-      iconSet: string;
-      iconList?: string[];
-      category?: string;
-    }>;
-    custom?: Array<{
-      jsonUrl: string;
-      category?: string;
-    }>;
-    amis?: {
-      cssUrl?: string;
-    };
-  } = {}): Promise<{
+  async loadAllIcons(
+    sources: {
+      fontAwesome?: {
+        version?: '4' | '5' | '6';
+        cssUrl?: string;
+        iconList?: string[];
+      };
+      iconify?: Array<{
+        iconSet: string;
+        iconList?: string[];
+        category?: string;
+      }>;
+      custom?: Array<{
+        jsonUrl: string;
+        category?: string;
+      }>;
+      amis?: {
+        cssUrl?: string;
+      };
+    } = {}
+  ): Promise<{
     fontAwesome: IconItem[];
     iconify: IconItem[];
     custom: IconItem[];
@@ -260,8 +243,9 @@ export class IconLoader {
     // 加载 FontAwesome
     if (sources.fontAwesome) {
       loadPromises.push(
-        this.loadFontAwesome(sources.fontAwesome)
-          .then(icons => { results.fontAwesome = icons; })
+        this.loadFontAwesome(sources.fontAwesome).then(icons => {
+          results.fontAwesome = icons;
+        })
       );
     }
 
@@ -269,8 +253,9 @@ export class IconLoader {
     if (sources.iconify) {
       sources.iconify.forEach(config => {
         loadPromises.push(
-          this.loadIconify(config.iconSet, config)
-            .then(icons => { results.iconify.push(...icons); })
+          this.loadIconify(config.iconSet, config).then(icons => {
+            results.iconify.push(...icons);
+          })
         );
       });
     }
@@ -279,8 +264,9 @@ export class IconLoader {
     if (sources.custom) {
       sources.custom.forEach(config => {
         loadPromises.push(
-          this.loadCustomIcons(config.jsonUrl, config)
-            .then(icons => { results.custom.push(...icons); })
+          this.loadCustomIcons(config.jsonUrl, config).then(icons => {
+            results.custom.push(...icons);
+          })
         );
       });
     }
@@ -288,8 +274,9 @@ export class IconLoader {
     // 加载 Amis 图标
     if (sources.amis) {
       loadPromises.push(
-        this.loadAmisIcons(sources.amis)
-          .then(icons => { results.amis = icons; })
+        this.loadAmisIcons(sources.amis).then(icons => {
+          results.amis = icons;
+        })
       );
     }
 
@@ -298,64 +285,85 @@ export class IconLoader {
   }
 
   /**
-   * 获取预定义的常用 FontAwesome 图标
-   */
-  private getCommonFontAwesomeIcons(): string[] {
-    return [
-      'home', 'user', 'search', 'heart', 'star', 'edit', 'delete', 'save',
-      'download', 'upload', 'settings', 'info', 'warning', 'error', 'check',
-      'times', 'plus', 'minus', 'arrow-up', 'arrow-down', 'arrow-left', 'arrow-right',
-      'chevron-up', 'chevron-down', 'chevron-left', 'chevron-right',
-      'caret-up', 'caret-down', 'caret-left', 'caret-right',
-      'bars', 'list', 'table', 'th', 'th-list', 'calendar', 'clock',
-      'envelope', 'phone', 'map-marker', 'link', 'share', 'print',
-      'file', 'folder', 'image', 'video', 'music', 'camera',
-      'lock', 'unlock', 'key', 'shield', 'eye', 'eye-slash',
-      'thumbs-up', 'thumbs-down', 'like', 'comment', 'share-alt',
-      'bell', 'flag', 'bookmark', 'tag', 'tags', 'quote-left'
-    ];
-  }
-
-  /**
    * 获取预定义的常用 Iconify 图标
    */
   private getCommonIconifyIcons(iconSet: string): string[] {
     const commonIcons: Record<string, string[]> = {
-      'ep': [
-        'arrow-down', 'arrow-up', 'arrow-left', 'arrow-right',
-        'chat-dot-round', 'caret-bottom', 'close', 'search',
-        'user', 'setting', 'home', 'folder', 'document',
-        'edit', 'delete', 'plus', 'minus', 'check', 'times'
+      ep: [
+        'arrow-down',
+        'arrow-up',
+        'arrow-left',
+        'arrow-right',
+        'chat-dot-round',
+        'caret-bottom',
+        'close',
+        'search',
+        'user',
+        'setting',
+        'home',
+        'folder',
+        'document',
+        'edit',
+        'delete',
+        'plus',
+        'minus',
+        'check',
+        'times'
       ],
-      'mdi': [
-        'home', 'account', 'magnify', 'heart', 'star', 'pencil',
-        'delete', 'content-save', 'download', 'upload', 'cog',
-        'information', 'alert', 'check', 'close', 'plus', 'minus'
+      mdi: [
+        'home',
+        'account',
+        'magnify',
+        'heart',
+        'star',
+        'pencil',
+        'delete',
+        'content-save',
+        'download',
+        'upload',
+        'cog',
+        'information',
+        'alert',
+        'check',
+        'close',
+        'plus',
+        'minus'
       ],
-      'heroicons': [
-        'home', 'user', 'search', 'heart', 'star', 'pencil',
-        'trash', 'document', 'folder', 'cog', 'information-circle',
-        'exclamation-triangle', 'check', 'x', 'plus', 'minus'
+      heroicons: [
+        'home',
+        'user',
+        'search',
+        'heart',
+        'star',
+        'pencil',
+        'trash',
+        'document',
+        'folder',
+        'cog',
+        'information-circle',
+        'exclamation-triangle',
+        'check',
+        'x',
+        'plus',
+        'minus'
       ]
     };
 
-    return commonIcons[iconSet] || [
-      'home', 'user', 'search', 'heart', 'star', 'edit',
-      'delete', 'save', 'download', 'upload', 'settings'
-    ];
-  }
-
-  /**
-   * 获取预定义的常用 Amis 图标
-   */
-  private getCommonAmisIcons(): string[] {
-    return [
-      'copy', 'delete', 'edit', 'save', 'search', 'setting',
-      'plus', 'minus', 'close', 'check', 'arrow-up', 'arrow-down',
-      'arrow-left', 'arrow-right', 'home', 'user', 'folder',
-      'file', 'image', 'video', 'audio', 'link', 'share',
-      'print', 'download', 'upload', 'refresh', 'loading'
-    ];
+    return (
+      commonIcons[iconSet] || [
+        'home',
+        'user',
+        'search',
+        'heart',
+        'star',
+        'edit',
+        'delete',
+        'save',
+        'download',
+        'upload',
+        'settings'
+      ]
+    );
   }
 
   /**
@@ -380,9 +388,7 @@ export class IconLoader {
       fontAwesome: {
         version: '5'
       },
-      iconify: [
-        { iconSet: 'ep', category: 'Element Plus' }
-      ],
+      iconify: [{iconSet: 'ep', category: 'Element Plus'}],
       amis: {}
     });
   }
@@ -392,4 +398,4 @@ export class IconLoader {
 export const iconLoader = IconLoader.getInstance();
 
 // 导出类型和实例
-export default iconLoader; 
+export default iconLoader;
