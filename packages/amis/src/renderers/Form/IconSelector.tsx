@@ -5,7 +5,8 @@ import {
   autobind,
   iconRegistryAPI,
   IconItem,
-  IconCategory
+  IconCategory,
+  setThemeClassName
 } from 'amis-core';
 import {
   Modal,
@@ -359,12 +360,18 @@ export default class IconSelectorControl extends React.PureComponent<
   renderInputArea() {
     const {
       classPrefix: ns,
+      classnames: cx,
       disabled,
       placeholder,
       clearable,
       showPreview,
       showIconName,
-      iconSize
+      iconSize,
+      id,
+      themeCss,
+      css,
+      testIdBuilder,
+      translate: __
     } = this.props;
 
     const { selectedIcon } = this.state;
@@ -376,9 +383,17 @@ export default class IconSelectorControl extends React.PureComponent<
     };
 
     return (
-      <div className={`${ns}IconSelectorControl-input-area`}>
+      <div className={cx(`${ns}IconSelectorControl-input-area Picker`, {
+        'is-disabled': disabled
+      })}>
+        {!selectedIcon && placeholder ? (
+          <div className={cx(`${ns}IconSelectorControl-placeholder`)}>
+            {__(placeholder)}
+          </div>
+        ) : null}
+
         {showPreview && selectedIcon && (
-          <div className={`${ns}IconSelectorControl-input-icon-show`}>
+          <div className={cx(`${ns}IconSelectorControl-input-icon-show`)}>
             {this.renderIcon(selectedIcon, iconSizes[iconSize || 'md'])}
           </div>
         )}
@@ -390,16 +405,33 @@ export default class IconSelectorControl extends React.PureComponent<
         {clearable && !disabled && selectedIcon && (
           <a
             onClick={this.handleClear}
-            className={`${ns}Select-clear`}
+            className={cx(`${ns}Picker-clear`)}
           >
             <Icon icon="input-clear" className="icon" />
           </a>
         )}
 
-        <Icon
-          icon="chevron-down"
-          className={`${ns}IconSelectorControl-caret`}
-        />
+        <span
+          onClick={disabled ? undefined : this.handleClick}
+          className={cx('Picker-btn', {
+            'is-disabled': disabled
+          })}
+          {...testIdBuilder?.getChild('icon-picker-open-btn').getTestId()}
+        >
+          <Icon
+            icon="window-restore"
+            className={cx(
+              'icon',
+              setThemeClassName({
+                ...this.props,
+                name: 'pickIconClassName',
+                id,
+                themeCss: themeCss || css
+              })
+            )}
+            iconContent="Picker-icon"
+          />
+        </span>
       </div>
     );
   }
@@ -506,7 +538,7 @@ export default class IconSelectorControl extends React.PureComponent<
             >
               上一页
             </Button>
-            <span className={`${ns}IconSelectorControl-pagination-info`}>
+            <span className={`${ns}IconSelectorControl-pagination-info`} style={{ padding: '0 4px' }}>
               {page} / {totalPages}
             </span>
             <Button

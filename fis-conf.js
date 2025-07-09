@@ -359,7 +359,9 @@ fis.hook('commonjs', {
   extList: ['.js', '.jsx', '.tsx', '.ts', '.cjs', '.mjs'],
   paths: {
     'monaco-editor': '/examples/loadMonacoEditor'
-  }
+  },
+  // 排除 @iconify/react 包，避免在 SDK 中被处理
+  ignoreDependencies: ['@iconify/react']
 });
 
 fis.match('_*.scss', {
@@ -542,7 +544,8 @@ if (fis.project.currentMedia() === 'publish-sdk') {
         '!punycode/**',
         '!office-viewer/**',
         '!numfmt/**',
-        '!amis-formula/lib/doc.js'
+        '!amis-formula/lib/doc.js',
+        '!@iconify/react/**'
       ],
 
       'rich-text.js': [
@@ -621,7 +624,8 @@ if (fis.project.currentMedia() === 'publish-sdk') {
         '!markdown-it/**',
         '!markdown-it-html5-media/**',
         '!office-viewer/**',
-        '!numfmt/**'
+        '!numfmt/**',
+        '!@iconify/react/**'
       ]
     }),
     postpackager: [

@@ -7,6 +7,15 @@
   display: inline-block;
   width: 100%;
 
+  &-placeholder {
+    color: var(--Pick-base-placeholder-color);
+    font-size: var(--Pick-base-placeholder-fontSize);
+    font-weight: var(--Pick-base-placeholder-fontWeight);
+    user-select: none;
+    position: absolute;
+    line-height: var(--Form-input-lineHeight);
+  }
+
   &-input {
     border: 1px solid var(--Form-input-borderColor);
     border-radius: var(--Form-input-borderRadius);
@@ -18,6 +27,7 @@
     min-height: var(--Form-input-height);
     background: var(--Form-input-bg);
     transition: all 0.2s ease;
+    padding-right: 0;
 
     &:hover:not(.disabled) {
       border-color: var(--Form-input-onHover-borderColor);

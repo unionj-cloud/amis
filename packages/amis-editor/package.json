@@ -46,12 +46,12 @@
     "amis-theme-editor-helper": "*",
     "i18n-runtime": "*",
     "lodash": "^4.17.15",
-    "mobx-state-tree": "^3.17.3"
+    "mobx-state-tree": "^3.17.3",
+    "@iconify/react": "^6.0.0"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^6.1.1",
     "@iconify-icons/ep": "^1.2.12",
-    "@iconify/react": "^6.0.0",
     "@rollup/plugin-commonjs": "^22.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
