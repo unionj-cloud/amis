@@ -1,0 +1,84 @@
+// .#{$ns}PageHeader {
+//   display: flex !important;
+//   align-items: center;
+//   height: 44px;
+//   width: 100%;
+//   line-height: 24px;
+//   padding: 0 var(--gap-lg);
+//   background: var(--white);
+//   border-bottom: 1px solid #dadfe6;
+//   box-sizing: border-box;
+//   white-space: nowrap;
+//   overflow: hidden;
+//   flex-wrap: nowrap !important;
+//   flex-direction: row !important;
+
+//   // 确保所有直接子元素都在一行内显示
+//   > * {
+//     flex-shrink: 0;
+//     white-space: nowrap;
+//   }
+
+//   &-left {
+//     display: flex !important;
+//     align-items: center;
+//     flex-shrink: 0;
+//     white-space: nowrap;
+//     flex-wrap: nowrap !important;
+//     flex-direction: row !important;
+//   }
+
+//   &-back {
+//     margin-right: var(--gap-md);
+//     display: flex;
+//     align-items: center;
+//     flex-shrink: 0;
+//   }
+
+//   &-backIcon {
+//     cursor: pointer;
+//     font-size: 18px;
+//     color: var(--text-color);
+//     display: flex;
+//     align-items: center;
+//     flex-shrink: 0;
+
+//     &:hover {
+//       color: var(--primary);
+//     }
+//   }
+
+//   &-titleBody {
+//     display: flex;
+//     align-items: center;
+//     margin-right: var(--gap-lg);
+//     flex-shrink: 0;
+//     white-space: nowrap;
+//     flex-wrap: nowrap;
+
+//     .#{$ns}PageHeader-title {
+//       font-size: var(--fontSizeLg);
+//       font-weight: var(--fontWeightBold);
+//       color: var(--text-color);
+//       margin: 0;
+//       white-space: nowrap;
+//     }
+//   }
+
+//   &-divider {
+//     width: 1px;
+//     height: 20px;
+//     background-color: var(--borderColor);
+//     margin-right: var(--gap-lg);
+//     flex-shrink: 0;
+//   }
+
+//   &-content {
+//     flex: 1;
+//     display: flex;
+//     align-items: center;
+//     min-width: 0;
+//     overflow: hidden;
+//     flex-wrap: nowrap;
+//   }
+// }

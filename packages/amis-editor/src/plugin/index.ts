@@ -123,6 +123,7 @@ export * from './Collapse'; // 折叠器
 export * from './OfficeViewer'; // 文档预览
 export * from './PdfViewer'; // PDF预览
 export * from './Log'; // 日志
+// export * from './PageHeader'; // 页头
 
 // 其他
 export * from './Others/Action';

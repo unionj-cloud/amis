@@ -158,6 +158,7 @@ import './renderers/MultilineText';
 import './renderers/OfficeViewer';
 import './renderers/PdfViewer';
 import './renderers/AMIS';
+// import './renderers/PageHeader';
 
 import './compat';
 import './schemaExtend';
@@ -169,13 +170,13 @@ import type {
   SchemaExpression,
   SchemaObject
 } from './Schema';
-import type { TableViewSchema, TrObject } from './renderers/TableView';
-import type { ActionSchema, ButtonSchema } from './renderers/Action';
-import type { CRUDCommonSchema } from './renderers/CRUD';
-import type { CRUD2Schema } from './renderers/CRUD2';
-import type { TabsSchema } from './renderers/Tabs';
-import { availableLanguages as EditorAvailableLanguages } from './renderers/Form/Editor';
-import type { Action } from './types';
+import type {TableViewSchema, TrObject} from './renderers/TableView';
+import type {ActionSchema, ButtonSchema} from './renderers/Action';
+import type {CRUDCommonSchema} from './renderers/CRUD';
+import type {CRUD2Schema} from './renderers/CRUD2';
+import type {TabsSchema} from './renderers/Tabs';
+import {availableLanguages as EditorAvailableLanguages} from './renderers/Form/Editor';
+import type {Action} from './types';
 export * from './renderers/Form/IconPickerIcons';
 export * from './renderers/Form/IconSelectStore';
 

@@ -15,6 +15,7 @@ import {
   Icon as IconUI,
   IconCheckedSchema
 } from 'amis-ui';
+import {Icon as IconifyIcon} from '@iconify/react';
 
 /**
  * Icon 图标渲染器
@@ -80,6 +81,46 @@ export class Icon extends React.Component<IconProps, object> {
       icon = filter(this.props.icon, data);
     }
 
+    const iconClass = cx(
+      className,
+      setThemeClassName({...this.props, name: 'className', id, themeCss}),
+      setThemeClassName({
+        ...this.props,
+        name: 'wrapperCustomStyle',
+        id,
+        themeCss: wrapperCustomStyle
+      })
+    );
+
+    // 如果是iconify图标格式（包含冒号）
+    if (typeof icon === 'string' && icon.includes(':')) {
+      return (
+        <>
+          <IconifyIcon
+            icon={icon}
+            className={iconClass}
+            onClick={this.handleClick}
+            onMouseEnter={this.handleMouseEnter}
+            onMouseLeave={this.handleMouseLeave}
+            style={{cursor: 'pointer', fontSize: '18px'}}
+          />
+          <CustomStyle
+            {...this.props}
+            config={{
+              themeCss: themeCss,
+              classNames: [
+                {
+                  key: 'className'
+                }
+              ],
+              id
+            }}
+            env={env}
+          />
+        </>
+      );
+    }
+
     return (
       <>
         <IconUI
@@ -88,16 +129,7 @@ export class Icon extends React.Component<IconProps, object> {
           onClick={this.handleClick}
           onMouseEnter={this.handleMouseEnter}
           onMouseLeave={this.handleMouseLeave}
-          className={cx(
-            className,
-            setThemeClassName({...this.props, name: 'className', id, themeCss}),
-            setThemeClassName({
-              ...this.props,
-              name: 'wrapperCustomStyle',
-              id,
-              themeCss: wrapperCustomStyle
-            })
-          )}
+          className={iconClass}
         />
         <CustomStyle
           {...this.props}
