@@ -8,14 +8,13 @@ import {
   CustomStyle,
   setThemeClassName
 } from 'amis-core';
-import {BaseSchema, SchemaTpl} from '../Schema';
+import { BaseSchema, SchemaTpl } from '../Schema';
 import {
   BadgeObject,
   withBadge,
   Icon as IconUI,
   IconCheckedSchema
 } from 'amis-ui';
-import {Icon as IconifyIcon} from '@iconify/react';
 
 /**
  * Icon 图标渲染器
@@ -39,7 +38,7 @@ export interface IconSchema extends BaseSchema {
 
 export interface IconProps
   extends RendererProps,
-    Omit<IconSchema, 'type' | 'className'> {}
+  Omit<IconSchema, 'type' | 'className'> { }
 
 export class Icon extends React.Component<IconProps, object> {
   static defaultProps: Partial<IconProps> = {
@@ -49,19 +48,19 @@ export class Icon extends React.Component<IconProps, object> {
 
   @autobind
   handleClick(e: React.MouseEvent<any>) {
-    const {dispatchEvent, data} = this.props;
+    const { dispatchEvent, data } = this.props;
     dispatchEvent(e, data);
   }
 
   @autobind
   handleMouseEnter(e: React.MouseEvent<any>) {
-    const {dispatchEvent, data} = this.props;
+    const { dispatchEvent, data } = this.props;
     dispatchEvent(e, data);
   }
 
   @autobind
   handleMouseLeave(e: React.MouseEvent<any>) {
-    const {dispatchEvent, data} = this.props;
+    const { dispatchEvent, data } = this.props;
     dispatchEvent(e, data);
   }
 
@@ -81,46 +80,6 @@ export class Icon extends React.Component<IconProps, object> {
       icon = filter(this.props.icon, data);
     }
 
-    const iconClass = cx(
-      className,
-      setThemeClassName({...this.props, name: 'className', id, themeCss}),
-      setThemeClassName({
-        ...this.props,
-        name: 'wrapperCustomStyle',
-        id,
-        themeCss: wrapperCustomStyle
-      })
-    );
-
-    // 如果是iconify图标格式（包含冒号）
-    if (typeof icon === 'string' && icon.includes(':')) {
-      return (
-        <>
-          <IconifyIcon
-            icon={icon}
-            className={iconClass}
-            onClick={this.handleClick}
-            onMouseEnter={this.handleMouseEnter}
-            onMouseLeave={this.handleMouseLeave}
-            style={{cursor: 'pointer', fontSize: '18px'}}
-          />
-          <CustomStyle
-            {...this.props}
-            config={{
-              themeCss: themeCss,
-              classNames: [
-                {
-                  key: 'className'
-                }
-              ],
-              id
-            }}
-            env={env}
-          />
-        </>
-      );
-    }
-
     return (
       <>
         <IconUI
@@ -129,7 +88,16 @@ export class Icon extends React.Component<IconProps, object> {
           onClick={this.handleClick}
           onMouseEnter={this.handleMouseEnter}
           onMouseLeave={this.handleMouseLeave}
-          className={iconClass}
+          className={cx(
+            className,
+            setThemeClassName({ ...this.props, name: 'className', id, themeCss }),
+            setThemeClassName({
+              ...this.props,
+              name: 'wrapperCustomStyle',
+              id,
+              themeCss: wrapperCustomStyle
+            })
+          )}
         />
         <CustomStyle
           {...this.props}
@@ -154,4 +122,4 @@ export class Icon extends React.Component<IconProps, object> {
 })
 // @ts-ignore 类型没搞定
 @withBadge
-export class IconRenderer extends Icon {}
+export class IconRenderer extends Icon { }

@@ -3,8 +3,9 @@
  * @description
  * @author fex
  */
-import React, {createElement} from 'react';
+import React, { createElement } from 'react';
 import cxClass from 'classnames';
+import { Icon as IconifyIcon } from '@iconify/react';
 import CloseIcon from '../icons/close.svg';
 import CloseSmallIcon from '../icons/close-small.svg';
 import StatusCloseIcon from '../icons/status-close.svg';
@@ -110,7 +111,7 @@ import ScaleOrigin from '../icons/scale-origin.svg';
 import If from '../icons/if.svg';
 
 import isObject from 'lodash/isObject';
-import type {TestIdBuilder} from 'amis-core';
+import type { TestIdBuilder } from 'amis-core';
 
 // 兼容原来的用法，后续不直接试用。
 
@@ -420,10 +421,23 @@ export function Icon({
       ...events,
       className: cx('icon', className, classNameProp),
       style,
-      dangerouslySetInnerHTML: {__html: svgStr ? svgStr[1] : ''},
+      dangerouslySetInnerHTML: { __html: svgStr ? svgStr[1] : '' },
       viewBox: viewBox?.[1] || '0 0 16 16'
     });
     return svgHTML;
+  }
+
+  // 如果是iconify图标格式（包含冒号）
+  if (typeof icon === 'string' && icon.includes(':')) {
+    return (
+      <IconifyIcon
+        {...events}
+        icon={icon}
+        className={cx(className, classNameProp)}
+        style={style}
+        {...testIdBuilder?.getTestId()}
+      />
+    );
   }
 
   // icon是链接
