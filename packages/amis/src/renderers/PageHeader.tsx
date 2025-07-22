@@ -683,7 +683,19 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
               )}
 
               {/* 渲染标题 */}
-              <span className={cx('PageHeader-tab-title')}>{tab.title}</span>
+              <span
+                className={cx('PageHeader-tab-title')}
+                title={tab.title}
+                style={{
+                  maxWidth: '200px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  display: 'inline-block'
+                }}
+              >
+                {tab.title}
+              </span>
             </div>
           );
         })}
