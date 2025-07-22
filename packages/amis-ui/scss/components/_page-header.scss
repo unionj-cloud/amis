@@ -1,0 +1,247 @@
+.#{$ns}PageHeader {
+  &--tabbed {
+    height: 44px;
+    border-bottom: 1px solid #dadfe6;
+  }
+
+  &-main {
+    display: flex;
+    line-height: 44px;
+    height: 44px;
+    padding: 0 16px;
+  }
+
+  &-back {
+    margin-right: 12px;
+  }
+
+  &-backIcon {
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+  }
+
+  &-filter {
+    position: relative;
+    display: inline-block;
+    overflow: visible;
+
+    &-display {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      max-width: 300px;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 44px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding-right: 25px;
+      cursor: pointer;
+    }
+
+    &-label {
+      color: #202d40;
+    }
+
+    &-icon {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: #999;
+      pointer-events: none;
+    }
+
+    &-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 300px;
+      max-width: 500px;
+      background-color: #fff;
+      border: 1px solid #e8e9ea;
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      margin-top: 4px;
+      font-size: 12px;
+    }
+
+    &-search-container {
+      display: flex;
+      height: 28px;
+      align-items: center;
+      border-bottom: 1px solid #dadfe6;
+    }
+
+    &-search {
+      width: 100%;
+      padding-left: 12px;
+      padding-right: 20px;
+      border: none;
+      color: #666;
+      outline: 0;
+    }
+
+    &-options {
+      max-height: 274px;
+      overflow-y: auto;
+      padding-bottom: 4px;
+      position: relative;
+    }
+
+    &-option {
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      padding: 0 20px;
+      padding-left: 12px;
+      position: relative;
+      white-space: nowrap;
+      height: 28px;
+      line-height: 28px;
+      box-sizing: border-box;
+      cursor: pointer;
+      background-color: transparent;
+      color: #555b66;
+      font-weight: 400;
+      width: fit-content;
+      min-width: 298.4px;
+
+      &:hover {
+        background-color: #ecf5ff;
+      }
+
+      &.is-active {
+        color: #3484ff;
+        font-weight: 700;
+      }
+    }
+
+    &-tooltip {
+      position: absolute;
+      left: 100%;
+      top: 0;
+      margin-left: 8px;
+      padding: 8px 12px;
+      background-color: #333;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 1001;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      max-width: 200px;
+      word-break: break-all;
+      line-height: 16px;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: -4px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-right: 4px solid #333;
+      }
+    }
+
+    &-no-results {
+      padding: 20px 16px;
+      text-align: center;
+      color: #999;
+      font-size: 12px;
+    }
+
+    &-option-content {
+      display: inline-block;
+    }
+
+    &-option-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 0 4px;
+      border-radius: 2px;
+      background: #ffefe1;
+      color: #e36a00;
+      font-size: 12px;
+      line-height: 20px;
+      text-align: center;
+    }
+  }
+
+  &-divider {
+    float: left;
+    width: 1px;
+    height: 16px;
+    margin: 14px 16px 0;
+    background-color: #eee;
+  }
+
+  &-tabs-nav {
+    display: flex;
+    align-items: center;
+    height: 44px;
+  }
+
+  &-tab-item {
+    float: left;
+    padding: 0 15px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #555b66;
+    font-weight: 400;
+    line-height: 44px;
+
+    &:hover:not(.is-active) {
+      color: #202d40;
+    }
+
+    &.is-active {
+      color: #202d40;
+      font-weight: 700;
+      line-height: 42px;
+      border-bottom: 2px solid #06f;
+    }
+  }
+
+  &-tab-icon {
+    &--right {
+      order: 1;
+    }
+
+    &--left {
+      order: -1;
+    }
+  }
+
+  &-content {
+    padding: 16px;
+  }
+
+  &-loading {
+    padding: 16px;
+
+    .text-muted {
+      color: #999;
+    }
+  }
+
+  // 点击遮罩层
+  &-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+  }
+}

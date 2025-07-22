@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { findDOMNode } from 'react-dom';
+import {findDOMNode} from 'react-dom';
 import cx from 'classnames';
 import DeepDiff from 'deep-diff';
 import uniqBy from 'lodash/uniqBy';
@@ -17,18 +17,18 @@ import {
   RendererProps,
   normalizeApi
 } from 'amis';
-import { value2array } from 'amis-ui/lib/components/Select';
+import {value2array} from 'amis-ui/lib/components/Select';
 
-import { autobind, getI18nEnabled } from 'amis-editor-core';
-import { getSchemaTpl } from 'amis-editor-core';
-import { tipedLabel } from 'amis-editor-core';
+import {autobind, getI18nEnabled} from 'amis-editor-core';
+import {getSchemaTpl} from 'amis-editor-core';
+import {tipedLabel} from 'amis-editor-core';
 
-import type { Option } from 'amis';
-import { createObject, FormControlProps } from 'amis-core';
-import type { OptionValue } from 'amis-core';
-import type { SchemaApi } from 'amis';
+import type {Option} from 'amis';
+import {createObject, FormControlProps} from 'amis-core';
+import type {OptionValue} from 'amis-core';
+import type {SchemaApi} from 'amis';
 import debounce from 'lodash/debounce';
-import { valueType } from './ValueFormatControl';
+import {valueType} from './ValueFormatControl';
 
 export interface PopoverForm {
   optionLabel: string;
@@ -36,7 +36,7 @@ export interface PopoverForm {
   optionValueType: valueType;
 }
 
-export type OptionControlItem = Option & { checked: boolean };
+export type OptionControlItem = Option & {checked: boolean};
 
 export interface OptionControlState {
   options: Array<OptionControlItem>;
@@ -49,7 +49,7 @@ export interface OptionControlState {
 
 export interface OptionSourceControlProps
   extends OptionControlState,
-  RendererProps {
+    RendererProps {
   onChange: (value: Partial<OptionControlState>) => void;
 }
 
@@ -96,7 +96,7 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
   }
 
   initDragging() {
-    const { onChange } = this.props;
+    const {onChange} = this.props;
     const dom = findDOMNode(this) as HTMLElement;
 
     this.sortable = new Sortable(
@@ -118,7 +118,7 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
             parent.insertBefore(
               e.item,
               parent.childNodes[
-              e.oldIndex > e.newIndex ? e.oldIndex + 1 : e.oldIndex
+                e.oldIndex > e.newIndex ? e.oldIndex + 1 : e.oldIndex
               ]
             );
           } else {
@@ -128,7 +128,7 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
           const options = this.props.options.concat();
           options.splice(e.newIndex, 0, options.splice(e.oldIndex, 1)[0]);
 
-          onChange({ options });
+          onChange({options});
         }
       }
     );
@@ -142,23 +142,23 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
    * 删除选项
    */
   handleDelete(index: number) {
-    const { onChange, options: originOptions } = this.props;
+    const {onChange, options: originOptions} = this.props;
     const options = originOptions.concat();
 
     options.splice(index, 1);
-    onChange({ options });
+    onChange({options});
   }
 
   /**
    * 设置默认选项
    */
   handleToggleDefaultValue(index: number, checked: any, shift?: boolean) {
-    const { onChange, options: originOptions } = this.props;
+    const {onChange, options: originOptions} = this.props;
     let options = originOptions.concat();
     const isMultiple = this.props?.data?.multiple || this.props?.multiple;
 
     if (isMultiple) {
-      options.splice(index, 1, { ...options[index], checked });
+      options.splice(index, 1, {...options[index], checked});
     } else {
       options = options.map((item, itemIndex) => ({
         ...item,
@@ -166,61 +166,74 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
       }));
     }
 
-    onChange({ options });
+    onChange({options});
   }
 
   /**
    * 编辑选项
    */
   toggleEdit(index: number) {
-    const { onChange, options: originOptions } = this.props;
+    const {onChange, options: originOptions} = this.props;
     const options = originOptions.concat();
     options.splice(index, 1, {
       ...options[index],
       editing: !options[index].editing
     });
-    onChange({ options });
+    onChange({options});
   }
 
   /**
    * 编辑角标
    */
   toggleBadge(index: number, value: string) {
-    const { onChange, options: originOptions } = this.props;
+    const {onChange, options: originOptions} = this.props;
     const options = originOptions.concat();
     options.splice(index, 1, {
       ...options[index],
       badge: value
     });
-    onChange({ options });
+    onChange({options});
   }
 
   /**
    * 编辑颜色
    */
   toggleColor(index: number, value: string) {
-    const { onChange, options: originOptions } = this.props;
+    const {onChange, options: originOptions} = this.props;
     const options = originOptions.concat();
     options.splice(index, 1, {
       ...options[index],
       color: value
     });
-    onChange({ options });
+    onChange({options});
+  }
+
+  /**
+   * 编辑提示内容
+   */
+  toggleTooltip(index: number, value: string) {
+    const {onChange, options: originOptions} = this.props;
+    const options = originOptions.concat();
+    options.splice(index, 1, {
+      ...options[index],
+      tooltip: value
+    });
+    onChange({options});
   }
 
   @autobind
   handleEditLabel(index: number, value: string) {
-    const { onChange, options: originOptions } = this.props;
+    const {onChange, options: originOptions} = this.props;
     const options = originOptions.concat();
-    options.splice(index, 1, { ...options[index], label: value });
-    onChange({ options });
+    options.splice(index, 1, {...options[index], label: value});
+    onChange({options});
   }
 
   @autobind
   handleHiddenValueChange(index: number, value: string) {
-    const { onChange, options: originOptions } = this.props;
+    const {onChange, options: originOptions} = this.props;
     const options = originOptions.concat();
-    const { hiddenOn, ...option } = options[index];
+    const {hiddenOn, ...option} = options[index];
     const newOption = {
       ...option
     };
@@ -232,32 +245,32 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
     }
 
     options.splice(index, 1, newOption);
-    onChange({ options });
+    onChange({options});
   }
 
   @autobind
   handleAdd() {
-    const { onChange, options: originOptions } = this.props;
+    const {onChange, options: originOptions} = this.props;
     const options = originOptions.concat();
     options.push({
       label: '',
       value: null,
       checked: false
     });
-    onChange({ options });
+    onChange({options});
   }
 
   handleValueChange(index: number, value: string) {
-    const { onChange, options: originOptions } = this.props;
+    const {onChange, options: originOptions} = this.props;
     const options = originOptions.concat();
     options[index].value = value;
 
-    onChange({ options });
+    onChange({options});
   }
 
   @autobind
-  handleBatchAdd(values: { batchOption: string }[], action: any) {
-    const { onChange, customEdit = true } = this.props;
+  handleBatchAdd(values: {batchOption: string}[], action: any) {
+    const {onChange, customEdit = true} = this.props;
     const options = this.props.data.options || [];
     const addedOptions: Array<OptionControlItem> = values[0].batchOption
       .split('\n')
@@ -265,13 +278,13 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
         const item = option.trim();
         if (~item.indexOf(' ') && customEdit) {
           let [label, value] = item.split(' ');
-          return { label: label.trim(), value: value.trim(), checked: false };
+          return {label: label.trim(), value: value.trim(), checked: false};
         }
-        return { label: item, value: item, checked: false };
+        return {label: item, value: item, checked: false};
       });
     const newOptions = uniqBy([...options, ...addedOptions], 'value');
 
-    onChange({ options: newOptions });
+    onChange({options: newOptions});
   }
 
   renderOption(props: any) {
@@ -284,10 +297,11 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
       hiddenOn,
       customEdit = true
     } = props;
-    const { render, data: ctx, node } = this.props;
+    const {render, data: ctx, node} = this.props;
     const isMultiple = ctx?.multiple === true || multipleProps;
     const i18nEnabled = getI18nEnabled();
-    const showBadge = node.type === 'button-group-select';
+    const showBadge =
+      node.type === 'button-group-select' || node.type === 'page-header';
 
     const editDom = editing ? (
       <div className="ae-OptionControlItem-extendMore">
@@ -306,7 +320,7 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
                 onClick: () => this.toggleEdit(index)
               },
               {
-                children: ({ render, innerValue }: any) => {
+                children: ({render, innerValue}: any) => {
                   return render(
                     'innerLabel',
                     {
@@ -326,7 +340,7 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
                 }
               },
               {
-                children: ({ render, innerValue }: any) => {
+                children: ({render, innerValue}: any) => {
                   return render(
                     'innerValue',
                     {
@@ -345,7 +359,7 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
                 }
               },
               {
-                children: ({ render, innerValue }: any) => {
+                children: ({render, innerValue}: any) => {
                   return render(
                     'innerHiddenOn',
                     getSchemaTpl('expressionFormulaControl', {
@@ -363,7 +377,7 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
                 }
               },
               {
-                children: ({ render, innerValue }: any) => {
+                children: ({render, innerValue}: any) => {
                   return render(
                     'innerBadge',
                     {
@@ -384,7 +398,7 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
                 }
               },
               {
-                children: ({ render, innerValue }: any) => {
+                children: ({render, innerValue}: any) => {
                   return render(
                     'innerColor',
                     {
@@ -403,6 +417,26 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
                     }
                   );
                 }
+              },
+              {
+                children: ({render, innerValue}: any) => {
+                  return render(
+                    'innerTooltip',
+                    {
+                      type: i18nEnabled ? 'input-text-i18n' : 'input-text',
+                      placeholder: '请输入提示内容',
+                      label: '提示',
+                      mode: 'horizontal',
+                      name: 'tooltip',
+                      labelClassName: 'ae-OptionControlItem-EditLabel',
+                      valueClassName: 'ae-OptionControlItem-EditValue'
+                    },
+                    {
+                      value: innerValue.tooltip || '',
+                      onChange: (v: string) => this.toggleTooltip(index, v)
+                    }
+                  );
+                }
               }
             ]
           },
@@ -412,6 +446,7 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
               value: props.value,
               badge: props.badge,
               color: props.color,
+              tooltip: props.tooltip,
               hiddenOn
             }
           }
@@ -509,29 +544,29 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
           )}
           {customEdit
             ? render(
-              'dropdown',
-              {
-                type: 'dropdown-button',
-                className: 'ae-OptionControlItem-dropdown',
-                btnClassName: 'px-2',
-                icon: 'fa fa-ellipsis-h',
-                hideCaret: true,
-                closeOnClick: true,
-                align: 'right',
-                menuClassName: 'ae-OptionControlItem-ulmenu',
-                buttons: operationBtn
-              },
-              {
-                popOverContainer: null // amis 渲染挂载节点会使用 this.target
-              }
-            )
+                'dropdown',
+                {
+                  type: 'dropdown-button',
+                  className: 'ae-OptionControlItem-dropdown',
+                  btnClassName: 'px-2',
+                  icon: 'fa fa-ellipsis-h',
+                  hideCaret: true,
+                  closeOnClick: true,
+                  align: 'right',
+                  menuClassName: 'ae-OptionControlItem-ulmenu',
+                  buttons: operationBtn
+                },
+                {
+                  popOverContainer: null // amis 渲染挂载节点会使用 this.target
+                }
+              )
             : render('delete', {
-              type: 'button',
-              className: 'ae-OptionControlItem-action-delete',
-              icon: 'fa fa-trash',
-              level: 'link',
-              onClick: () => this.handleDelete(index)
-            })}
+                type: 'button',
+                className: 'ae-OptionControlItem-action-delete',
+                icon: 'fa fa-trash',
+                level: 'link',
+                onClick: () => this.handleDelete(index)
+              })}
         </div>
         {editDom}
       </li>
@@ -539,7 +574,7 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
   }
 
   buildBatchAddSchema() {
-    const { customEdit = true } = this.props;
+    const {customEdit = true} = this.props;
     return {
       type: 'action',
       actionType: 'dialog',
@@ -599,7 +634,7 @@ class CustomOptionControl extends React.Component<OptionSourceControlProps> {
   }
 
   render() {
-    const { options, multiple: multipleProps, render } = this.props;
+    const {options, multiple: multipleProps, render} = this.props;
     return (
       <div className="ae-OptionControl-wrapper">
         {Array.isArray(options) && options.length ? (
@@ -640,19 +675,19 @@ function APIOptionControl({
   valueField
 }: OptionSourceControlProps) {
   const handleAPIChange = React.useCallback((source: SchemaApi) => {
-    onChange({ api: source });
+    onChange({api: source});
   }, []);
   const handleLabelFieldChange = React.useCallback((value: string) => {
-    onChange({ labelField: value });
+    onChange({labelField: value});
   }, []);
   const handleValueFieldChange = React.useCallback((value: string) => {
-    onChange({ valueField: value });
+    onChange({valueField: value});
   }, []);
 
   const footer = React.useMemo(() => {
     return [
       {
-        children: ({ render, labelField }: any) => {
+        children: ({render, labelField}: any) => {
           return render(
             'inner',
             {
@@ -673,7 +708,7 @@ function APIOptionControl({
         }
       },
       {
-        children: ({ render, valueField }: any) => {
+        children: ({render, valueField}: any) => {
           return render(
             'inner',
             {
@@ -721,19 +756,19 @@ function variableOptionControl({
   valueField
 }: OptionSourceControlProps) {
   const handleAPIChange = React.useCallback((source: SchemaApi) => {
-    onChange({ api: source });
+    onChange({api: source});
   }, []);
   const handleLabelFieldChange = React.useCallback((value: string) => {
-    onChange({ labelField: value });
+    onChange({labelField: value});
   }, []);
   const handleValueFieldChange = React.useCallback((value: string) => {
-    onChange({ valueField: value });
+    onChange({valueField: value});
   }, []);
 
   const footer = React.useMemo(() => {
     return [
       {
-        children: ({ render, controlledValue }: any) => {
+        children: ({render, controlledValue}: any) => {
           return render(
             'inner',
             {
@@ -754,7 +789,7 @@ function variableOptionControl({
         }
       },
       {
-        children: ({ render, controlledValue }: any) => {
+        children: ({render, controlledValue}: any) => {
           return render(
             'inner',
             {
@@ -781,7 +816,7 @@ function variableOptionControl({
       className: 'ae-ExtendMore',
       body: [
         {
-          children: ({ render, controlledValue }: any) =>
+          children: ({render, controlledValue}: any) =>
             render(
               'inner',
               getSchemaTpl('sourceBindControl', {
@@ -815,7 +850,7 @@ const builtinOptionSource: Array<OptionSource> = [
     label: '外部接口',
     value: 'api',
     component: APIOptionControl,
-    test: ({ api }) => {
+    test: ({api}) => {
       const url = normalizeApi(api).url;
       return !!(
         typeof url === 'string' &&
@@ -828,7 +863,7 @@ const builtinOptionSource: Array<OptionSource> = [
     label: 'API中心',
     value: 'apicenter',
     component: APIOptionControl,
-    test: ({ api }) => {
+    test: ({api}) => {
       const url = normalizeApi(api).url;
       return typeof url === 'string' && url.startsWith('api://');
     }
@@ -837,7 +872,7 @@ const builtinOptionSource: Array<OptionSource> = [
     label: '上下文变量',
     value: 'variable',
     component: variableOptionControl,
-    test: ({ api }) => typeof api === 'string' && /\$\{(.*?)\}/g.test(api)
+    test: ({api}) => typeof api === 'string' && /\$\{(.*?)\}/g.test(api)
   }
 ];
 
@@ -847,7 +882,7 @@ export default class OptionControl extends React.Component<
 > {
   internalProps = ['checked', 'editing'];
   optionSources: Array<OptionSource> = [];
-  lastOptions: OptionControlProps;
+  lastOptions: any;
 
   constructor(props: OptionControlProps) {
     super(props);
@@ -879,7 +914,27 @@ export default class OptionControl extends React.Component<
    * 数据更新
    */
   componentWillReceiveProps(nextProps: OptionControlProps) {
-    const options = nextProps.data.options;
+    const {name} = nextProps;
+    const optionsFieldName = name || 'options';
+
+    // 获取嵌套字段的值
+    const getNestedValue = (obj: any, path: string) => {
+      const keys = path.split('.');
+      let current = obj;
+
+      for (const key of keys) {
+        if (current && typeof current === 'object' && key in current) {
+          current = current[key];
+        } else {
+          return undefined;
+        }
+      }
+
+      return current;
+    };
+
+    const options = getNestedValue(nextProps.data, optionsFieldName);
+
     // 左侧code手动更新时，同步配置面板
     if (DeepDiff.diff(options, this.lastOptions)) {
       this.setState({
@@ -889,7 +944,7 @@ export default class OptionControl extends React.Component<
   }
 
   get enabledOptionSources() {
-    const { hasApiCenter, enabledOptionSourceType } = this.props;
+    const {hasApiCenter, enabledOptionSourceType} = this.props;
     let options = this.optionSources;
 
     if (!hasApiCenter) {
@@ -906,8 +961,26 @@ export default class OptionControl extends React.Component<
   }
 
   transformOptions(props: OptionControlProps) {
-    const { data: ctx } = props;
-    const options = ctx.options;
+    const {data: ctx, name} = props;
+    const optionsFieldName = name || 'options';
+
+    // 获取嵌套字段的值
+    const getNestedValue = (obj: any, path: string) => {
+      const keys = path.split('.');
+      let current = obj;
+
+      for (const key of keys) {
+        if (current && typeof current === 'object' && key in current) {
+          current = current[key];
+        } else {
+          return undefined;
+        }
+      }
+
+      return current;
+    };
+
+    const options = getNestedValue(ctx, optionsFieldName);
     let defaultValue: Array<OptionValue> | OptionValue = ctx.value;
 
     const valueArray = value2array(defaultValue, ctx as any).map(
@@ -916,15 +989,16 @@ export default class OptionControl extends React.Component<
 
     return Array.isArray(options)
       ? options.map((item: Option) => ({
-        label: item.label,
-        // 为了使用户编写label时同时生效到value
-        value: item.label === item.value ? null : item.value,
-        checked: !!~valueArray.indexOf(item[ctx?.valueField ?? 'value']),
-        ...(item?.badge ? { badge: item.badge } : {}),
-        ...(item?.color ? { color: item.color } : {}),
-        ...(item.hidden !== undefined ? { hidden: item.hidden } : {}),
-        ...(item.hiddenOn !== undefined ? { hiddenOn: item.hiddenOn } : {})
-      }))
+          label: item.label,
+          // 为了使用户编写label时同时生效到value
+          value: item.label === item.value ? null : item.value,
+          checked: !!~valueArray.indexOf(item[ctx?.valueField ?? 'value']),
+          ...(item?.badge ? {badge: item.badge} : {}),
+          ...(item?.color ? {color: item.color} : {}),
+          ...(item?.tooltip ? {tooltip: item.tooltip} : {}),
+          ...(item.hidden !== undefined ? {hidden: item.hidden} : {}),
+          ...(item.hiddenOn !== undefined ? {hiddenOn: item.hiddenOn} : {})
+        }))
       : [];
   }
 
@@ -932,7 +1006,7 @@ export default class OptionControl extends React.Component<
    * 处理当前组件的默认值
    */
   normalizeValue() {
-    const { data: ctx = {}, multiple: multipleProps } = this.props;
+    const {data: ctx = {}, multiple: multipleProps} = this.props;
     const {
       joinValues = true,
       extractValue,
@@ -982,35 +1056,68 @@ export default class OptionControl extends React.Component<
    */
   @autobind
   emitChange() {
-    const { source, options } = this.state;
-    const { onBulkChange } = this.props;
+    const {source, options} = this.state;
+    const {onBulkChange, name, data: currentData} = this.props;
     const defaultValue = this.normalizeValue();
-    const data: Partial<OptionControlProps> = {
-      source: undefined,
-      options: undefined,
-      labelField: undefined,
-      valueField: undefined
-    };
+    const data: any = {};
+
+    // 获取实际的字段名，支持嵌套路径如 'filter.options'
+    const optionsFieldName = name || 'options';
 
     if (source === 'custom') {
-      data.options = options.map(item => ({
-        ...(item?.badge ? { badge: item.badge } : {}),
-        ...(item?.color ? { color: item.color } : {}),
+      const transformedOptions = options.map(item => ({
+        ...(item?.badge ? {badge: item.badge} : {}),
+        ...(item?.color ? {color: item.color} : {}),
+        ...(item?.tooltip ? {tooltip: item.tooltip} : {}),
         label: item.label,
         value:
           item.value == null || item.value === '' ? item.label : item.value,
-        ...(item.hiddenOn !== undefined ? { hiddenOn: item.hiddenOn } : {})
+        ...(item.hiddenOn !== undefined ? {hiddenOn: item.hiddenOn} : {})
       }));
-      data.value = defaultValue;
-      this.lastOptions = data.options;
+
+      // 如果是嵌套字段名（如 filter.options），需要特殊处理
+      if (optionsFieldName.includes('.')) {
+        const keys = optionsFieldName.split('.');
+        const rootField = keys[0]; // 如 'filter'
+        const leafField = keys[keys.length - 1]; // 如 'options'
+
+        // 保留现有的根字段数据，只更新指定的叶子字段
+        data[rootField] = {
+          ...(currentData?.[rootField] || {}), // 保留现有数据
+          [leafField]: transformedOptions, // 更新options
+          value: defaultValue // 更新value
+        };
+      } else {
+        // 对于非嵌套字段，直接设置
+        data.options = transformedOptions;
+        data.value = defaultValue;
+      }
+
+      this.lastOptions = transformedOptions;
     }
 
     if (source === 'api' || source === 'apicenter' || source === 'variable') {
-      const { api, labelField, valueField } = this.state;
-      data.source = api;
-      data.labelField = labelField || undefined;
-      data.valueField = valueField || undefined;
-      this.lastOptions = data.source;
+      const {api, labelField, valueField} = this.state;
+
+      if (optionsFieldName.includes('.')) {
+        const keys = optionsFieldName.split('.');
+        const rootField = keys[0];
+
+        // 保留现有的根字段数据，只更新API相关字段
+        data[rootField] = {
+          ...(currentData?.[rootField] || {}), // 保留现有数据
+          source: api,
+          labelField: labelField || undefined,
+          valueField: valueField || undefined
+        };
+      } else {
+        // 对于非嵌套字段，直接设置
+        data.source = api;
+        data.labelField = labelField || undefined;
+        data.valueField = valueField || undefined;
+      }
+
+      this.lastOptions = api;
     }
 
     onBulkChange && onBulkChange(data);
@@ -1024,7 +1131,7 @@ export default class OptionControl extends React.Component<
     if (this.state.source === source) {
       return;
     }
-    this.setState({ api: '', source: source }, this.emitChange);
+    this.setState({api: '', source: source}, this.emitChange);
   }
 
   @autobind
@@ -1033,10 +1140,10 @@ export default class OptionControl extends React.Component<
   }
 
   renderHeader() {
-    const { render, label, labelRemark, useMobileUI, env, popOverContainer } =
+    const {render, label, labelRemark, useMobileUI, env, popOverContainer} =
       this.props;
     const classPrefix = env?.theme?.classPrefix;
-    const { source } = this.state;
+    const {source} = this.state;
     let optionSourceList = this.enabledOptionSources.map(item => ({
       label: item.label,
       value: item.value,
@@ -1049,13 +1156,13 @@ export default class OptionControl extends React.Component<
           {label || ''}
           {labelRemark
             ? render('label-remark', {
-              type: 'remark',
-              icon: labelRemark.icon || 'warning-mark',
-              tooltip: labelRemark,
-              className: cx(`Form-lableRemark`, labelRemark?.className),
-              useMobileUI,
-              container: popOverContainer || env.getModalContainer
-            })
+                type: 'remark',
+                icon: labelRemark.icon || 'warning-mark',
+                tooltip: labelRemark,
+                className: cx(`Form-lableRemark`, labelRemark?.className),
+                useMobileUI,
+                container: popOverContainer || env.getModalContainer
+              })
             : null}
         </label>
         <div>
@@ -1085,8 +1192,8 @@ export default class OptionControl extends React.Component<
   }
 
   render() {
-    const { source } = this.state;
-    const { className } = this.props;
+    const {source} = this.state;
+    const {className} = this.props;
     const sourceControl = this.optionSources.find(
       item => item.value === source
     );
@@ -1115,4 +1222,4 @@ export default class OptionControl extends React.Component<
 @Renderer({
   type: 'ae-optionControl'
 })
-export class OptionControlRenderer extends OptionControl { }
+export class OptionControlRenderer extends OptionControl {}

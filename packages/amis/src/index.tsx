@@ -158,7 +158,7 @@ import './renderers/MultilineText';
 import './renderers/OfficeViewer';
 import './renderers/PdfViewer';
 import './renderers/AMIS';
-// import './renderers/PageHeader';
+import './renderers/PageHeader';
 
 import './compat';
 import './schemaExtend';
