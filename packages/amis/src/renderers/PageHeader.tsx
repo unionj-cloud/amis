@@ -6,7 +6,7 @@ import {
   CustomStyle,
   setThemeClassName
 } from 'amis-core';
-import {BaseSchema, SchemaClassName} from '../Schema';
+import { BaseSchema, SchemaClassName } from '../Schema';
 
 /**
  * 选项卡页头渲染器
@@ -40,7 +40,9 @@ export interface PageHeaderSchema {
        */
       badge?: string;
       /**
-       * 鼠标悬停提示内容
+       * 鼠标悬停提示内容，支持HTML和模板语法
+       * 可使用 ${变量名} 形式引用数据，支持过滤器
+       * 例如：'<strong>标题</strong><br/>内容描述<br/>时间：${time|date:YYYY-MM-DD}'
        */
       tooltip?: string;
     }>;
@@ -138,12 +140,12 @@ export interface PageHeaderSchema {
 
 export interface PageHeaderProps
   extends RendererProps,
-    Omit<PageHeaderSchema, 'type' | 'className'> {}
+  Omit<PageHeaderSchema, 'type' | 'className'> { }
 
 export default class PageHeader extends React.Component<PageHeaderProps> {
   static defaultProps: Partial<PageHeaderProps> = {
     showBackButton: true,
-    backIcon: 'fa fa-long-arrow-left',
+    backIcon: 'iconfont icon-ltsa',
     tabs: [],
     mountOnEnter: true
   };
@@ -159,7 +161,7 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
 
   componentDidMount() {
     // 初始化下拉框默认值
-    const {filter} = this.props;
+    const { filter } = this.props;
 
     if (filter) {
       let initialValue = filter.value;
@@ -171,7 +173,7 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
       ) {
         initialValue = filter.options[0].value;
       }
-      this.setState({filterValue: initialValue});
+      this.setState({ filterValue: initialValue });
     }
 
     // 初始化激活的选项卡
@@ -184,7 +186,7 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
       this.props.filter &&
       prevProps.filter &&
       JSON.stringify(this.props.filter.options) !==
-        JSON.stringify(prevProps.filter.options)
+      JSON.stringify(prevProps.filter.options)
     ) {
       let initialValue = this.props.filter.value;
       if (
@@ -194,12 +196,12 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
       ) {
         initialValue = this.props.filter.options[0].value;
       }
-      this.setState({filterValue: initialValue});
+      this.setState({ filterValue: initialValue });
     }
   }
 
   initActiveTab() {
-    const {tabs, defaultKey, activeKey} = this.props;
+    const { tabs, defaultKey, activeKey } = this.props;
     if (!tabs || tabs.length === 0) return;
 
     let initialActiveTab = 0;
@@ -218,7 +220,7 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
       }
     }
 
-    const {mountOnEnter} = this.props;
+    const { mountOnEnter } = this.props;
     let mountedTabs = new Set<number>();
 
     if (!mountOnEnter) {
@@ -236,7 +238,7 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
   }
 
   findTabIndex(key: string | number): number {
-    const {tabs} = this.props;
+    const { tabs } = this.props;
     if (!tabs) return -1;
 
     return tabs.findIndex((tab, index) => {
@@ -267,7 +269,7 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
     e.preventDefault();
     e.stopPropagation();
 
-    const {onAction, data} = this.props;
+    const { onAction, data } = this.props;
 
     // 触发返回动作
     onAction &&
@@ -285,7 +287,7 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
 
   @autobind
   handleFilterChange(value: any) {
-    const {onAction, filter} = this.props;
+    const { onAction, filter } = this.props;
 
     this.setState({
       filterValue: value,
@@ -306,21 +308,26 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
               filterName: filter.name
             }
           },
-          {[filter.name]: value}
+          { [filter.name]: value }
         );
     }
   }
 
   @autobind
   handleSearchChange(value: string) {
-    this.setState({searchText: value});
+    this.setState({ searchText: value });
+  }
+
+  @autobind
+  handleSearchClear() {
+    this.setState({ searchText: '' });
   }
 
   @autobind
   handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') {
-      const {filter} = this.props;
-      const {searchText} = this.state;
+      const { filter } = this.props;
+      const { searchText } = this.state;
 
       if (filter && filter.options) {
         // 过滤选项
@@ -338,8 +345,8 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
 
   @autobind
   handleTabChange(index: number) {
-    const {onAction, tabs, mountOnEnter, unmountOnExit} = this.props;
-    const {mountedTabs} = this.state;
+    const { onAction, tabs, mountOnEnter, unmountOnExit } = this.props;
+    const { mountedTabs } = this.state;
     const activeTab = tabs?.[index];
 
     let newMountedTabs = new Set(mountedTabs);
@@ -411,16 +418,62 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
 
   @autobind
   handleOptionMouseEnter(index: number) {
-    this.setState({hoveredOptionIndex: index});
+    this.setState({ hoveredOptionIndex: index }, () => {
+      // 计算tooltip位置
+      this.updateTooltipPosition();
+    });
   }
 
   @autobind
   handleOptionMouseLeave() {
-    this.setState({hoveredOptionIndex: -1});
+    this.setState({ hoveredOptionIndex: -1 });
+  }
+
+  @autobind
+  updateTooltipPosition() {
+    const { hoveredOptionIndex } = this.state;
+    if (hoveredOptionIndex === -1) return;
+
+    // 延迟执行，确保DOM已更新
+    setTimeout(() => {
+      // 使用更精确的方式查找元素，避免多个组件间冲突
+      const filterElement = document.querySelector(
+        `[data-component-id="${this.props.id || 'page-header'}"] .cxd-PageHeader-filter`
+      ) as HTMLElement;
+
+      if (!filterElement) return;
+
+      const tooltipEl = filterElement.querySelector('.cxd-PageHeader-filter-tooltip') as HTMLElement;
+      const dropdownEl = filterElement.querySelector('.cxd-PageHeader-filter-dropdown') as HTMLElement;
+      const optionEl = filterElement.querySelector(
+        `.cxd-PageHeader-filter-option:nth-child(${hoveredOptionIndex + 1})`
+      ) as HTMLElement;
+
+      if (tooltipEl && dropdownEl && optionEl) {
+        const dropdownRect = dropdownEl.getBoundingClientRect();
+        const optionRect = optionEl.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+
+        // 固定在下拉框右侧，距离右侧边框-40px的位置
+        const left = dropdownRect.right - 40;
+
+        // 计算选项的垂直中心位置
+        const optionCenterY = optionRect.top + optionRect.height / 2;
+        console.log('=========== optionCenterY ===========', optionCenterY)
+
+        // tooltip的top位置，让箭头指向选项中心
+        // 箭头位置在tooltip的垂直中心，所以tooltip的top = 选项中心 - tooltip高度/2
+        let top = optionCenterY - (tooltipEl.offsetHeight / 2);
+
+        // 应用位置
+        tooltipEl.style.left = `${left}px`;
+        tooltipEl.style.top = `${top - 63.5}px`;
+      }
+    }, 50);
   }
 
   renderBackButton() {
-    const {showBackButton, backIcon, render, classnames: cx} = this.props;
+    const { showBackButton, backIcon, render, classnames: cx } = this.props;
 
     if (!showBackButton) {
       return null;
@@ -442,8 +495,8 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
   }
 
   renderFilter() {
-    const {filter, classnames: cx, render} = this.props;
-    const {filterValue, dropdownOpen, searchText, hoveredOptionIndex} =
+    const { filter, classnames: cx, render } = this.props;
+    const { filterValue, dropdownOpen, searchText, hoveredOptionIndex } =
       this.state;
 
     if (!filter || !filter.options || filter.options.length === 0) {
@@ -463,6 +516,11 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
       option.label.toLowerCase().includes(searchText.toLowerCase())
     );
 
+    // 获取当前悬停的选项
+    const hoveredOption = hoveredOptionIndex >= 0 && hoveredOptionIndex < filteredOptions.length
+      ? filteredOptions[hoveredOptionIndex]
+      : null;
+
     return (
       <div className={cx('PageHeader-filter')}>
         {/* 显示区域 */}
@@ -478,7 +536,9 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
           </span>
 
           {/* 使用配置的右侧图标 */}
-          <span className={cx('PageHeader-filter-icon')}>
+          <span className={cx('PageHeader-filter-icon', {
+            'PageHeader-filter-icon--rotated': dropdownOpen
+          })}>
             {render('rightIcon', {
               type: 'icon',
               icon: rightIcon,
@@ -493,27 +553,32 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
             className={cx('PageHeader-filter-dropdown')}
             onClick={e => e.stopPropagation()}
           >
-            {/* 搜索输入框 */}
-            <div className={cx('PageHeader-filter-search-container')}>
-              <input
-                type="text"
-                className={cx('PageHeader-filter-search')}
-                placeholder="请输入匹配字段，按enter键可选中第一条"
-                value={searchText}
-                onChange={e => this.handleSearchChange(e.target.value)}
-                onKeyDown={this.handleKeyDown}
-                autoFocus
-              />
-            </div>
-
             {/* 选项列表 */}
             <div className={cx('PageHeader-filter-options')}>
-              {filteredOptions.length > 0 ? (
-                filteredOptions.map((option, index) => {
-                  const isHovered = hoveredOptionIndex === index;
-                  const hasTooltip = !!(option as any).tooltip;
-
-                  return (
+              {/* 搜索输入框 */}
+              <div className={cx('PageHeader-filter-search-container')}>
+                <input
+                  type="text"
+                  className={cx('PageHeader-filter-search')}
+                  placeholder="请输入匹配字段，按enter键可选中第一条"
+                  value={searchText}
+                  onChange={e => this.handleSearchChange(e.target.value)}
+                  onKeyDown={this.handleKeyDown}
+                  autoFocus
+                />
+                {searchText && (
+                  <span
+                    className={cx('PageHeader-filter-search-clear')}
+                    onClick={this.handleSearchClear}
+                  >
+                    ×
+                  </span>
+                )}
+              </div>
+              {/* 选项滚动区域 */}
+              <div className={cx('PageHeader-filter-options-scroll')}>
+                {filteredOptions.length > 0 ? (
+                  filteredOptions.map((option, index) => (
                     <div
                       key={`${option.value}-${index}`}
                       className={cx('PageHeader-filter-option', {
@@ -540,22 +605,34 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
                           {(option as any).badge}
                         </span>
                       )}
-
-                      {/* Hover时显示的tooltip */}
-                      {isHovered && hasTooltip && (
-                        <div className={cx('PageHeader-filter-tooltip')}>
-                          {(option as any).tooltip}
-                        </div>
-                      )}
                     </div>
-                  );
-                })
-              ) : (
-                <div className={cx('PageHeader-filter-no-results')}>
-                  暂无匹配的选项
-                </div>
-              )}
+                  ))
+                ) : (
+                  <div className={cx('PageHeader-filter-no-results')}>
+                    暂无匹配的选项
+                  </div>
+                )}
+              </div>
             </div>
+          </div>
+        )}
+
+        {/* Tooltip渲染在外层，避免被下拉框遮挡 */}
+        {dropdownOpen && hoveredOption && (hoveredOption as any).tooltip && (
+          <div className={cx('PageHeader-filter-tooltip')}>
+            {render('tooltip-content', {
+              type: 'tpl',
+              tpl: (hoveredOption as any).tooltip
+            }, {
+              data: {
+                ...this.props.data,
+                [this.props.filter?.name || 'filter']: this.state.filterValue,
+                option: hoveredOption,
+                // 提供一些默认的时间数据用于演示
+                endTime: '1925-07-07',
+                time: new Date().toISOString()
+              }
+            })}
           </div>
         )}
       </div>
@@ -563,8 +640,8 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
   }
 
   renderTabHeaders() {
-    const {tabs, classnames: cx, render} = this.props;
-    const {activeTab} = this.state;
+    const { tabs, classnames: cx, render } = this.props;
+    const { activeTab } = this.state;
 
     if (!tabs || tabs.length === 0) {
       return null;
@@ -609,8 +686,8 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
   }
 
   renderTabContent() {
-    const {tabs, render, mountOnEnter, classnames: cx} = this.props;
-    const {activeTab, filterValue, mountedTabs} = this.state;
+    const { tabs, render, mountOnEnter, classnames: cx } = this.props;
+    const { activeTab, filterValue, mountedTabs } = this.state;
 
     if (!tabs || tabs.length === 0 || !tabs[activeTab]) {
       return null;
@@ -656,7 +733,7 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
       style
     } = this.props;
 
-    const finalStyle = {...style};
+    const finalStyle = { ...style };
 
     return (
       <div>
@@ -677,6 +754,7 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
           onMouseEnter={this.handleMouseEnter}
           onMouseLeave={this.handleMouseLeave}
           style={finalStyle}
+          data-component-id={id || 'page-header'}
         >
           <div className={cx('PageHeader-main')}>
             {/* 返回按钮 */}
@@ -732,4 +810,4 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
   type: 'page-header',
   name: 'page-header'
 })
-export class PageHeaderRenderer extends PageHeader {}
+export class PageHeaderRenderer extends PageHeader { }

@@ -52,6 +52,16 @@
       font-size: 12px;
       color: #999;
       pointer-events: none;
+      transition: transform 0.3s ease;
+      transform-origin: center;
+
+      &--rotated {
+        transform: translateY(-50%) rotate(-180deg);
+      }
+
+      .iconfont {
+        font-size: 10px;
+      }
     }
 
     &-dropdown {
@@ -67,6 +77,7 @@
       z-index: 1000;
       margin-top: 4px;
       font-size: 12px;
+      overflow-y: auto;
     }
 
     &-search-container {
@@ -74,22 +85,54 @@
       height: 28px;
       align-items: center;
       border-bottom: 1px solid #dadfe6;
+      position: sticky;
+      top: 0;
+      background-color: #fff;
+      z-index: 1;
     }
 
     &-search {
-      width: 100%;
+      flex: 1;
       padding-left: 12px;
-      padding-right: 20px;
+      padding-right: 8px;
       border: none;
       color: #666;
       outline: 0;
     }
 
+    &-search-clear {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #999;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 50%;
+      margin-right: 8px;
+      flex-shrink: 0;
+
+      &:hover {
+        background-color: #f5f5f5;
+        color: #666;
+      }
+    }
+
     &-options {
-      max-height: 274px;
-      overflow-y: auto;
-      padding-bottom: 4px;
+      max-height: 302px; /* 增加高度以适应固定搜索框 */
       position: relative;
+      width: fit-content;
+      display: flex;
+      flex-direction: column;
+    }
+
+    &-options-scroll {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 274px; /* 减去搜索框高度 */
+      padding-bottom: 4px;
     }
 
     &-option {
@@ -107,7 +150,7 @@
       background-color: transparent;
       color: #555b66;
       font-weight: 400;
-      width: fit-content;
+      width: 100%;
       min-width: 298.4px;
 
       &:hover {
@@ -121,33 +164,114 @@
     }
 
     &-tooltip {
-      position: absolute;
-      left: 100%;
-      top: 0;
-      margin-left: 8px;
-      padding: 8px 12px;
-      background-color: #333;
-      color: #fff;
+      position: fixed;
+      z-index: 9999;
+      min-width: 70px;
+      max-width: 450px;
+      padding: 12px;
+      border: 1px solid #ebeef5;
       border-radius: 4px;
+      background: #fff;
+      color: #555b66;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
       font-size: 12px;
-      white-space: nowrap;
-      z-index: 1001;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      max-width: 200px;
+      line-height: 1.4;
+      text-align: justify;
       word-break: break-all;
-      line-height: 16px;
+      pointer-events: none;
+      margin-left: 8px;
 
+      // 使用JavaScript动态计算位置
+      // 默认位置设为屏幕外，JavaScript会重新定位
+      left: -9999px;
+      top: -9999px;
+
+      // 默认箭头（指向左侧），使用CSS变量动态定位
       &::before {
         content: '';
         position: absolute;
-        left: -4px;
-        top: 50%;
+        left: -6px;
+        top: var(--arrow-top, 50%);
         transform: translateY(-50%);
         width: 0;
         height: 0;
-        border-top: 4px solid transparent;
-        border-bottom: 4px solid transparent;
-        border-right: 4px solid #333;
+        border-top: 6px solid transparent;
+        border-bottom: 6px solid transparent;
+        border-right: 6px solid #fff;
+        z-index: 1;
+      }
+
+      // 箭头边框，使用CSS变量动态定位
+      &::after {
+        content: '';
+        position: absolute;
+        left: -7px;
+        top: var(--arrow-top, 50%);
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-top: 7px solid transparent;
+        border-bottom: 7px solid transparent;
+        border-right: 7px solid #ebeef5;
+        z-index: 0;
+      }
+
+      // 当tooltip在左侧时，箭头指向右侧
+      &.arrow-right::before {
+        left: auto;
+        right: -6px;
+        border-right: none;
+        border-left: 6px solid #fff;
+      }
+
+      &.arrow-right::after {
+        left: auto;
+        right: -7px;
+        border-right: none;
+        border-left: 7px solid #ebeef5;
+      }
+
+      // tooltip内容样式
+      .cxd-Tpl {
+        color: inherit;
+        font-size: inherit;
+        line-height: inherit;
+      }
+
+      // 处理HTML内容
+      p,
+      div,
+      span {
+        color: inherit;
+        margin: 0;
+        padding: 0;
+      }
+
+      strong,
+      b {
+        font-weight: 600;
+        color: #333;
+      }
+
+      em,
+      i {
+        font-style: italic;
+      }
+
+      ul,
+      ol {
+        margin: 4px 0;
+        padding-left: 16px;
+      }
+
+      li {
+        margin: 2px 0;
+      }
+
+      // 焦点样式
+      &:focus,
+      &:focus:active {
+        outline-width: 0;
       }
     }
 
