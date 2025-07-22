@@ -4,7 +4,9 @@ import {
   RendererProps,
   autobind,
   CustomStyle,
-  setThemeClassName
+  setThemeClassName,
+  resolveEventData,
+  createObject
 } from 'amis-core';
 import { BaseSchema, SchemaClassName } from '../Schema';
 
@@ -265,29 +267,46 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
   }
 
   @autobind
-  handleBackClick(e: React.MouseEvent) {
+  async handleBackClick(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
 
-    const { onAction, data } = this.props;
+    const { dispatchEvent, data } = this.props;
 
-    // 触发返回动作
-    onAction &&
-      onAction(
-        e,
-        {
-          actionType: 'back',
-          args: {
-            data
-          }
-        },
-        data
+    // 触发返回事件
+    if (dispatchEvent) {
+      const rendererEvent = await dispatchEvent(
+        'back',
+        resolveEventData(this.props, data)
       );
+
+      if (rendererEvent?.prevented) {
+        return;
+      }
+    }
   }
 
   @autobind
-  handleFilterChange(value: any) {
-    const { onAction, filter } = this.props;
+  async handleFilterChange(value: any) {
+    const { dispatchEvent, filter, data } = this.props;
+
+    // 触发过滤变化事件
+    if (filter && dispatchEvent) {
+      const eventData = createObject(data, {
+        [filter.name]: value,
+        filterValue: value,
+        filterName: filter.name
+      });
+
+      const rendererEvent = await dispatchEvent(
+        'filterChange',
+        resolveEventData(this.props, eventData)
+      );
+
+      if (rendererEvent?.prevented) {
+        return;
+      }
+    }
 
     this.setState({
       filterValue: value,
@@ -295,22 +314,6 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
       searchText: '', // 选择后清空搜索文本
       hoveredOptionIndex: -1 // 清空悬停状态
     });
-
-    // 触发过滤变化事件
-    if (filter) {
-      onAction &&
-        onAction(
-          null,
-          {
-            actionType: 'filterChange',
-            args: {
-              filterValue: value,
-              filterName: filter.name
-            }
-          },
-          { [filter.name]: value }
-        );
-    }
   }
 
   @autobind
@@ -344,10 +347,29 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
   }
 
   @autobind
-  handleTabChange(index: number) {
-    const { onAction, tabs, mountOnEnter, unmountOnExit } = this.props;
+  async handleTabChange(index: number) {
+    const { dispatchEvent, tabs, mountOnEnter, unmountOnExit, data } = this.props;
     const { mountedTabs } = this.state;
     const activeTab = tabs?.[index];
+
+    // 触发选项卡变化事件
+    if (dispatchEvent) {
+      const eventData = createObject(data, {
+        [this.props.filter?.name || 'filter']: this.state.filterValue,
+        activeTab: activeTab?.key || index,
+        activeTabIndex: index,
+        filterValue: this.state.filterValue
+      });
+
+      const rendererEvent = await dispatchEvent(
+        'tabChange',
+        resolveEventData(this.props, eventData)
+      );
+
+      if (rendererEvent?.prevented) {
+        return;
+      }
+    }
 
     let newMountedTabs = new Set(mountedTabs);
 
@@ -370,24 +392,6 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
     if (activeTab?.hash) {
       window.location.hash = activeTab.hash;
     }
-
-    // 触发选项卡变化事件
-    onAction &&
-      onAction(
-        null,
-        {
-          actionType: 'tabChange',
-          args: {
-            activeTab: activeTab,
-            activeTabIndex: index,
-            filterValue: this.state.filterValue
-          }
-        },
-        {
-          [this.props.filter?.name || 'filter']: this.state.filterValue,
-          activeTab: activeTab?.key || index
-        }
-      );
   }
 
   @autobind
@@ -459,7 +463,6 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
 
         // 计算选项的垂直中心位置
         const optionCenterY = optionRect.top + optionRect.height / 2;
-        console.log('=========== optionCenterY ===========', optionCenterY)
 
         // tooltip的top位置，让箭头指向选项中心
         // 箭头位置在tooltip的垂直中心，所以tooltip的top = 选项中心 - tooltip高度/2
@@ -483,12 +486,15 @@ export default class PageHeader extends React.Component<PageHeaderProps> {
       type: 'icon',
       icon: backIcon,
       className: cx('PageHeader-backIcon'),
-      onClick: this.handleBackClick,
       vendor: ''
     };
 
     return (
-      <div className={cx('PageHeader-back')}>
+      <div
+        className={cx('PageHeader-back')}
+        onClick={this.handleBackClick}
+        style={{ cursor: 'pointer' }}
+      >
         {render('backIcon', iconConfig)}
       </div>
     );

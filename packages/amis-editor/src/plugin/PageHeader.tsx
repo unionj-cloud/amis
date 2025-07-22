@@ -78,7 +78,9 @@ export class PageHeaderPlugin extends BasePlugin {
         body: [
           {
             type: 'tpl',
-            tpl: '列表内容区域，可以放置表格、表单等组件'
+            tpl: '列表内容区域，可以放置表格、表单等组件',
+            inline: true,
+            wrapperComponent: ''
           }
         ]
       },
@@ -88,7 +90,9 @@ export class PageHeaderPlugin extends BasePlugin {
         body: [
           {
             type: 'tpl',
-            tpl: '统计数据展示区域'
+            tpl: '统计数据展示区域',
+            inline: true,
+            wrapperComponent: ''
           }
         ]
       }
@@ -533,66 +537,6 @@ export class PageHeaderPlugin extends BasePlugin {
         title: '外观',
         body: [
           getSchemaTpl('collapseGroup', [
-            {
-              title: '基本',
-              body: [
-                {
-                  name: 'tabsMode',
-                  label: '选项卡样式',
-                  type: 'select',
-                  options: [
-                    {
-                      label: '默认',
-                      value: ''
-                    },
-                    {
-                      label: '线型',
-                      value: 'line'
-                    },
-                    {
-                      label: '简约',
-                      value: 'simple'
-                    },
-                    {
-                      label: '加强',
-                      value: 'strong'
-                    },
-                    {
-                      label: '卡片',
-                      value: 'card'
-                    },
-                    {
-                      label: '仿 Chrome',
-                      value: 'chrome'
-                    },
-                    {
-                      label: '水平铺满',
-                      value: 'tiled'
-                    },
-                    {
-                      label: '选择器',
-                      value: 'radio'
-                    },
-                    {
-                      label: '垂直',
-                      value: 'vertical'
-                    },
-                    {
-                      label: '侧边栏',
-                      value: 'sidebar'
-                    }
-                  ],
-                  pipeIn: defaultValue('')
-                },
-                getSchemaTpl('horizontal-align', {
-                  label: '标题区位置',
-                  name: 'sidePosition',
-                  pipeIn: defaultValue('left'),
-                  visibleOn: 'this.tabsMode === "sidebar"',
-                  clearValueOnHidden: true
-                })
-              ]
-            },
             getSchemaTpl('style:widthHeight', {
               widthSchema: {
                 label: tipedLabel('宽度', '设置宽度后，当前的内容会独占一行')
@@ -671,7 +615,16 @@ export class PageHeaderPlugin extends BasePlugin {
             data: {
               type: 'object',
               title: '下拉框数据',
-              description: '当前下拉框的值'
+              properties: {
+                filterValue: {
+                  type: 'string',
+                  title: '过滤器值'
+                },
+                filterName: {
+                  type: 'string',
+                  title: '过滤器名称'
+                }
+              }
             }
           }
         }
@@ -688,7 +641,36 @@ export class PageHeaderPlugin extends BasePlugin {
             data: {
               type: 'object',
               title: '选项卡数据',
-              description: '当前选项卡信息和下拉框值'
+              properties: {
+                activeTab: {
+                  type: 'string',
+                  title: '当前激活的选项卡'
+                },
+                activeTabIndex: {
+                  type: 'number',
+                  title: '当前激活的选项卡索引'
+                },
+                filterValue: {
+                  type: 'string',
+                  title: '过滤器值'
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      eventName: 'back',
+      eventLabel: '返回按钮点击',
+      description: '点击返回按钮时触发',
+      dataSchema: [
+        {
+          type: 'object',
+          properties: {
+            data: {
+              type: 'object',
+              title: '当前数据上下文'
             }
           }
         }
